@@ -202,9 +202,9 @@ export default function NewInterviewPage() {
         <div className="mb-8">
           <button
             onClick={() => router.back()}
-            className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-6 transition-colors"
+            className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-6 transition-all hover:translate-x-[-4px] group"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="w-4 h-4 mr-2 transition-transform group-hover:translate-x-[-2px]" />
             Volver
           </button>
           
@@ -371,7 +371,7 @@ export default function NewInterviewPage() {
                             <button
                               type="button"
                               onClick={() => addOption(index)}
-                              className="mt-2 text-sm text-violet-600 hover:text-violet-700 font-medium"
+                              className="mt-2 text-sm text-violet-600 hover:text-violet-700 font-medium transition-all hover:translate-x-1"
                             >
                               + Agregar opción
                             </button>
@@ -385,9 +385,9 @@ export default function NewInterviewPage() {
                 <button
                   type="button"
                   onClick={addQuestion}
-                  className="w-full py-4 border-2 border-dashed border-gray-300 rounded-xl text-gray-600 hover:border-violet-400 hover:text-violet-600 transition-all bg-white"
+                  className="w-full py-4 border-2 border-dashed border-gray-300 rounded-xl text-gray-600 hover:border-violet-400 hover:text-violet-600 transition-all bg-white hover:bg-violet-50 group"
                 >
-                  <Plus className="w-5 h-5 mx-auto mb-1" />
+                  <Plus className="w-5 h-5 mx-auto mb-1 transition-transform group-hover:scale-110" />
                   Agregar otra pregunta
                 </button>
               </div>

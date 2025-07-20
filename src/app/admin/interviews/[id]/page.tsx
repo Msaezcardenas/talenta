@@ -96,9 +96,9 @@ export default function InterviewDetailPage() {
       <div className="mb-8">
         <button
           onClick={() => router.back()}
-          className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-6 transition-colors"
+          className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-6 transition-all hover:translate-x-[-4px] group"
         >
-          <ArrowLeft className="w-4 h-4 mr-2" />
+          <ArrowLeft className="w-4 h-4 mr-2 transition-transform group-hover:translate-x-[-2px]" />
           Volver
         </button>
 
@@ -112,9 +112,9 @@ export default function InterviewDetailPage() {
             </div>
             <button
               onClick={() => router.push(`/admin/interviews/${id}/edit`)}
-              className="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+              className="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-all hover:scale-105 hover:shadow-md group"
             >
-              <Edit className="w-4 h-4 mr-2" />
+              <Edit className="w-4 h-4 mr-2 group-hover:text-violet-600 transition-colors" />
               Editar
             </button>
           </div>
