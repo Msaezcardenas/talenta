@@ -9,7 +9,6 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [redirecting, setRedirecting] = useState(false)
   const supabase = createClientComponentClient()
   const router = useRouter()
 
@@ -21,7 +20,16 @@ export default function AdminLoginPage() {
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession()
     if (session) {
-      router.push('/admin/dashboard')
+      // Verificar rol admin
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', session.user.id)
+        .single()
+      
+      if (profile?.role === 'admin') {
+        router.push('/admin/dashboard')
+      }
     }
   }
 
@@ -53,11 +61,10 @@ export default function AdminLoginPage() {
         }
 
         if (profile?.role === 'admin') {
-          setRedirecting(true)
-          // Pequeña espera para asegurar que la sesión se establezca
-          setTimeout(() => {
-            router.push('/admin/dashboard')
-          }, 500)
+          // Refrescar el router antes de redirigir
+          router.refresh()
+          // Usar replace en lugar de push para evitar problemas de historial
+          router.replace('/admin/dashboard')
         } else {
           await supabase.auth.signOut()
           throw new Error('No tienes permisos de administrador')
@@ -67,17 +74,6 @@ export default function AdminLoginPage() {
       setError(error.message || 'Error al iniciar sesión')
       setLoading(false)
     }
-  }
-
-  if (redirecting) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-violet-50 to-purple-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Redirigiendo al dashboard...</p>
-        </div>
-      </div>
-    )
   }
 
   return (
