@@ -24,3 +24,18 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Cursor pointer para elementos interactivos */
+button:not([disabled]) {
+  cursor: pointer;
+}
+
+/* Animación suave para íconos en hover */
+button svg {
+  transition: transform 0.2s ease;
+}
+
+/* Cursor pointer para enlaces y elementos clickeables */
+a, [role="button"] {
+  cursor: pointer;
+}

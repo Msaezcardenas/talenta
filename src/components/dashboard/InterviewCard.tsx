@@ -24,11 +24,11 @@ export function InterviewCard({
   const router = useRouter()
 
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:border-gray-200 transition-all group">
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
-            <h3 className="font-semibold text-gray-900">{title}</h3>
+            <h3 className="font-semibold text-gray-900 group-hover:text-violet-600 transition-colors">{title}</h3>
             <span
               className={`px-2.5 py-1 rounded-full text-xs font-medium ${
                 status === 'active'
@@ -49,13 +49,13 @@ export function InterviewCard({
           </div>
         </div>
         <div className="text-right">
-          <div className="text-2xl font-bold text-gray-900">{completionRate}%</div>
+          <div className="text-2xl font-bold text-gray-900 group-hover:text-violet-600 transition-colors">{completionRate}%</div>
           <p className="text-sm text-gray-500">completado</p>
         </div>
       </div>
       <button
         onClick={() => router.push(`/admin/interviews/${id}`)}
-        className="w-full mt-4 py-2.5 px-4 bg-gray-50 hover:bg-gray-100 rounded-lg font-medium text-sm text-gray-700 transition-colors"
+        className="w-full mt-4 py-2.5 px-4 bg-gray-50 hover:bg-violet-100 hover:text-violet-700 rounded-lg font-medium text-sm text-gray-700 transition-all cursor-pointer hover:scale-[1.02]"
       >
         Ver detalles
       </button>

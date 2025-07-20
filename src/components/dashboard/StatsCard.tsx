@@ -23,14 +23,14 @@ export function StatsCard({
   const isPositive = change > 0
 
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:border-gray-200 transition-all group">
       <div className="flex items-center justify-between mb-4">
         <div>
           <p className="text-gray-600 text-sm font-medium">{title}</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{value}</p>
+          <p className="text-3xl font-bold text-gray-900 mt-1 group-hover:text-violet-600 transition-colors">{value}</p>
         </div>
-        <div className={`p-3 rounded-lg ${iconBg}`}>
-          <div className={iconColor}>{icon}</div>
+        <div className={`p-3 rounded-lg ${iconBg} transition-transform group-hover:scale-110`}>
+          <div className={`${iconColor} transition-transform group-hover:scale-110`}>{icon}</div>
         </div>
       </div>
       <div className="flex items-center gap-2">
