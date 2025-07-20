@@ -66,8 +66,8 @@ export default function NewInterviewPage() {
     
     if (updates.type === 'multiple_choice' && !updatedQuestions[index].options?.length) {
       updatedQuestions[index].options = [
-        { label: 'Opción 1', value: 'option1' },
-        { label: 'Opción 2', value: 'option2' }
+        { label: '', value: 'option1' },
+        { label: '', value: 'option2' }
       ]
     }
     
@@ -85,7 +85,7 @@ export default function NewInterviewPage() {
     if (!question.options) return
     
     const newOption = {
-      label: `Opción ${question.options.length + 1}`,
+      label: '',
       value: `option${question.options.length + 1}`
     }
     
@@ -130,6 +130,17 @@ export default function NewInterviewPage() {
       return
     }
 
+    // Validar opciones múltiples
+    for (const question of questions) {
+      if (question.type === 'multiple_choice' && question.options) {
+        const validOptions = question.options.filter(opt => opt.label.trim())
+        if (validOptions.length < 2) {
+          toast.error('Las preguntas de selección múltiple deben tener al menos 2 opciones')
+          return
+        }
+      }
+    }
+
     if (!user) {
       toast.error('No hay usuario autenticado')
       router.push('/admin/login')
@@ -156,7 +167,9 @@ export default function NewInterviewPage() {
         interview_id: interview.id,
         question_text: q.question_text.trim(),
         type: q.type,
-        options: q.type === 'multiple_choice' ? q.options : null,
+        options: q.type === 'multiple_choice' && q.options 
+          ? q.options.filter(opt => opt.label.trim()).map(opt => ({ ...opt, label: opt.label.trim() }))
+          : null,
         order_index: q.order_index
       }))
       
