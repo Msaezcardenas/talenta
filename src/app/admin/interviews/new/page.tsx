@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Plus, Trash2 } from 'lucide-react'
+import { ArrowLeft, Plus, Trash2, Video, FileText, CheckSquare, MessageSquare, List } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface Question {
@@ -13,6 +13,12 @@ interface Question {
   options?: { label: string; value: string }[]
   order_index: number
 }
+
+const questionTypes = [
+  { value: 'text', label: 'Texto', icon: MessageSquare, color: 'blue' },
+  { value: 'video', label: 'Video', icon: Video, color: 'purple' },
+  { value: 'multiple_choice', label: 'Selección Múltiple', icon: List, color: 'green' }
+]
 
 export default function NewInterviewPage() {
   const [name, setName] = useState('')
@@ -58,7 +64,6 @@ export default function NewInterviewPage() {
     const updatedQuestions = [...questions]
     updatedQuestions[index] = { ...updatedQuestions[index], ...updates }
     
-    // Si cambia a multiple_choice, inicializar opciones
     if (updates.type === 'multiple_choice' && !updatedQuestions[index].options?.length) {
       updatedQuestions[index].options = [
         { label: 'Opción 1', value: 'option1' },
@@ -71,7 +76,6 @@ export default function NewInterviewPage() {
 
   const removeQuestion = (index: number) => {
     const filtered = questions.filter((_, i) => i !== index)
-    // Reajustar order_index
     const reordered = filtered.map((q, i) => ({ ...q, order_index: i }))
     setQuestions(reordered)
   }
@@ -112,7 +116,7 @@ export default function NewInterviewPage() {
     e.preventDefault()
     
     if (!name.trim()) {
-      toast.error('El nombre de la entrevista es requerido')
+      toast.error('El nombre del proceso es requerido')
       return
     }
     
@@ -133,10 +137,9 @@ export default function NewInterviewPage() {
     }
     
     setSaving(true)
-    const loadingToast = toast.loading('Creando entrevista...')
+    const loadingToast = toast.loading('Creando proceso...')
     
     try {
-      // Crear la entrevista
       const { data: interview, error: interviewError } = await supabase
         .from('interviews')
         .insert({
@@ -149,7 +152,6 @@ export default function NewInterviewPage() {
       
       if (interviewError) throw interviewError
       
-      // Crear las preguntas
       const questionsToInsert = questions.map(q => ({
         interview_id: interview.id,
         question_text: q.question_text.trim(),
@@ -165,199 +167,239 @@ export default function NewInterviewPage() {
       if (questionsError) throw questionsError
       
       toast.dismiss(loadingToast)
-      toast.success('Entrevista creada exitosamente')
+      toast.success('Proceso creado exitosamente')
       router.push('/admin/interviews')
     } catch (error: any) {
       console.error('Error creating interview:', error)
       toast.dismiss(loadingToast)
-      toast.error(error.message || 'Error al crear la entrevista')
+      toast.error(error.message || 'Error al crear el proceso')
     } finally {
       setSaving(false)
     }
   }
 
-  return (
-    <div className="max-w-4xl mx-auto py-8">
-      {/* Header */}
-      <div className="mb-8">
-        <button
-          onClick={() => router.back()}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Volver
-        </button>
-        <h1 className="text-3xl font-bold text-gray-900">Nueva Entrevista</h1>
-        <p className="text-gray-600 mt-2">Crea una nueva plantilla de entrevista</p>
-      </div>
+  const getQuestionTypeInfo = (type: string) => {
+    return questionTypes.find(t => t.value === type) || questionTypes[0]
+  }
 
-      <form onSubmit={handleSubmit} className="space-y-8">
-        {/* Información básica */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Información Básica</h2>
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-5xl mx-auto px-4">
+        {/* Header */}
+        <div className="mb-8">
+          <button
+            onClick={() => router.back()}
+            className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-6 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Volver
+          </button>
           
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nombre de la entrevista *
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
-                placeholder="Ej: Entrevista para Desarrollador Frontend"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Descripción
-              </label>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
-                placeholder="Describe el propósito y contexto de esta entrevista..."
-              />
-            </div>
+          <div className="bg-white rounded-2xl shadow-sm p-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Crear Nuevo Proceso
+            </h1>
+            <p className="text-gray-600">Define las características del puesto y las preguntas de evaluación</p>
           </div>
         </div>
 
-        {/* Preguntas */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Preguntas</h2>
-            <button
-              type="button"
-              onClick={addQuestion}
-              className="flex items-center gap-2 px-3 py-1.5 bg-violet-600 hover:bg-violet-700 text-white rounded-lg text-sm font-medium transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              Agregar Pregunta
-            </button>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Información Básica */}
+          <div className="bg-white rounded-2xl shadow-sm p-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+              <FileText className="w-6 h-6 mr-2 text-violet-600" />
+              Información del Proceso
+            </h2>
+            
+            <div className="grid gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Nombre del Cargo
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all text-gray-900 placeholder-gray-400"
+                  placeholder="Ej: Desarrollador Full Stack"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Descripción
+                </label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={4}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all resize-none text-gray-900 placeholder-gray-400"
+                  placeholder="Describe las responsabilidades, requisitos y lo que ofreces..."
+                />
+              </div>
+            </div>
           </div>
 
-          {questions.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-gray-500 mb-4">No hay preguntas agregadas</p>
+          {/* Preguntas */}
+          <div className="bg-white rounded-2xl shadow-sm p-8">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold text-gray-900 flex items-center">
+                <CheckSquare className="w-6 h-6 mr-2 text-violet-600" />
+                Preguntas de Evaluación
+              </h2>
               <button
                 type="button"
                 onClick={addQuestion}
-                className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all shadow-sm"
               >
-                <Plus className="w-4 h-4" />
-                Agregar primera pregunta
+                <Plus className="w-4 h-4 mr-2" />
+                Agregar Pregunta
               </button>
             </div>
-          ) : (
-            <div className="space-y-4">
-              {questions.map((question, index) => (
-                <div key={question.id} className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex justify-between items-start mb-3">
-                    <span className="text-sm font-medium text-gray-500">
-                      Pregunta {index + 1}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => removeQuestion(index)}
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
 
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Texto de la pregunta *
-                      </label>
-                      <textarea
-                        value={question.question_text}
-                        onChange={(e) => updateQuestion(index, { question_text: e.target.value })}
-                        rows={2}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
-                        placeholder="Escribe tu pregunta aquí..."
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Tipo de respuesta
-                      </label>
-                      <select
-                        value={question.type}
-                        onChange={(e) => updateQuestion(index, { type: e.target.value as Question['type'] })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
-                      >
-                        <option value="text">Texto</option>
-                        <option value="video">Video</option>
-                        <option value="multiple_choice">Opción múltiple</option>
-                      </select>
-                    </div>
-
-                    {question.type === 'multiple_choice' && question.options && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Opciones
-                        </label>
-                        <div className="space-y-2">
-                          {question.options.map((option, optionIndex) => (
-                            <div key={optionIndex} className="flex items-center gap-2">
-                              <input
-                                type="text"
-                                value={option.label}
-                                onChange={(e) => updateOption(index, optionIndex, e.target.value)}
-                                className="flex-1 px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
-                                placeholder={`Opción ${optionIndex + 1}`}
-                              />
-                              {question.options!.length > 2 && (
-                                <button
-                                  type="button"
-                                  onClick={() => removeOption(index, optionIndex)}
-                                  className="text-red-600 hover:text-red-700"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              )}
-                            </div>
-                          ))}
-                          <button
-                            type="button"
-                            onClick={() => addOption(index)}
-                            className="text-sm text-violet-600 hover:text-violet-700 font-medium"
-                          >
-                            + Agregar opción
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
+            {questions.length === 0 ? (
+              <div className="text-center py-16 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-dashed border-gray-300">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-200 rounded-full mb-4">
+                  <MessageSquare className="w-8 h-8 text-gray-500" />
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+                <p className="text-gray-600 mb-4">No hay preguntas agregadas aún</p>
+                <button
+                  type="button"
+                  onClick={addQuestion}
+                  className="inline-flex items-center px-6 py-3 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors shadow-sm"
+                >
+                  <Plus className="w-5 h-5 mr-2" />
+                  Crear Primera Pregunta
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {questions.map((question, index) => {
+                  const typeInfo = getQuestionTypeInfo(question.type)
+                  const Icon = typeInfo.icon
+                  
+                  return (
+                    <div key={question.id} className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200">
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="flex items-center space-x-3">
+                          <div className={`w-10 h-10 rounded-lg bg-${typeInfo.color}-100 flex items-center justify-center`}>
+                            <Icon className={`w-5 h-5 text-${typeInfo.color}-600`} />
+                          </div>
+                          <div>
+                            <h3 className="font-medium text-gray-900">Pregunta {index + 1}</h3>
+                            <p className="text-sm text-gray-500">{typeInfo.label}</p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeQuestion(index)}
+                          className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-all"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
 
-        {/* Botones de acción */}
-        <div className="flex justify-end gap-4">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium transition-colors"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            disabled={saving}
-            className="px-6 py-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {saving ? 'Creando...' : 'Crear Entrevista'}
-          </button>
-        </div>
-      </form>
+                      <div className="space-y-4">
+                        <textarea
+                          value={question.question_text}
+                          onChange={(e) => updateQuestion(index, { question_text: e.target.value })}
+                          rows={2}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all text-gray-900 placeholder-gray-400"
+                          placeholder="Escribe tu pregunta aquí..."
+                        />
+
+                        <div className="flex gap-2">
+                          {questionTypes.map((type) => {
+                            const TypeIcon = type.icon
+                            return (
+                              <button
+                                key={type.value}
+                                type="button"
+                                onClick={() => updateQuestion(index, { type: type.value as Question['type'] })}
+                                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg border-2 transition-all ${
+                                  question.type === type.value
+                                    ? 'border-violet-500 bg-violet-50 text-violet-700'
+                                    : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                                }`}
+                              >
+                                <TypeIcon className="w-4 h-4" />
+                                <span className="text-sm font-medium">{type.label}</span>
+                              </button>
+                            )
+                          })}
+                        </div>
+
+                        {question.type === 'multiple_choice' && question.options && (
+                          <div className="mt-4 space-y-2">
+                            <label className="text-sm font-medium text-gray-700">Opciones de respuesta</label>
+                            {question.options.map((option, optionIndex) => (
+                              <div key={optionIndex} className="flex items-center gap-2">
+                                <div className="w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center flex-shrink-0">
+                                  <span className="text-xs font-medium text-violet-600">{String.fromCharCode(65 + optionIndex)}</span>
+                                </div>
+                                <input
+                                  type="text"
+                                  value={option.label}
+                                  onChange={(e) => updateOption(index, optionIndex, e.target.value)}
+                                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-gray-900 placeholder-gray-400"
+                                  placeholder={`Opción ${optionIndex + 1}`}
+                                />
+                                {question.options!.length > 2 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => removeOption(index, optionIndex)}
+                                    className="text-red-500 hover:text-red-700 p-1"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                )}
+                              </div>
+                            ))}
+                            <button
+                              type="button"
+                              onClick={() => addOption(index)}
+                              className="mt-2 text-sm text-violet-600 hover:text-violet-700 font-medium"
+                            >
+                              + Agregar opción
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+                
+                <button
+                  type="button"
+                  onClick={addQuestion}
+                  className="w-full py-4 border-2 border-dashed border-gray-300 rounded-xl text-gray-600 hover:border-violet-400 hover:text-violet-600 transition-all bg-white"
+                >
+                  <Plus className="w-5 h-5 mx-auto mb-1" />
+                  Agregar otra pregunta
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Acciones */}
+          <div className="flex justify-end gap-4">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="px-6 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 font-medium transition-all"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="px-8 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white font-medium rounded-xl hover:from-violet-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
+            >
+              {saving ? 'Creando...' : 'Crear Proceso'}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   )
 } 
