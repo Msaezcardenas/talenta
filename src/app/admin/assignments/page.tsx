@@ -47,13 +47,6 @@ export default function AssignmentsPage() {
     }
   }
 
-  const generateToken = () => {
-    // Generar un token único y seguro
-    return Array.from(crypto.getRandomValues(new Uint8Array(32)))
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('')
-  }
-
   const handleAssign = async () => {
     if (!selectedInterview || selectedCandidates.length === 0) {
       toast.error('Por favor selecciona una entrevista y al menos un candidato')
@@ -67,12 +60,11 @@ export default function AssignmentsPage() {
       // Obtener información de la entrevista
       const interview = interviews.find(i => i.id === selectedInterview)
       
-      // Crear asignaciones con tokens únicos
+      // Crear asignaciones (usando el esquema original sin access_token)
       const assignments = selectedCandidates.map(candidateId => ({
         interview_id: selectedInterview,
         user_id: candidateId,
-        status: 'pending',
-        access_token: generateToken()
+        status: 'pending'
       }))
 
       const { data: assignmentData, error } = await supabase
@@ -82,7 +74,7 @@ export default function AssignmentsPage() {
 
       if (error) throw error
 
-      // Preparar los links generados
+      // Preparar los links generados usando el ID de assignment como token
       const links = []
       
       // Enviar emails a cada candidato
@@ -91,7 +83,7 @@ export default function AssignmentsPage() {
         const candidate = candidates.find(c => c.id === assignment.user_id)
         
         if (candidate) {
-          // Enviar email
+          // Enviar email usando el ID de assignment como token
           const response = await fetch('/api/send-interview-invitation', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -100,7 +92,7 @@ export default function AssignmentsPage() {
               candidateEmail: candidate.email,
               candidateName: `${candidate.first_name || ''} ${candidate.last_name || ''}`.trim(),
               interviewTitle: interview?.name || 'Entrevista',
-              token: assignment.access_token
+              token: assignment.id // Usar el ID como token
             })
           })
 
@@ -281,7 +273,8 @@ export default function AssignmentsPage() {
         {/* Nota informativa */}
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
           <p className="text-sm text-amber-800">
-            <strong>Nota:</strong> Los candidatos recibirán un enlace único por correo electrónico para acceder a su entrevista sin necesidad de crear una cuenta.
+            <strong>Nota:</strong> Los candidatos recibirán un enlace único por correo electrónico para acceder a su entrevista. 
+            El enlace utiliza el ID de asignación como identificador único.
           </p>
         </div>
       </div>
