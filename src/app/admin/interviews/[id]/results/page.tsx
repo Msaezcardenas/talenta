@@ -191,36 +191,36 @@ export default function InterviewResultsPage() {
           <p className="text-gray-600">Los resultados aparecerán aquí cuando los candidatos completen sus entrevistas</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Lista de candidatos */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Lista de candidatos - más compacta */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-xl shadow-sm">
-              <div className="p-4 border-b border-gray-200">
-                <h2 className="font-semibold text-gray-900">Candidatos</h2>
+              <div className="p-3 border-b border-gray-200">
+                <h2 className="font-semibold text-gray-900 text-sm">Candidatos</h2>
               </div>
-              <div className="divide-y divide-gray-200">
+              <div className="divide-y divide-gray-100 max-h-[calc(100vh-300px)] overflow-y-auto">
                 {assignments.map((assignment) => (
                   <button
                     key={assignment.id}
                     onClick={() => setSelectedAssignment(assignment)}
-                    className={`w-full p-4 text-left hover:bg-gray-50 transition-colors ${
+                    className={`w-full p-3 text-left hover:bg-gray-50 transition-colors ${
                       selectedAssignment?.id === assignment.id ? 'bg-violet-50 border-l-4 border-violet-600' : ''
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-r from-violet-500 to-purple-500 rounded-full flex items-center justify-center text-white font-medium">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-gradient-to-r from-violet-500 to-purple-500 rounded-full flex items-center justify-center text-white font-medium text-sm flex-shrink-0">
                         {assignment.user.first_name?.charAt(0) || assignment.user.email.charAt(0).toUpperCase()}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-gray-900 truncate">
+                        <p className="font-medium text-gray-900 text-sm truncate">
                           {assignment.user.first_name && assignment.user.last_name
                             ? `${assignment.user.first_name} ${assignment.user.last_name}`
-                            : assignment.user.email}
+                            : assignment.user.email.split('@')[0]}
                         </p>
-                        <p className="text-sm text-gray-500 truncate">{assignment.user.email}</p>
+                        <p className="text-xs text-gray-500 truncate">{assignment.user.email}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
+                    <div className="flex items-center gap-1 mt-1 text-xs text-gray-400 pl-10">
                       <Calendar className="w-3 h-3" />
                       {new Date(assignment.assigned_at).toLocaleDateString('es-ES')}
                     </div>
@@ -231,7 +231,7 @@ export default function InterviewResultsPage() {
           </div>
 
           {/* Respuestas del candidato seleccionado */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-3">
             {selectedAssignment ? (
               <div className="bg-white rounded-xl shadow-sm">
                 <div className="p-6 border-b border-gray-200">
@@ -288,18 +288,42 @@ export default function InterviewResultsPage() {
                                     {question.type === 'video' && (
                                       <div>
                                         {response.data.video_url ? (
-                                          <div className="space-y-4">
-                                            <video
-                                              src={response.data.video_url}
-                                              controls
-                                              className="w-full rounded-lg max-h-96"
-                                            />
-                                            {response.data.transcription && (
-                                              <div className="p-4 bg-gray-50 rounded-lg">
-                                                <p className="text-sm font-medium text-gray-700 mb-2">Transcripción:</p>
-                                                <p className="text-sm text-gray-600">{response.data.transcription}</p>
-                                              </div>
-                                            )}
+                                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                            {/* Video */}
+                                            <div>
+                                              <video
+                                                src={response.data.video_url}
+                                                controls
+                                                className="w-full rounded-lg"
+                                                style={{ maxHeight: '400px' }}
+                                              />
+                                            </div>
+                                            
+                                            {/* Transcripción */}
+                                            <div className="bg-gray-50 rounded-lg p-4">
+                                              <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                                <MessageSquare className="w-4 h-4" />
+                                                Transcripción
+                                              </h4>
+                                              {response.data.transcription ? (
+                                                <p className="text-sm text-gray-700 leading-relaxed">
+                                                  {response.data.transcription}
+                                                </p>
+                                              ) : response.data.processing_status === 'processing' ? (
+                                                <div className="flex items-center gap-2 text-sm text-amber-600">
+                                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-amber-600"></div>
+                                                  Procesando transcripción...
+                                                </div>
+                                              ) : response.data.processing_status === 'failed' ? (
+                                                <p className="text-sm text-red-600">
+                                                  Error al procesar la transcripción
+                                                </p>
+                                              ) : (
+                                                <p className="text-sm text-gray-500 italic">
+                                                  Transcripción no disponible
+                                                </p>
+                                              )}
+                                            </div>
                                           </div>
                                         ) : (
                                           <p className="text-gray-500">Sin video</p>
