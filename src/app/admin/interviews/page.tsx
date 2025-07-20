@@ -194,31 +194,31 @@ export default function InterviewsPage() {
       {/* Modal de confirmación de eliminación */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl max-w-md w-full p-6">
-            <div className="flex items-center justify-center w-12 h-12 bg-red-100 rounded-full mx-auto mb-4">
-              <AlertTriangle className="w-6 h-6 text-red-600" />
+          <div className="bg-white rounded-2xl max-w-md w-full p-8 shadow-2xl">
+            <div className="flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mx-auto mb-6">
+              <AlertTriangle className="w-8 h-8 text-red-600" />
             </div>
             
-            <h3 className="text-lg font-semibold text-gray-900 text-center mb-2">
+            <h3 className="text-xl font-bold text-gray-900 text-center mb-3">
               ¿Eliminar entrevista?
             </h3>
             
-            <p className="text-gray-600 text-center mb-6">
-              Estás a punto de eliminar <strong>"{interviewToDelete?.name}"</strong>. 
+            <p className="text-gray-600 text-center mb-8 px-4">
+              Estás a punto de eliminar <span className="font-semibold text-gray-900">"{interviewToDelete?.name}"</span>. 
               Esta acción no se puede deshacer y eliminará todas las preguntas asociadas.
             </p>
             
-            <div className="flex gap-3">
+            <div className="flex gap-4">
               <button
                 onClick={() => setShowDeleteModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium transition-all"
+                className="flex-1 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium transition-all"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleDeleteConfirm}
                 disabled={deletingId !== null}
-                className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
               >
                 {deletingId ? 'Eliminando...' : 'Eliminar'}
               </button>
