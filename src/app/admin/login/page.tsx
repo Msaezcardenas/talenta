@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useRouter } from 'next/navigation'
+import toast from 'react-hot-toast'
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('')
@@ -97,8 +98,13 @@ export default function AdminLoginPage() {
 
         console.log('[Login] User is admin, redirecting to dashboard...')
         
-        // Usar window.location para asegurar una recarga completa
-        window.location.href = '/admin/dashboard'
+        // Mostrar toast de éxito
+        toast.success('¡Bienvenido a Talium!')
+        
+        // Pequeña espera para que se vea el toast
+        setTimeout(() => {
+          window.location.href = '/admin/dashboard'
+        }, 1000)
       }
     } catch (error: any) {
       console.error('[Login] Error:', error)

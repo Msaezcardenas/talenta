@@ -1,175 +1,141 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
-import { Plus, Search, Edit, Trash2, Users } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
-import { InterviewWithQuestions } from '@/lib/types/database'
-
-interface InterviewWithCount extends InterviewWithQuestions {
-  assignmentsCount: number
-}
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { useRouter } from 'next/navigation'
+import { Plus, Eye, Edit, Trash2 } from 'lucide-react'
 
 export default function InterviewsPage() {
-  const [interviews, setInterviews] = useState<InterviewWithCount[]>([])
+  const [interviews, setInterviews] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [deleting, setDeleting] = useState<string | null>(null)
+  const supabase = createClientComponentClient()
+  const router = useRouter()
 
   useEffect(() => {
-    fetchInterviews()
+    loadInterviews()
   }, [])
 
-  const fetchInterviews = async () => {
+  const loadInterviews = async () => {
     try {
-      const supabase = createClient()
-      
-      const { data: interviewsData, error } = await supabase
+      const { data, error } = await supabase
         .from('interviews')
-        .select(`
-          *,
-          questions(*)
-        `)
+        .select('*')
         .order('created_at', { ascending: false })
 
       if (error) throw error
-
-      // Count assignments for each interview
-      const interviewsWithCounts = await Promise.all(
-        interviewsData.map(async (interview) => {
-          const { count } = await supabase
-            .from('assignments')
-            .select('*', { count: 'exact', head: true })
-            .eq('interview_id', interview.id)
-          
-          return {
-            ...interview,
-            assignmentsCount: count || 0
-          }
-        })
-      )
-
-      setInterviews(interviewsWithCounts)
+      setInterviews(data || [])
     } catch (error) {
-      console.error('Error fetching interviews:', error)
+      console.error('Error loading interviews:', error)
     } finally {
       setLoading(false)
     }
   }
 
-  const handleDelete = async (interviewId: string) => {
-    if (!confirm('¿Estás seguro de que deseas eliminar esta entrevista?')) return
-    
-    setDeleting(interviewId)
-    try {
-      const supabase = createClient()
-      const { error } = await supabase
-        .from('interviews')
-        .delete()
-        .eq('id', interviewId)
-      
-      if (error) throw error
-      
-      // Refresh interviews
-      await fetchInterviews()
-    } catch (error) {
-      console.error('Error deleting interview:', error)
-      alert('Error al eliminar la entrevista')
-    } finally {
-      setDeleting(null)
-    }
-  }
-
   if (loading) {
     return (
-      <div className="flex h-[calc(100vh-8rem)] items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin h-12 w-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando entrevistas...</p>
-        </div>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 py-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Entrevistas</h1>
-          <p className="mt-1 text-sm text-gray-600">
-            Gestiona las pruebas y procesos de selección
-          </p>
+          <h1 className="text-3xl font-bold text-gray-900">Entrevistas</h1>
+          <p className="text-gray-600 mt-2">Gestiona tus plantillas de entrevista</p>
         </div>
-        <Link
-          href="/admin/interviews/new"
-          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+        <button
+          onClick={() => router.push('/admin/interviews/new')}
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white rounded-lg font-medium transition-all shadow-md"
         >
-          <Plus className="w-5 h-5 mr-2" />
-          Crear Nueva Entrevista
-        </Link>
+          <Plus className="w-4 h-4" />
+          Nueva Entrevista
+        </button>
       </div>
 
-      {/* Interviews Grid */}
-      {interviews.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500">No se encontraron entrevistas</p>
-        </div>
-      ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {interviews.map((interview: InterviewWithCount) => (
-            <div
-              key={interview.id}
-              className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
-            >
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-lg font-medium text-gray-900 line-clamp-2">
-                  {interview.name}
-                </h3>
-                <div className="flex space-x-2">
-                  <Link 
-                    href={`/admin/interviews/${interview.id}/edit`}
-                    className="text-gray-400 hover:text-gray-600"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </Link>
-                  <button 
-                    onClick={() => handleDelete(interview.id)}
-                    disabled={deleting === interview.id}
-                    className="text-gray-400 hover:text-red-600 disabled:opacity-50"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-              
-              {interview.description && (
-                <p className="text-sm text-gray-600 mb-4 line-clamp-3">
-                  {interview.description}
-                </p>
-              )}
-
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-500">
-                  {interview.questions?.length || 0} preguntas
-                </span>
-                <div className="flex items-center text-gray-500">
-                  <Users className="w-4 h-4 mr-1" />
-                  <span>{interview.assignmentsCount} candidatos</span>
-                </div>
-              </div>
-
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <Link
-                  href={`/admin/interviews/${interview.id}`}
-                  className="text-sm font-medium text-purple-600 hover:text-purple-700"
-                >
-                  Ver detalles →
-                </Link>
-              </div>
+      {/* Lista de entrevistas */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+        {interviews.length === 0 ? (
+          <div className="p-12 text-center">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <FileText className="w-8 h-8 text-gray-400" />
             </div>
-          ))}
-        </div>
-      )}
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No hay entrevistas</h3>
+            <p className="text-gray-600 mb-4">Crea tu primera plantilla de entrevista</p>
+            <button
+              onClick={() => router.push('/admin/interviews/new')}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-medium transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Crear Entrevista
+            </button>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Nombre
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Descripción
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Fecha
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Acciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {interviews.map((interview) => (
+                  <tr key={interview.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">{interview.name}</div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-600">{interview.description || 'Sin descripción'}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-600">
+                        {new Date(interview.created_at).toLocaleDateString('es-ES')}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <button
+                        onClick={() => router.push(`/admin/interviews/${interview.id}`)}
+                        className="text-violet-600 hover:text-violet-900 mr-3"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => router.push(`/admin/interviews/${interview.id}/edit`)}
+                        className="text-blue-600 hover:text-blue-900 mr-3"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => {/* Implementar eliminar */}}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   )
-} 
+}
+
+// Importar FileText que faltaba
+import { FileText } from 'lucide-react' 

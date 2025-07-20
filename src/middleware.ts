@@ -5,8 +5,8 @@ import type { NextRequest } from 'next/server'
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
   
-  // TEMPORAL: Skip middleware completamente para debugging
-  // Esto permite que las rutas del admin funcionen mientras solucionamos el problema de cookies
+  // TEMPORAL: Skip middleware para todas las rutas admin excepto login
+  // Esto permite que la navegación funcione mientras solucionamos el problema de cookies
   if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
     console.log(`[Middleware] SKIPPING auth check for ${pathname} - TEMPORAL`)
     return NextResponse.next()
@@ -18,6 +18,11 @@ export async function middleware(request: NextRequest) {
   }
 
   console.log(`[Middleware] Processing: ${pathname}`)
+
+  // Para la página de login, permitir siempre
+  if (pathname === '/admin/login') {
+    return NextResponse.next()
+  }
 
   let response = NextResponse.next({
     request: {
