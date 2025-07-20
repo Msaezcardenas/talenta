@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useRouter } from 'next/navigation'
-import { Plus, Eye, Edit, Trash2, AlertTriangle } from 'lucide-react'
+import { Plus, Eye, Edit, Trash2, AlertTriangle, Users, FileText } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 export default function InterviewsPage() {
@@ -12,6 +12,7 @@ export default function InterviewsPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [interviewToDelete, setInterviewToDelete] = useState<any>(null)
+  const [completedCounts, setCompletedCounts] = useState<Record<string, number>>({})
   const supabase = createClientComponentClient()
   const router = useRouter()
 
@@ -28,6 +29,21 @@ export default function InterviewsPage() {
 
       if (error) throw error
       setInterviews(data || [])
+      
+      // Cargar conteo de completadas para cada entrevista
+      if (data) {
+        const counts: Record<string, number> = {}
+        for (const interview of data) {
+          const { count } = await supabase
+            .from('assignments')
+            .select('*', { count: 'exact', head: true })
+            .eq('interview_id', interview.id)
+            .eq('status', 'completed')
+          
+          counts[interview.id] = count || 0
+        }
+        setCompletedCounts(counts)
+      }
     } catch (error) {
       console.error('Error loading interviews:', error)
       toast.error('Error al cargar las entrevistas')
@@ -140,6 +156,9 @@ export default function InterviewsPage() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Fecha
                   </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Candidatos Completados
+                  </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Acciones
                   </th>
@@ -159,11 +178,18 @@ export default function InterviewsPage() {
                         {new Date(interview.created_at).toLocaleDateString('es-ES')}
                       </div>
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <Users className="w-4 h-4 text-gray-400" />
+                        <span className="text-sm font-medium text-gray-900">{completedCounts[interview.id] || 0}</span>
+                        <span className="text-sm text-gray-500">completadas</span>
+                      </div>
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
-                        onClick={() => router.push(`/admin/interviews/${interview.id}`)}
+                        onClick={() => router.push(`/admin/interviews/${interview.id}/results`)}
                         className="text-violet-600 hover:text-violet-900 hover:bg-violet-50 p-2 rounded-lg transition-all mr-1"
-                        title="Ver detalles"
+                        title="Ver resultados"
                       >
                         <Eye className="w-4 h-4" />
                       </button>
@@ -228,7 +254,4 @@ export default function InterviewsPage() {
       )}
     </div>
   )
-}
-
-// Importar FileText que faltaba
-import { FileText } from 'lucide-react' 
+} 

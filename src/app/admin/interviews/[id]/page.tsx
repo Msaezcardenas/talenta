@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, FileText, Video, MessageSquare, List, Users, Calendar, Edit } from 'lucide-react'
+import { ArrowLeft, FileText, Video, MessageSquare, List, Users, Calendar, Edit, Eye } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface Interview {
@@ -192,6 +192,13 @@ export default function InterviewDetailPage() {
 
       {/* Acciones */}
       <div className="mt-8 flex justify-end gap-4">
+        <button
+          onClick={() => router.push(`/admin/interviews/${id}/results`)}
+          className="px-6 py-3 bg-white border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-all shadow-sm flex items-center gap-2"
+        >
+          <Eye className="w-5 h-5" />
+          Ver Resultados
+        </button>
         <button
           onClick={() => router.push('/admin/assignments')}
           className="px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white font-medium rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all shadow-md"
