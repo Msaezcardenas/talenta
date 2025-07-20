@@ -30,8 +30,14 @@ export default function AdminLayout({
   const supabase = createClientComponentClient()
 
   useEffect(() => {
+    // Si estamos en la página de login, no verificar autenticación
+    if (pathname === '/admin/login') {
+      setLoading(false)
+      return
+    }
+    
     checkUser()
-  }, [])
+  }, [pathname])
 
   const checkUser = async () => {
     try {
@@ -77,6 +83,11 @@ export default function AdminLayout({
   ]
 
   const isActive = (href: string) => pathname === href
+
+  // Si estamos en login, renderizar solo el contenido sin layout
+  if (pathname === '/admin/login') {
+    return <>{children}</>
+  }
 
   if (loading) {
     return (
