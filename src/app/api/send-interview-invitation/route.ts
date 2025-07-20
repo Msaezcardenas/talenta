@@ -1,17 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { Resend } from 'resend'
 
 export async function POST(request: NextRequest) {
   try {
     const { assignmentId, candidateEmail, candidateName, interviewTitle, token } = await request.json()
-
-    // Para desarrollo, simularemos el envío de email
-    // En producción, aquí integrarías con un servicio como SendGrid, Resend, etc.
     
     const invitationLink = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/interview/${token}`
     
-    // Simulación del email (en desarrollo)
-    if (process.env.NODE_ENV === 'development') {
+    // Para desarrollo, simularemos el envío de email si no hay API key de Resend
+    if (!process.env.RESEND_API_KEY || process.env.NODE_ENV === 'development') {
       console.log('=== EMAIL SIMULADO ===')
       console.log(`Para: ${candidateEmail}`)
       console.log(`Asunto: Invitación a Entrevista - ${interviewTitle}`)
@@ -29,15 +27,19 @@ Saludos,
 Equipo de Talium
       `)
       console.log('=== FIN EMAIL ===')
+      
+      return NextResponse.json({ 
+        success: true, 
+        message: 'Invitación enviada (modo desarrollo)',
+        invitationLink // En desarrollo, devolvemos el link para testing
+      })
     }
 
-    // En producción, aquí enviarías el email real
-    // Ejemplo con Resend:
-    /*
+    // Envío real con Resend
     const resend = new Resend(process.env.RESEND_API_KEY)
     
     await resend.emails.send({
-      from: 'Talium <noreply@talium.com>',
+      from: 'Talium <onboarding@resend.dev>', // Cambiar a tu dominio verificado
       to: candidateEmail,
       subject: `Invitación a Entrevista - ${interviewTitle}`,
       html: `
@@ -73,12 +75,10 @@ Equipo de Talium
         </div>
       `
     })
-    */
 
     return NextResponse.json({ 
       success: true, 
-      message: 'Invitación enviada',
-      invitationLink // En desarrollo, devolvemos el link para testing
+      message: 'Invitación enviada correctamente'
     })
 
   } catch (error) {
