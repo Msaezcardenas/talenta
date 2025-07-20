@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
 export default function AdminLoginPage() {
@@ -9,7 +8,6 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
   const supabase = createClientComponentClient()
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -17,24 +15,17 @@ export default function AdminLoginPage() {
     setLoading(true)
     setError(null)
 
-    console.log('Intentando login con:', email)
-
     try {
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
-      console.log('Respuesta de login:', { data, signInError })
-
       if (signInError) {
-        console.error('Error de autenticación:', signInError)
         throw signInError
       }
 
       if (data.user) {
-        console.log('Usuario autenticado:', data.user.id)
-        
         // Verificar que el usuario sea admin
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
@@ -42,27 +33,21 @@ export default function AdminLoginPage() {
           .eq('id', data.user.id)
           .single()
 
-        console.log('Perfil del usuario:', { profile, profileError })
-
         if (profileError) {
-          console.error('Error al obtener perfil:', profileError)
           throw new Error('Error al verificar permisos')
         }
 
         if (profile?.role === 'admin') {
-          console.log('Redirigiendo a dashboard...')
-          router.push('/admin/dashboard')
-          router.refresh() // Forzar recarga
+          // Usar window.location directamente
+          window.location.href = '/admin/dashboard'
+          return // Importante: retornar aquí para evitar que se ejecute el resto del código
         } else {
-          console.log('Usuario no es admin, rol:', profile?.role)
           await supabase.auth.signOut()
           throw new Error('No tienes permisos de administrador')
         }
       }
     } catch (error: any) {
-      console.error('Error completo:', error)
       setError(error.message || 'Error al iniciar sesión')
-    } finally {
       setLoading(false)
     }
   }
@@ -103,6 +88,7 @@ export default function AdminLoginPage() {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="admin@empresa.com"
                   required
+                  disabled={loading}
                 />
                 <svg className="absolute right-3 top-3.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -123,6 +109,7 @@ export default function AdminLoginPage() {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="••••••••"
                   required
+                  disabled={loading}
                 />
                 <svg className="absolute right-3 top-3.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -133,6 +120,12 @@ export default function AdminLoginPage() {
             {error && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
                 <p className="text-sm text-red-600">{error}</p>
+              </div>
+            )}
+
+            {loading && !error && (
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-600">Redirigiendo al dashboard...</p>
               </div>
             )}
 
@@ -159,13 +152,6 @@ export default function AdminLoginPage() {
               )}
             </button>
           </form>
-
-          {/* Info de prueba para desarrollo */}
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            <p className="text-xs text-gray-500 text-center">
-              Para pruebas: Asegúrate de tener un usuario admin en la base de datos
-            </p>
-          </div>
         </div>
       </div>
     </div>
