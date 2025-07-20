@@ -161,7 +161,7 @@ export default function InterviewsPage() {
               <div className="mt-4 pt-4 border-t border-gray-200">
                 <Link
                   href={`/admin/interviews/${interview.id}`}
-                  className="text-sm font-medium text-blue-600 hover:text-blue-700"
+                  className="text-sm font-medium text-purple-600 hover:text-purple-700"
                 >
                   Ver detalles →
                 </Link>
