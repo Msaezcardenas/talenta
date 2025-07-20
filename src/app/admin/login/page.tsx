@@ -17,30 +17,50 @@ export default function AdminLoginPage() {
     setLoading(true)
     setError(null)
 
+    console.log('Intentando login con:', email)
+
     try {
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
-      if (signInError) throw signInError
+      console.log('Respuesta de login:', { data, signInError })
+
+      if (signInError) {
+        console.error('Error de autenticación:', signInError)
+        throw signInError
+      }
 
       if (data.user) {
+        console.log('Usuario autenticado:', data.user.id)
+        
         // Verificar que el usuario sea admin
-        const { data: profile } = await supabase
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', data.user.id)
           .single()
 
+        console.log('Perfil del usuario:', { profile, profileError })
+
+        if (profileError) {
+          console.error('Error al obtener perfil:', profileError)
+          throw new Error('Error al verificar permisos')
+        }
+
         if (profile?.role === 'admin') {
+          console.log('Redirigiendo a dashboard...')
           router.push('/admin/dashboard')
+          router.refresh() // Forzar recarga
         } else {
+          console.log('Usuario no es admin, rol:', profile?.role)
           await supabase.auth.signOut()
           throw new Error('No tienes permisos de administrador')
         }
       }
     } catch (error: any) {
+      console.error('Error completo:', error)
       setError(error.message || 'Error al iniciar sesión')
     } finally {
       setLoading(false)
@@ -139,6 +159,13 @@ export default function AdminLoginPage() {
               )}
             </button>
           </form>
+
+          {/* Info de prueba para desarrollo */}
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <p className="text-xs text-gray-500 text-center">
+              Para pruebas: Asegúrate de tener un usuario admin en la base de datos
+            </p>
+          </div>
         </div>
       </div>
     </div>
