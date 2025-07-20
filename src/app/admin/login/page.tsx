@@ -1,14 +1,29 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { useRouter } from 'next/navigation'
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [redirecting, setRedirecting] = useState(false)
   const supabase = createClientComponentClient()
+  const router = useRouter()
+
+  // Verificar si ya está autenticado
+  useEffect(() => {
+    checkAuth()
+  }, [])
+
+  const checkAuth = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (session) {
+      router.push('/admin/dashboard')
+    }
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -38,9 +53,11 @@ export default function AdminLoginPage() {
         }
 
         if (profile?.role === 'admin') {
-          // Usar window.location directamente
-          window.location.href = '/admin/dashboard'
-          return // Importante: retornar aquí para evitar que se ejecute el resto del código
+          setRedirecting(true)
+          // Pequeña espera para asegurar que la sesión se establezca
+          setTimeout(() => {
+            router.push('/admin/dashboard')
+          }, 500)
         } else {
           await supabase.auth.signOut()
           throw new Error('No tienes permisos de administrador')
@@ -52,27 +69,38 @@ export default function AdminLoginPage() {
     }
   }
 
+  if (redirecting) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-violet-50 to-purple-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Redirigiendo al dashboard...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 to-purple-100 flex items-center justify-center">
       <div className="max-w-md w-full">
         {/* Logo y Header */}
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
-            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-            <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
-            <h1 className="text-3xl font-bold text-gray-900 ml-2">GetonPro</h1>
+          <div className="flex items-center justify-center mb-6">
+            <div className="w-16 h-16 bg-gradient-to-r from-violet-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <span className="text-white font-bold text-2xl">T</span>
+            </div>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900">Acceso de Administradores</h2>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Talium</h1>
+          <h2 className="text-xl text-gray-700">Panel de Administración</h2>
           <p className="mt-2 text-gray-600">
-            Ingresa tu correo electrónico para acceder al panel de RRHH.
+            Sistema inteligente de entrevistas
           </p>
         </div>
 
         {/* Formulario */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Iniciar Sesión</h3>
-          <p className="text-gray-600 mb-6">Ingresa tu correo electrónico para acceder al sistema</p>
+          <p className="text-gray-600 mb-6">Ingresa tus credenciales para continuar</p>
 
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
@@ -85,7 +113,7 @@ export default function AdminLoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
                   placeholder="admin@empresa.com"
                   required
                   disabled={loading}
@@ -106,7 +134,7 @@ export default function AdminLoginPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
                   placeholder="••••••••"
                   required
                   disabled={loading}
@@ -123,16 +151,10 @@ export default function AdminLoginPage() {
               </div>
             )}
 
-            {loading && !error && (
-              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-sm text-blue-600">Redirigiendo al dashboard...</p>
-              </div>
-            )}
-
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium rounded-lg hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="w-full py-3 px-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white font-medium rounded-xl hover:from-violet-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg"
             >
               {loading ? (
                 <span className="flex items-center justify-center">

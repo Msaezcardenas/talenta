@@ -1,52 +1,61 @@
 'use client'
 
 import Link from 'next/link'
+import { Sparkles, ArrowRight } from 'lucide-react'
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-indigo-100 flex items-center justify-center">
       <div className="max-w-2xl mx-auto px-4 text-center">
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="w-3 h-3 bg-pink-500 rounded-full"></div>
-          <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-          <div className="w-3 h-3 bg-cyan-500 rounded-full"></div>
-          <h1 className="text-5xl font-bold text-gray-900 ml-3">GetonPro</h1>
+        <div className="flex items-center justify-center mb-8">
+          <div className="w-20 h-20 bg-gradient-to-r from-violet-600 to-purple-600 rounded-3xl flex items-center justify-center shadow-xl transform rotate-3 hover:rotate-0 transition-transform duration-300">
+            <span className="text-white font-bold text-3xl">T</span>
+          </div>
         </div>
         
-        <h2 className="text-3xl font-semibold text-gray-800 mb-4">
-          Sistema de Entrevistas Automatizadas
-        </h2>
+        <h1 className="text-6xl font-bold text-gray-900 mb-4">
+          Talium
+        </h1>
         
-        <p className="text-lg text-gray-600 mb-12">
-          Optimiza tu proceso de selección con entrevistas en video y evaluaciones automatizadas.
+        <p className="text-xl text-gray-700 mb-4 flex items-center justify-center gap-2">
+          Sistema Inteligente de Entrevistas <Sparkles className="w-6 h-6 text-violet-600" />
+        </p>
+        
+        <p className="text-lg text-gray-600 mb-12 max-w-xl mx-auto">
+          Optimiza tu proceso de selección con tecnología avanzada. 
+          Entrevistas automatizadas, análisis inteligente y experiencia superior para candidatos.
         </p>
 
-        <div className="bg-white rounded-xl shadow-lg p-8 max-w-md mx-auto">
-          <h3 className="text-xl font-semibold text-gray-900 mb-4">
-            ¿Recibiste una invitación para entrevista?
-          </h3>
-          <p className="text-gray-600 mb-6">
-            Utiliza el enlace único que recibiste en tu correo electrónico para acceder a tu entrevista.
-          </p>
-          
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <p className="text-sm text-blue-800">
-              <strong>Nota:</strong> No necesitas crear una cuenta. Solo haz clic en el enlace de tu invitación.
+        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md mx-auto backdrop-blur-sm bg-opacity-95">
+          <div className="mb-8">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">
+              ¿Recibiste una invitación?
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Accede directamente a tu entrevista usando el enlace único que recibiste por correo.
             </p>
+            
+            <div className="bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-200 rounded-xl p-4">
+              <p className="text-sm text-violet-800">
+                <strong>Sin registros, sin contraseñas.</strong> Solo haz clic en el enlace de tu invitación y comienza tu entrevista.
+              </p>
+            </div>
           </div>
 
           <div className="pt-6 border-t border-gray-200">
-            <p className="text-sm text-gray-600 mb-3">¿Eres administrador de RRHH?</p>
+            <p className="text-sm text-gray-600 mb-4">¿Eres parte del equipo de RRHH?</p>
             <Link
               href="/admin/login"
-              className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-medium rounded-xl transition-all shadow-md group"
             >
-              Ingresar como Admin
-              <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
+              Acceso Administrativo
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
+        </div>
+
+        <div className="mt-12 text-sm text-gray-500">
+          <p>© 2024 Talium. Transformando la selección de talento.</p>
         </div>
       </div>
     </div>

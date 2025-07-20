@@ -91,8 +91,8 @@ export default function AdminLayout({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
       </div>
     )
   }
@@ -110,12 +110,12 @@ export default function AdminLayout({
               {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
             <Link href="/admin/dashboard" className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">AI</span>
+              <div className="w-10 h-10 bg-gradient-to-r from-violet-600 to-purple-600 rounded-xl flex items-center justify-center shadow-md">
+                <span className="text-white font-bold text-lg">T</span>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">InterviewPro</h1>
-                <p className="text-xs text-gray-500">Panel Administrativo</p>
+                <h1 className="text-xl font-bold text-gray-900">Talium</h1>
+                <p className="text-xs text-gray-500">Sistema de Entrevistas</p>
               </div>
             </Link>
           </div>
@@ -128,7 +128,7 @@ export default function AdminLayout({
                 href={item.href}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   isActive(item.href)
-                    ? 'text-blue-600 bg-blue-50'
+                    ? 'text-violet-600 bg-violet-50'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                 }`}
               >
@@ -140,7 +140,7 @@ export default function AdminLayout({
           <div className="flex items-center gap-3">
             <Link
               href="/admin/interviews/new"
-              className="flex items-center gap-2 px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-medium text-sm transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white rounded-lg font-medium text-sm transition-all shadow-md"
             >
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">Nueva Entrevista</span>
@@ -150,10 +150,8 @@ export default function AdminLayout({
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
             </button>
             <div className="flex items-center gap-3 pl-3 border-l border-gray-200">
-              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                <span className="text-sm font-medium text-gray-700">
-                  {profile?.full_name?.charAt(0)?.toUpperCase() || 'A'}
-                </span>
+              <div className="w-8 h-8 bg-gradient-to-r from-violet-500 to-purple-500 rounded-full flex items-center justify-center text-white font-medium">
+                {profile?.first_name?.charAt(0)?.toUpperCase() || 'A'}
               </div>
               <button
                 onClick={handleLogout}
@@ -182,7 +180,7 @@ export default function AdminLayout({
                       onClick={() => setSidebarOpen(false)}
                       className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                         isActive(item.href)
-                          ? 'text-blue-600 bg-blue-50'
+                          ? 'text-violet-600 bg-violet-50'
                           : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                       }`}
                     >

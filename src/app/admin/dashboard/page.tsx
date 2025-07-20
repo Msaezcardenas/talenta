@@ -14,7 +14,8 @@ import {
   Send,
   TrendingUp,
   Target,
-  Award
+  Award,
+  Sparkles
 } from 'lucide-react'
 import { StatsCard } from '@/components/dashboard/StatsCard'
 import { ActionCard } from '@/components/dashboard/ActionCard'
@@ -143,7 +144,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
       </div>
     )
   }
@@ -153,9 +154,9 @@ export default function DashboardPage() {
       {/* Welcome Section */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-          Bienvenido, Admin <span className="text-3xl">👋</span>
+          Bienvenido a Talium <Sparkles className="w-8 h-8 text-violet-600" />
         </h1>
-        <p className="text-gray-600 mt-2">Gestiona tus procesos de selección desde un solo lugar</p>
+        <p className="text-gray-600 mt-2">Gestiona tus procesos de selección de manera inteligente</p>
       </div>
 
       {/* Stats Grid */}
@@ -166,8 +167,8 @@ export default function DashboardPage() {
           change={stats.activeChange}
           changeText="vs mes anterior"
           icon={<FileText className="w-5 h-5" />}
-          iconColor="text-blue-600"
-          iconBg="bg-blue-100"
+          iconColor="text-violet-600"
+          iconBg="bg-violet-100"
         />
         <StatsCard
           title="Candidatos Totales"
@@ -175,8 +176,8 @@ export default function DashboardPage() {
           change={stats.candidatesChange}
           changeText="vs mes anterior"
           icon={<Users className="w-5 h-5" />}
-          iconColor="text-green-600"
-          iconBg="bg-green-100"
+          iconColor="text-emerald-600"
+          iconBg="bg-emerald-100"
         />
         <StatsCard
           title="Completadas Hoy"
@@ -184,8 +185,8 @@ export default function DashboardPage() {
           change={stats.completedChange}
           changeText="vs mes anterior"
           icon={<CheckCircle className="w-5 h-5" />}
-          iconColor="text-purple-600"
-          iconBg="bg-purple-100"
+          iconColor="text-blue-600"
+          iconBg="bg-blue-100"
         />
         <StatsCard
           title="Tiempo Promedio"
@@ -193,8 +194,8 @@ export default function DashboardPage() {
           change={stats.timeChange}
           changeText="vs mes anterior"
           icon={<Clock className="w-5 h-5" />}
-          iconColor="text-orange-600"
-          iconBg="bg-orange-100"
+          iconColor="text-amber-600"
+          iconBg="bg-amber-100"
         />
       </div>
 
@@ -204,38 +205,38 @@ export default function DashboardPage() {
           {/* Quick Actions */}
           <div>
             <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Plus className="w-5 h-5 text-blue-600" />
+              <Plus className="w-5 h-5 text-violet-600" />
               Acciones Rápidas
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <ActionCard
                 icon={<Plus className="w-5 h-5" />}
-                iconBg="bg-blue-100"
-                iconColor="text-blue-600"
+                iconBg="bg-violet-100"
+                iconColor="text-violet-600"
                 title="Crear Entrevista"
                 description="Nueva plantilla de entrevista"
                 onClick={() => router.push('/admin/interviews/new')}
               />
               <ActionCard
                 icon={<UserPlus className="w-5 h-5" />}
-                iconBg="bg-green-100"
-                iconColor="text-green-600"
+                iconBg="bg-emerald-100"
+                iconColor="text-emerald-600"
                 title="Asignar Candidatos"
                 description="Enviar invitaciones masivas"
                 onClick={() => router.push('/admin/assignments')}
               />
               <ActionCard
                 icon={<Eye className="w-5 h-5" />}
-                iconBg="bg-purple-100"
-                iconColor="text-purple-600"
+                iconBg="bg-blue-100"
+                iconColor="text-blue-600"
                 title="Ver Respuestas"
                 description="Revisar entrevistas completadas"
                 onClick={() => router.push('/admin/interviews')}
               />
               <ActionCard
                 icon={<Send className="w-5 h-5" />}
-                iconBg="bg-orange-100"
-                iconColor="text-orange-600"
+                iconBg="bg-amber-100"
+                iconColor="text-amber-600"
                 title="Enviar Recordatorios"
                 description="Notificar candidatos pendientes"
                 onClick={() => {}}
@@ -249,7 +250,7 @@ export default function DashboardPage() {
               <h2 className="text-lg font-semibold text-gray-900">Entrevistas Recientes</h2>
               <button
                 onClick={() => router.push('/admin/interviews')}
-                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                className="text-sm text-violet-600 hover:text-violet-700 font-medium"
               >
                 Ver todas
               </button>
@@ -267,7 +268,7 @@ export default function DashboardPage() {
           {/* Recent Activity */}
           <div>
             <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Clock className="w-5 h-5 text-green-600" />
+              <Clock className="w-5 h-5 text-emerald-600" />
               Actividad Reciente
             </h2>
             <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
@@ -282,13 +283,13 @@ export default function DashboardPage() {
           {/* Insights */}
           <div>
             <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-purple-600" />
+              <TrendingUp className="w-5 h-5 text-violet-600" />
               Insights
             </h2>
             <div className="space-y-4">
               <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
                 <div className="flex items-center gap-3 mb-2">
-                  <Target className="w-5 h-5 text-green-500" />
+                  <Target className="w-5 h-5 text-emerald-500" />
                   <h3 className="font-medium text-gray-900">Tasa de Completación</h3>
                 </div>
                 <p className="text-2xl font-bold text-gray-900">85%</p>
@@ -308,7 +309,7 @@ export default function DashboardPage() {
 
               <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
                 <div className="flex items-center gap-3 mb-2">
-                  <Award className="w-5 h-5 text-purple-500" />
+                  <Award className="w-5 h-5 text-violet-500" />
                   <h3 className="font-medium text-gray-900">Mejor Posición</h3>
                 </div>
                 <p className="text-lg font-bold text-gray-900">Desarrollador Frontend</p>
