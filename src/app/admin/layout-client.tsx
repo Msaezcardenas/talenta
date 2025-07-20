@@ -139,9 +139,9 @@ export default function AdminLayoutClient({
           <div className="flex items-center gap-4">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="lg:hidden p-2 hover:bg-gray-100 rounded-lg"
+              className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-all hover:scale-105"
             >
-              {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {sidebarOpen ? <X className="w-5 h-5 text-gray-600 hover:text-gray-900" /> : <Menu className="w-5 h-5 text-gray-600 hover:text-gray-900" />}
             </button>
             <Link href="/admin/dashboard" className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-r from-violet-600 to-purple-600 rounded-xl flex items-center justify-center shadow-md">
@@ -179,8 +179,8 @@ export default function AdminLayoutClient({
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">Nueva Entrevista</span>
             </Link>
-            <button className="relative p-2 hover:bg-gray-100 rounded-lg">
-              <Bell className="w-5 h-5 text-gray-600" />
+            <button className="relative p-2 hover:bg-gray-100 rounded-lg transition-all hover:scale-105">
+              <Bell className="w-5 h-5 text-gray-600 hover:text-gray-900 transition-colors" />
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
             </button>
             <div className="flex items-center gap-3 pl-3 border-l border-gray-200">
@@ -189,10 +189,10 @@ export default function AdminLayoutClient({
               </div>
               <button
                 onClick={handleLogout}
-                className="p-2 hover:bg-gray-100 rounded-lg"
+                className="p-2 hover:bg-red-50 rounded-lg transition-all hover:scale-105 group"
                 title="Cerrar sesión"
               >
-                <LogOut className="w-4 h-4 text-gray-600" />
+                <LogOut className="w-4 h-4 text-gray-600 group-hover:text-red-600 transition-colors" />
               </button>
             </div>
           </div>

@@ -312,10 +312,10 @@ export default function AssignmentsPage() {
                           />
                           <button
                             onClick={() => copyLink(item.link)}
-                            className="p-1 hover:bg-gray-100 rounded"
+                            className="p-2 hover:bg-violet-50 rounded-lg transition-all hover:scale-110 group"
                             title="Copiar link"
                           >
-                            <Copy className="w-4 h-4 text-gray-600" />
+                            <Copy className="w-4 h-4 text-gray-600 group-hover:text-violet-600 transition-colors" />
                           </button>
                         </div>
                       </div>

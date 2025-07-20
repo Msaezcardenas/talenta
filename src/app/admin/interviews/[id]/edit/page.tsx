@@ -420,7 +420,7 @@ export default function EditInterviewPage() {
                                   <button
                                     type="button"
                                     onClick={() => removeOption(index, optionIndex)}
-                                    className="text-red-500 hover:text-red-700 p-1"
+                                    className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded transition-all hover:scale-110"
                                   >
                                     <Trash2 className="w-4 h-4" />
                                   </button>

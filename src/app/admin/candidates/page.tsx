@@ -109,7 +109,8 @@ export default function CandidatesPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
                         onClick={() => router.push(`/admin/candidates/${candidate.id}`)}
-                        className="text-violet-600 hover:text-violet-900"
+                        className="text-violet-600 hover:text-violet-900 hover:bg-violet-50 p-2 rounded-lg transition-all hover:scale-110"
+                        title="Ver detalles"
                       >
                         <Eye className="w-4 h-4" />
                       </button>
