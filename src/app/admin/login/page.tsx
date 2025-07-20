@@ -9,6 +9,7 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [checkingAuth, setCheckingAuth] = useState(true)
   const supabase = createClientComponentClient()
   const router = useRouter()
 
@@ -18,18 +19,24 @@ export default function AdminLoginPage() {
   }, [])
 
   const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (session) {
-      // Verificar rol admin
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', session.user.id)
-        .single()
-      
-      if (profile?.role === 'admin') {
-        router.push('/admin/dashboard')
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        // Verificar rol admin
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single()
+        
+        if (profile?.role === 'admin') {
+          router.push('/admin/dashboard')
+        }
       }
+    } catch (error) {
+      console.error('Error checking auth:', error)
+    } finally {
+      setCheckingAuth(false)
     }
   }
 
@@ -57,23 +64,44 @@ export default function AdminLoginPage() {
           .single()
 
         if (profileError) {
+          console.error('Profile error:', profileError)
           throw new Error('Error al verificar permisos')
         }
 
         if (profile?.role === 'admin') {
-          // Refrescar el router antes de redirigir
-          router.refresh()
-          // Usar replace en lugar de push para evitar problemas de historial
-          router.replace('/admin/dashboard')
+          // Asegurar que la sesión esté lista
+          const { data: { session } } = await supabase.auth.getSession()
+          
+          if (session) {
+            // Intentar primero con router
+            router.refresh()
+            router.push('/admin/dashboard')
+            
+            // Fallback con window.location después de un pequeño delay
+            setTimeout(() => {
+              window.location.href = '/admin/dashboard'
+            }, 1000)
+          } else {
+            throw new Error('No se pudo establecer la sesión')
+          }
         } else {
           await supabase.auth.signOut()
           throw new Error('No tienes permisos de administrador')
         }
       }
     } catch (error: any) {
+      console.error('Login error:', error)
       setError(error.message || 'Error al iniciar sesión')
       setLoading(false)
     }
+  }
+
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-violet-50 to-purple-100 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
+      </div>
+    )
   }
 
   return (
@@ -171,6 +199,14 @@ export default function AdminLoginPage() {
             </button>
           </form>
         </div>
+
+        {/* Debug info - Solo en desarrollo */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="mt-4 p-4 bg-gray-100 rounded-lg text-xs text-gray-600">
+            <p>Debug: Login con credenciales de admin</p>
+            <p>Después del login exitoso, serás redirigido a /admin/dashboard</p>
+          </div>
+        )}
       </div>
     </div>
   )
