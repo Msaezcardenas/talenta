@@ -3,11 +3,15 @@
 import { useEffect, useState } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useRouter } from 'next/navigation'
-import { Plus, Eye, Edit, Trash2 } from 'lucide-react'
+import { Plus, Eye, Edit, Trash2, AlertTriangle } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 export default function InterviewsPage() {
   const [interviews, setInterviews] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [interviewToDelete, setInterviewToDelete] = useState<any>(null)
   const supabase = createClientComponentClient()
   const router = useRouter()
 
@@ -26,8 +30,57 @@ export default function InterviewsPage() {
       setInterviews(data || [])
     } catch (error) {
       console.error('Error loading interviews:', error)
+      toast.error('Error al cargar las entrevistas')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleDeleteClick = (interview: any) => {
+    setInterviewToDelete(interview)
+    setShowDeleteModal(true)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!interviewToDelete) return
+
+    setDeletingId(interviewToDelete.id)
+    const loadingToast = toast.loading('Eliminando entrevista...')
+
+    try {
+      // Primero verificar si hay asignaciones
+      const { count } = await supabase
+        .from('assignments')
+        .select('*', { count: 'exact', head: true })
+        .eq('interview_id', interviewToDelete.id)
+
+      if (count && count > 0) {
+        toast.dismiss(loadingToast)
+        toast.error('No se puede eliminar: hay candidatos asignados a esta entrevista')
+        return
+      }
+
+      // Eliminar la entrevista (las preguntas se eliminan en cascada)
+      const { error } = await supabase
+        .from('interviews')
+        .delete()
+        .eq('id', interviewToDelete.id)
+
+      if (error) throw error
+
+      toast.dismiss(loadingToast)
+      toast.success('Entrevista eliminada exitosamente')
+      
+      // Actualizar la lista
+      setInterviews(interviews.filter(i => i.id !== interviewToDelete.id))
+    } catch (error: any) {
+      console.error('Error deleting interview:', error)
+      toast.dismiss(loadingToast)
+      toast.error(error.message || 'Error al eliminar la entrevista')
+    } finally {
+      setDeletingId(null)
+      setShowDeleteModal(false)
+      setInterviewToDelete(null)
     }
   }
 
@@ -49,7 +102,7 @@ export default function InterviewsPage() {
         </div>
         <button
           onClick={() => router.push('/admin/interviews/new')}
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white rounded-lg font-medium transition-all shadow-md"
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white rounded-lg font-medium transition-all shadow-md hover:shadow-lg hover:scale-105"
         >
           <Plus className="w-4 h-4" />
           Nueva Entrevista
@@ -67,7 +120,7 @@ export default function InterviewsPage() {
             <p className="text-gray-600 mb-4">Crea tu primera plantilla de entrevista</p>
             <button
               onClick={() => router.push('/admin/interviews/new')}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-medium transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-medium transition-all hover:shadow-lg hover:scale-105"
             >
               <Plus className="w-4 h-4" />
               Nueva Entrevista
@@ -109,19 +162,23 @@ export default function InterviewsPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
                         onClick={() => router.push(`/admin/interviews/${interview.id}`)}
-                        className="text-violet-600 hover:text-violet-900 mr-3"
+                        className="text-violet-600 hover:text-violet-900 hover:bg-violet-50 p-2 rounded-lg transition-all mr-1"
+                        title="Ver detalles"
                       >
                         <Eye className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => router.push(`/admin/interviews/${interview.id}/edit`)}
-                        className="text-blue-600 hover:text-blue-900 mr-3"
+                        className="text-blue-600 hover:text-blue-900 hover:bg-blue-50 p-2 rounded-lg transition-all mr-1"
+                        title="Editar"
                       >
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => {/* Implementar eliminar */}}
-                        className="text-red-600 hover:text-red-900"
+                        onClick={() => handleDeleteClick(interview)}
+                        disabled={deletingId === interview.id}
+                        className="text-red-600 hover:text-red-900 hover:bg-red-50 p-2 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Eliminar"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -133,6 +190,42 @@ export default function InterviewsPage() {
           </div>
         )}
       </div>
+
+      {/* Modal de confirmación de eliminación */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl max-w-md w-full p-6">
+            <div className="flex items-center justify-center w-12 h-12 bg-red-100 rounded-full mx-auto mb-4">
+              <AlertTriangle className="w-6 h-6 text-red-600" />
+            </div>
+            
+            <h3 className="text-lg font-semibold text-gray-900 text-center mb-2">
+              ¿Eliminar entrevista?
+            </h3>
+            
+            <p className="text-gray-600 text-center mb-6">
+              Estás a punto de eliminar <strong>"{interviewToDelete?.name}"</strong>. 
+              Esta acción no se puede deshacer y eliminará todas las preguntas asociadas.
+            </p>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium transition-all"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                disabled={deletingId !== null}
+                className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {deletingId ? 'Eliminando...' : 'Eliminar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
