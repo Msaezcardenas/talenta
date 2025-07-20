@@ -22,6 +22,7 @@ export default function AdminLoginPage() {
     try {
       const { data: { session } } = await supabase.auth.getSession()
       if (session) {
+        console.log('[Login] Already authenticated, checking role...')
         // Verificar rol admin
         const { data: profile } = await supabase
           .from('profiles')
@@ -30,11 +31,13 @@ export default function AdminLoginPage() {
           .single()
         
         if (profile?.role === 'admin') {
+          console.log('[Login] User is admin, redirecting...')
           router.push('/admin/dashboard')
+          return
         }
       }
     } catch (error) {
-      console.error('Error checking auth:', error)
+      console.error('[Login] Error checking auth:', error)
     } finally {
       setCheckingAuth(false)
     }
@@ -46,16 +49,33 @@ export default function AdminLoginPage() {
     setError(null)
 
     try {
+      console.log('[Login] Starting login process...')
+      
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
       if (signInError) {
+        console.error('[Login] Sign in error:', signInError)
         throw signInError
       }
 
       if (data.user) {
+        console.log('[Login] Sign in successful, user:', data.user.email)
+        
+        // Esperar un momento para que la sesión se establezca
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        // Verificar que la sesión esté establecida
+        const { data: { session } } = await supabase.auth.getSession()
+        
+        if (!session) {
+          throw new Error('No se pudo establecer la sesión')
+        }
+        
+        console.log('[Login] Session established, checking role...')
+        
         // Verificar que el usuario sea admin
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
@@ -64,33 +84,24 @@ export default function AdminLoginPage() {
           .single()
 
         if (profileError) {
-          console.error('Profile error:', profileError)
+          console.error('[Login] Profile error:', profileError)
           throw new Error('Error al verificar permisos')
         }
 
-        if (profile?.role === 'admin') {
-          // Asegurar que la sesión esté lista
-          const { data: { session } } = await supabase.auth.getSession()
-          
-          if (session) {
-            // Intentar primero con router
-            router.refresh()
-            router.push('/admin/dashboard')
-            
-            // Fallback con window.location después de un pequeño delay
-            setTimeout(() => {
-              window.location.href = '/admin/dashboard'
-            }, 1000)
-          } else {
-            throw new Error('No se pudo establecer la sesión')
-          }
-        } else {
+        console.log('[Login] User profile:', profile)
+
+        if (profile?.role !== 'admin') {
           await supabase.auth.signOut()
           throw new Error('No tienes permisos de administrador')
         }
+
+        console.log('[Login] User is admin, redirecting to dashboard...')
+        
+        // Usar window.location para asegurar una recarga completa
+        window.location.href = '/admin/dashboard'
       }
     } catch (error: any) {
-      console.error('Login error:', error)
+      console.error('[Login] Error:', error)
       setError(error.message || 'Error al iniciar sesión')
       setLoading(false)
     }
@@ -203,8 +214,8 @@ export default function AdminLoginPage() {
         {/* Debug info - Solo en desarrollo */}
         {process.env.NODE_ENV === 'development' && (
           <div className="mt-4 p-4 bg-gray-100 rounded-lg text-xs text-gray-600">
-            <p>Debug: Login con credenciales de admin</p>
-            <p>Después del login exitoso, serás redirigido a /admin/dashboard</p>
+            <p>Debug: Revisa la consola del navegador para ver logs detallados</p>
+            <p>Si el login funciona pero no redirige, intenta recargar la página con Ctrl+F5</p>
           </div>
         )}
       </div>

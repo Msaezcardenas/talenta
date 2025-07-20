@@ -36,34 +36,60 @@ export default function AdminLayoutClient({
       return
     }
     
-    checkUser()
+    // Pequeño delay para asegurar que las cookies estén sincronizadas
+    const timer = setTimeout(() => {
+      checkUser()
+    }, 100)
+    
+    return () => clearTimeout(timer)
   }, [pathname])
 
   const checkUser = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
+      console.log('AdminLayout: Verificando sesión...')
       
-      if (!user) {
+      // Usar getSession en lugar de getUser
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      
+      if (sessionError) {
+        console.error('AdminLayout: Error al obtener sesión:', sessionError)
+        router.push('/admin/login')
+        return
+      }
+      
+      if (!session) {
+        console.log('AdminLayout: No hay sesión activa, redirigiendo a login')
         router.push('/admin/login')
         return
       }
 
-      setUser(user)
+      console.log('AdminLayout: Sesión encontrada para:', session.user.email)
+      setUser(session.user)
 
-      const { data: profile } = await supabase
+      // Verificar perfil
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', user.id)
+        .eq('id', session.user.id)
         .single()
 
+      if (profileError) {
+        console.error('AdminLayout: Error al obtener perfil:', profileError)
+        router.push('/admin/login')
+        return
+      }
+
       if (!profile || profile.role !== 'admin') {
+        console.log('AdminLayout: Usuario no es admin, role:', profile?.role)
         router.push('/')
         return
       }
 
+      console.log('AdminLayout: Usuario verificado como admin')
       setProfile(profile)
+      
     } catch (error) {
-      console.error('Error:', error)
+      console.error('AdminLayout: Error inesperado:', error)
       router.push('/admin/login')
     } finally {
       setLoading(false)
@@ -92,9 +118,17 @@ export default function AdminLayoutClient({
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Verificando autenticación...</p>
+        </div>
       </div>
     )
+  }
+
+  // Si no hay usuario después de verificar, no renderizar nada (ya se redirigió)
+  if (!user || !profile) {
+    return null
   }
 
   return (
