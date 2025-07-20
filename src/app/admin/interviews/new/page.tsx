@@ -1,65 +1,147 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { ArrowLeft, Briefcase } from 'lucide-react'
-import QuestionForm from '@/components/admin/QuestionForm'
-import { createClient } from '@/lib/supabase/client'
-import { Question } from '@/lib/types/database'
+import { ArrowLeft, Plus, Trash2 } from 'lucide-react'
+import toast from 'react-hot-toast'
+
+interface Question {
+  id: string
+  question_text: string
+  type: 'video' | 'text' | 'multiple_choice'
+  options?: { label: string; value: string }[]
+  order_index: number
+}
 
 export default function NewInterviewPage() {
+  const [name, setName] = useState('')
+  const [description, setDescription] = useState('')
+  const [questions, setQuestions] = useState<Question[]>([])
+  const [saving, setSaving] = useState(false)
+  const [user, setUser] = useState<any>(null)
+  const supabase = createClientComponentClient()
   const router = useRouter()
-  const [loading, setLoading] = useState(false)
-  const [formData, setFormData] = useState({
-    name: '',
-    description: ''
-  })
-  const [questions, setQuestions] = useState<Partial<Question>[]>([])
-  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    checkUser()
+  }, [])
+
+  const checkUser = async () => {
+    try {
+      const { data: { user }, error } = await supabase.auth.getUser()
+      if (error || !user) {
+        toast.error('No hay sesión activa. Redirigiendo al login...')
+        router.push('/admin/login')
+        return
+      }
+      setUser(user)
+    } catch (error) {
+      console.error('Error checking user:', error)
+      toast.error('Error al verificar la sesión')
+      router.push('/admin/login')
+    }
+  }
+
+  const addQuestion = () => {
+    const newQuestion: Question = {
+      id: `temp-${Date.now()}`,
+      question_text: '',
+      type: 'text',
+      order_index: questions.length,
+      options: []
+    }
+    setQuestions([...questions, newQuestion])
+  }
+
+  const updateQuestion = (index: number, updates: Partial<Question>) => {
+    const updatedQuestions = [...questions]
+    updatedQuestions[index] = { ...updatedQuestions[index], ...updates }
+    
+    // Si cambia a multiple_choice, inicializar opciones
+    if (updates.type === 'multiple_choice' && !updatedQuestions[index].options?.length) {
+      updatedQuestions[index].options = [
+        { label: 'Opción 1', value: 'option1' },
+        { label: 'Opción 2', value: 'option2' }
+      ]
+    }
+    
+    setQuestions(updatedQuestions)
+  }
+
+  const removeQuestion = (index: number) => {
+    const filtered = questions.filter((_, i) => i !== index)
+    // Reajustar order_index
+    const reordered = filtered.map((q, i) => ({ ...q, order_index: i }))
+    setQuestions(reordered)
+  }
+
+  const addOption = (questionIndex: number) => {
+    const question = questions[questionIndex]
+    if (!question.options) return
+    
+    const newOption = {
+      label: `Opción ${question.options.length + 1}`,
+      value: `option${question.options.length + 1}`
+    }
+    
+    updateQuestion(questionIndex, {
+      options: [...question.options, newOption]
+    })
+  }
+
+  const updateOption = (questionIndex: number, optionIndex: number, label: string) => {
+    const question = questions[questionIndex]
+    if (!question.options) return
+    
+    const updatedOptions = [...question.options]
+    updatedOptions[optionIndex] = { ...updatedOptions[optionIndex], label }
+    
+    updateQuestion(questionIndex, { options: updatedOptions })
+  }
+
+  const removeOption = (questionIndex: number, optionIndex: number) => {
+    const question = questions[questionIndex]
+    if (!question.options || question.options.length <= 2) return
+    
+    const updatedOptions = question.options.filter((_, i) => i !== optionIndex)
+    updateQuestion(questionIndex, { options: updatedOptions })
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    // Validate form
-    if (!formData.name.trim()) {
-      setError('El nombre del cargo es requerido')
+    if (!name.trim()) {
+      toast.error('El nombre de la entrevista es requerido')
       return
     }
     
     if (questions.length === 0) {
-      setError('Debes agregar al menos una pregunta')
+      toast.error('Debes agregar al menos una pregunta')
       return
     }
     
-    const invalidQuestions = questions.some(q => !q.question_text?.trim())
-    if (invalidQuestions) {
-      setError('Todas las preguntas deben tener texto')
+    if (questions.some(q => !q.question_text.trim())) {
+      toast.error('Todas las preguntas deben tener texto')
+      return
+    }
+
+    if (!user) {
+      toast.error('No hay usuario autenticado')
+      router.push('/admin/login')
       return
     }
     
-    setLoading(true)
-    setError(null)
+    setSaving(true)
+    const loadingToast = toast.loading('Creando entrevista...')
     
     try {
-      const supabase = createClient()
-      
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      // For testing purposes, if no user is authenticated, show a specific error
-      if (!user) {
-        setError('No hay usuario autenticado. Por favor inicia sesión primero.')
-        setLoading(false)
-        return
-      }
-      
-      // Create interview
+      // Crear la entrevista
       const { data: interview, error: interviewError } = await supabase
         .from('interviews')
         .insert({
-          name: formData.name.trim(),
-          description: formData.description.trim(),
+          name: name.trim(),
+          description: description.trim(),
           created_by: user.id
         })
         .select()
@@ -67,154 +149,212 @@ export default function NewInterviewPage() {
       
       if (interviewError) throw interviewError
       
-      // Create questions
-      const questionsToInsert = questions.map((q, index) => {
-        // Clean up options for multiple choice questions
-        let cleanOptions = null
-        if (q.type === 'multiple_choice' && q.options) {
-          cleanOptions = (q.options as any[])
-            .filter(opt => opt.label && opt.label.trim()) // Only include options with labels
-            .map(opt => ({
-              label: opt.label.trim(),
-              value: opt.value?.trim() || opt.label.trim()
-            }))
-          
-          // Validate that we have at least 2 options
-          if (cleanOptions.length < 2) {
-            throw new Error(`La pregunta "${q.question_text}" debe tener al menos 2 opciones`)
-          }
-        }
-        
-        return {
-          interview_id: interview.id,
-          question_text: q.question_text!.trim(),
-          type: q.type!,
-          options: cleanOptions,
-          order_index: index
-        }
-      })
+      // Crear las preguntas
+      const questionsToInsert = questions.map(q => ({
+        interview_id: interview.id,
+        question_text: q.question_text.trim(),
+        type: q.type,
+        options: q.type === 'multiple_choice' ? q.options : null,
+        order_index: q.order_index
+      }))
       
       const { error: questionsError } = await supabase
         .from('questions')
         .insert(questionsToInsert)
       
-      if (questionsError) {
-        console.error('Error al crear preguntas:', questionsError)
-        throw questionsError
-      }
+      if (questionsError) throw questionsError
       
-      // Redirect to interviews list
+      toast.dismiss(loadingToast)
+      toast.success('Entrevista creada exitosamente')
       router.push('/admin/interviews')
-    } catch (err: any) {
-      console.error('Error creating interview:', err)
-      
-      // Provide more specific error messages
-      if (err.message?.includes('debe tener al menos 2 opciones')) {
-        setError(err.message)
-      } else if (err.code === 'PGRST301') {
-        setError('Error de autenticación. Por favor inicia sesión nuevamente.')
-      } else if (err.code === '23505') {
-        setError('Ya existe una entrevista con ese nombre.')
-      } else {
-        setError(`Error al crear el proceso: ${err.message || 'Por favor intenta nuevamente.'}`)
-      }
+    } catch (error: any) {
+      console.error('Error creating interview:', error)
+      toast.dismiss(loadingToast)
+      toast.error(error.message || 'Error al crear la entrevista')
     } finally {
-      setLoading(false)
+      setSaving(false)
     }
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto py-8">
       {/* Header */}
       <div className="mb-8">
-        <Link 
-          href="/admin/dashboard"
-          className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4"
+        <button
+          onClick={() => router.back()}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
         >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Volver al Dashboard
-        </Link>
-        <h1 className="text-3xl font-bold text-gray-900">
-          GetonPro - Crear Nuevo Proceso
-        </h1>
+          <ArrowLeft className="w-4 h-4" />
+          Volver
+        </button>
+        <h1 className="text-3xl font-bold text-gray-900">Nueva Entrevista</h1>
+        <p className="text-gray-600 mt-2">Crea una nueva plantilla de entrevista</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
-        {/* Job Information Section */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
-              Información del Cargo
-            </h2>
-            <p className="text-gray-600">
-              Define los detalles básicos del puesto de trabajo
-            </p>
-          </div>
-
-          <div className="space-y-6">
+        {/* Información básica */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Información Básica</h2>
+          
+          <div className="space-y-4">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                Nombre del Cargo
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Nombre de la entrevista *
               </label>
               <input
                 type="text"
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-                placeholder="Ej: Desarrollador Frontend Senior"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                placeholder="Ej: Entrevista para Desarrollador Frontend"
               />
             </div>
-
+            
             <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-                Descripción del Cargo
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Descripción
               </label>
               <textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-900"
-                rows={6}
-                placeholder="Describe las responsabilidades, requisitos y beneficios del puesto..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                placeholder="Describe el propósito y contexto de esta entrevista..."
               />
             </div>
           </div>
         </div>
 
-        {/* Questions Section */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
-              Preguntas del Proceso
-            </h2>
-            <p className="text-gray-600">
-              Agrega las preguntas que los postulantes deberán responder
-            </p>
+        {/* Preguntas */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">Preguntas</h2>
+            <button
+              type="button"
+              onClick={addQuestion}
+              className="flex items-center gap-2 px-3 py-1.5 bg-violet-600 hover:bg-violet-700 text-white rounded-lg text-sm font-medium transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Agregar Pregunta
+            </button>
           </div>
 
-          <QuestionForm 
-            questions={questions}
-            onQuestionsChange={setQuestions}
-          />
+          {questions.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-gray-500 mb-4">No hay preguntas agregadas</p>
+              <button
+                type="button"
+                onClick={addQuestion}
+                className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                Agregar primera pregunta
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {questions.map((question, index) => (
+                <div key={question.id} className="border border-gray-200 rounded-lg p-4">
+                  <div className="flex justify-between items-start mb-3">
+                    <span className="text-sm font-medium text-gray-500">
+                      Pregunta {index + 1}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeQuestion(index)}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Texto de la pregunta *
+                      </label>
+                      <textarea
+                        value={question.question_text}
+                        onChange={(e) => updateQuestion(index, { question_text: e.target.value })}
+                        rows={2}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                        placeholder="Escribe tu pregunta aquí..."
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Tipo de respuesta
+                      </label>
+                      <select
+                        value={question.type}
+                        onChange={(e) => updateQuestion(index, { type: e.target.value as Question['type'] })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                      >
+                        <option value="text">Texto</option>
+                        <option value="video">Video</option>
+                        <option value="multiple_choice">Opción múltiple</option>
+                      </select>
+                    </div>
+
+                    {question.type === 'multiple_choice' && question.options && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Opciones
+                        </label>
+                        <div className="space-y-2">
+                          {question.options.map((option, optionIndex) => (
+                            <div key={optionIndex} className="flex items-center gap-2">
+                              <input
+                                type="text"
+                                value={option.label}
+                                onChange={(e) => updateOption(index, optionIndex, e.target.value)}
+                                className="flex-1 px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                                placeholder={`Opción ${optionIndex + 1}`}
+                              />
+                              {question.options!.length > 2 && (
+                                <button
+                                  type="button"
+                                  onClick={() => removeOption(index, optionIndex)}
+                                  className="text-red-600 hover:text-red-700"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              )}
+                            </div>
+                          ))}
+                          <button
+                            type="button"
+                            onClick={() => addOption(index)}
+                            className="text-sm text-violet-600 hover:text-violet-700 font-medium"
+                          >
+                            + Agregar opción
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Error Message */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-            {error}
-          </div>
-        )}
-
-        {/* Submit Button */}
-        <div className="flex justify-end">
+        {/* Botones de acción */}
+        <div className="flex justify-end gap-4">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium transition-colors"
+          >
+            Cancelar
+          </button>
           <button
             type="submit"
-            disabled={loading}
-            className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+            disabled={saving}
+            className="px-6 py-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Briefcase className="w-5 h-5" />
-            <span>{loading ? 'Creando...' : 'Crear Proceso'}</span>
+            {saving ? 'Creando...' : 'Crear Entrevista'}
           </button>
         </div>
       </form>
