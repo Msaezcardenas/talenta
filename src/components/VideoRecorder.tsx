@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Video, StopCircle, PlayCircle, RotateCcw, Upload } from 'lucide-react'
+import { Video, StopCircle, PlayCircle, RotateCcw, Upload, Loader2 } from 'lucide-react'
 
 interface VideoRecorderProps {
   onSave: (blob: Blob) => void
@@ -14,6 +14,7 @@ export default function VideoRecorder({ onSave, questionId }: VideoRecorderProps
   const [recordedUrl, setRecordedUrl] = useState<string | null>(null)
   const [hasPermission, setHasPermission] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
+  const [permissionError, setPermissionError] = useState<string | null>(null)
   
   const videoRef = useRef<HTMLVideoElement>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
@@ -35,6 +36,7 @@ export default function VideoRecorder({ onSave, questionId }: VideoRecorderProps
 
   const requestPermissions = async () => {
     try {
+      setPermissionError(null)
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: true, 
         audio: true 
@@ -48,11 +50,15 @@ export default function VideoRecorder({ onSave, questionId }: VideoRecorderProps
     } catch (err) {
       console.error('Error accessing media devices:', err)
       setHasPermission(false)
+      setPermissionError('No se pudo acceder a la cámara y micrófono. Por favor, permite el acceso en tu navegador.')
     }
   }
 
   const startRecording = () => {
-    if (!videoRef.current?.srcObject) return
+    if (!videoRef.current?.srcObject) {
+      requestPermissions()
+      return
+    }
 
     chunksRef.current = []
     const stream = videoRef.current.srcObject as MediaStream
@@ -98,95 +104,103 @@ export default function VideoRecorder({ onSave, questionId }: VideoRecorderProps
   }
 
   const saveRecording = async () => {
-    if (recordedBlob) {
-      setIsUploading(true)
-      try {
-        await onSave(recordedBlob)
-      } finally {
-        setIsUploading(false)
-      }
+    if (!recordedBlob) return
+    
+    setIsUploading(true)
+    try {
+      await onSave(recordedBlob)
+    } catch (error) {
+      console.error('Error saving video:', error)
+    } finally {
+      setIsUploading(false)
     }
   }
 
-  if (!hasPermission) {
-    return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-        <Video className="w-12 h-12 text-red-500 mx-auto mb-3" />
-        <p className="text-red-700 font-medium">
-          No se pudo acceder a la cámara y micrófono
-        </p>
-        <p className="text-red-600 text-sm mt-2">
-          Por favor, permite el acceso en tu navegador y recarga la página
-        </p>
-      </div>
-    )
-  }
-
   return (
-    <div className="space-y-4">
-      <div className="relative rounded-lg overflow-hidden bg-black aspect-video">
-        {recordedUrl ? (
-          <video
-            src={recordedUrl}
-            controls
-            className="w-full h-full"
-          />
-        ) : (
-          <video
-            ref={videoRef}
-            autoPlay
-            muted
-            playsInline
-            className="w-full h-full"
-          />
-        )}
+    <div className="space-y-6">
+      {/* Video Preview/Recording Area */}
+      <div className="relative bg-black rounded-xl overflow-hidden shadow-lg">
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted={!recordedUrl}
+          src={recordedUrl || undefined}
+          className="w-full h-[400px] object-cover"
+        />
         
-        {isRecording && (
-          <div className="absolute top-4 right-4 flex items-center space-x-2 bg-red-600 text-white px-3 py-1 rounded-full">
-            <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-            <span className="text-sm font-medium">Grabando</span>
+        {!hasPermission && !recordedUrl && (
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75">
+            <div className="text-center text-white p-6">
+              <Video className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+              {permissionError ? (
+                <>
+                  <p className="text-sm mb-4">{permissionError}</p>
+                  <button
+                    onClick={requestPermissions}
+                    className="px-4 py-2 bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors"
+                  >
+                    Reintentar
+                  </button>
+                </>
+              ) : (
+                <p className="text-sm">Solicitando acceso a la cámara...</p>
+              )}
+            </div>
           </div>
         )}
       </div>
 
-      <div className="flex justify-center space-x-4">
-        {!recordedUrl && !isRecording && (
+      {/* Control Buttons */}
+      <div className="flex justify-center gap-4">
+        {!recordedUrl ? (
           <button
-            onClick={startRecording}
-            className="flex items-center space-x-2 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+            onClick={isRecording ? stopRecording : startRecording}
+            disabled={!hasPermission || isUploading}
+            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed ${
+              isRecording 
+                ? 'bg-red-600 hover:bg-red-700 text-white' 
+                : 'bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white'
+            }`}
           >
-            <PlayCircle className="w-5 h-5" />
-            <span>Iniciar Grabación</span>
+            {isRecording ? (
+              <>
+                <StopCircle className="w-5 h-5" />
+                Detener Grabación
+              </>
+            ) : (
+              <>
+                <PlayCircle className="w-5 h-5" />
+                Iniciar Grabación
+              </>
+            )}
           </button>
-        )}
-
-        {isRecording && (
-          <button
-            onClick={stopRecording}
-            className="flex items-center space-x-2 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-          >
-            <StopCircle className="w-5 h-5" />
-            <span>Detener</span>
-          </button>
-        )}
-
-        {recordedUrl && (
+        ) : (
           <>
             <button
               onClick={resetRecording}
-              className="flex items-center space-x-2 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+              disabled={isUploading}
+              className="flex items-center gap-2 px-6 py-3 bg-gray-200 hover:bg-gray-300 rounded-xl font-medium transition-all transform hover:scale-105 disabled:opacity-50"
             >
               <RotateCcw className="w-5 h-5" />
-              <span>Repetir</span>
+              Regrabar
             </button>
-            
             <button
               onClick={saveRecording}
               disabled={isUploading}
-              className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white rounded-xl font-medium transition-all transform hover:scale-105 disabled:opacity-50"
             >
-              <Upload className="w-5 h-5" />
-              <span>{isUploading ? 'Guardando...' : 'Guardar y Continuar'}</span>
+              {isUploading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Guardando...
+                </>
+              ) : (
+                <>
+                  <Upload className="w-5 h-5" />
+                  Guardar y Continuar
+                </>
+              )}
             </button>
           </>
         )}

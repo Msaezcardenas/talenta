@@ -39,6 +39,8 @@ export default function InterviewPage() {
 
   const validateAccess = async () => {
     try {
+      console.log('Validating access for token:', token)
+      
       // Buscar la asignación usando el token (que es el assignment ID)
       // No necesitamos autenticación porque el UUID es único y actúa como token de acceso
       const { data, error } = await supabase
@@ -51,8 +53,20 @@ export default function InterviewPage() {
         .eq('id', token)
         .single()
 
-      if (error || !data) {
-        setError('Enlace inválido o expirado')
+      console.log('Supabase response:', { data, error })
+
+      if (error) {
+        console.error('Supabase error:', error)
+        if (error.code === 'PGRST116') {
+          setError('La entrevista no existe o el enlace es incorrecto')
+        } else {
+          setError(`Error al cargar la entrevista: ${error.message}`)
+        }
+        return
+      }
+
+      if (!data) {
+        setError('No se encontró la entrevista')
         return
       }
 
@@ -61,6 +75,7 @@ export default function InterviewPage() {
         return
       }
 
+      console.log('Assignment loaded successfully:', data)
       setAssignment(data)
     } catch (err) {
       console.error('Error validating access:', err)

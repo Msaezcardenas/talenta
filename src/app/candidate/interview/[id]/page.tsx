@@ -346,7 +346,7 @@ export default function InterviewPage({ params }: { params: { id: string } }) {
                 <Circle className="w-6 h-6 text-purple-500 fill-purple-500 -ml-1.5" />
                 <Circle className="w-6 h-6 text-blue-500 fill-blue-500 -ml-1.5" />
               </div>
-              <h1 className="text-xl font-bold text-gray-900">GetonPro</h1>
+              <h1 className="text-xl font-bold text-gray-900">Talium</h1>
             </div>
             <div className="text-sm text-gray-600">
               {assignment?.interview?.name}
