@@ -1,6 +1,6 @@
 # Talium - Plataforma de Entrevistas Automatizadas
 
-Sistema de entrevistas automatizadas con IA para facilitar el proceso de reclutamiento en RRHH, desarrollado con el branding de AgendaPro.
+Sistema de entrevistas automatizadas con IA para facilitar el proceso de reclutamiento en RRHH.
 
 ## Características
 
