@@ -12,6 +12,8 @@ export default function InterviewsPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [interviewToDelete, setInterviewToDelete] = useState<any>(null)
+  const [assignmentCount, setAssignmentCount] = useState<number>(0)
+  const [showForceDeleteConfirm, setShowForceDeleteConfirm] = useState(false)
   const [completedCounts, setCompletedCounts] = useState<Record<string, number>>({})
   const supabase = createClientComponentClient()
   const router = useRouter()
@@ -52,31 +54,33 @@ export default function InterviewsPage() {
     }
   }
 
-  const handleDeleteClick = (interview: any) => {
+  const handleDelete = async (interview: any) => {
+    // Verificar si hay asignaciones
+    const { count } = await supabase
+      .from('assignments')
+      .select('*', { count: 'exact', head: true })
+      .eq('interview_id', interview.id)
+    
+    setAssignmentCount(count || 0)
     setInterviewToDelete(interview)
     setShowDeleteModal(true)
+    setShowForceDeleteConfirm(false)
   }
 
   const handleDeleteConfirm = async () => {
     if (!interviewToDelete) return
 
+    // Si hay asignaciones y no se ha confirmado forzar eliminación
+    if (assignmentCount > 0 && !showForceDeleteConfirm) {
+      setShowForceDeleteConfirm(true)
+      return
+    }
+
     setDeletingId(interviewToDelete.id)
     const loadingToast = toast.loading('Eliminando entrevista...')
 
     try {
-      // Primero verificar si hay asignaciones
-      const { count } = await supabase
-        .from('assignments')
-        .select('*', { count: 'exact', head: true })
-        .eq('interview_id', interviewToDelete.id)
-
-      if (count && count > 0) {
-        toast.dismiss(loadingToast)
-        toast.error('No se puede eliminar: hay candidatos asignados a esta entrevista')
-        return
-      }
-
-      // Eliminar la entrevista (las preguntas se eliminan en cascada)
+      // Eliminar la entrevista (las preguntas y asignaciones se eliminan en cascada)
       const { error } = await supabase
         .from('interviews')
         .delete()
@@ -89,14 +93,16 @@ export default function InterviewsPage() {
       
       // Actualizar la lista
       setInterviews(interviews.filter(i => i.id !== interviewToDelete.id))
-    } catch (error: any) {
-      console.error('Error deleting interview:', error)
-      toast.dismiss(loadingToast)
-      toast.error(error.message || 'Error al eliminar la entrevista')
-    } finally {
-      setDeletingId(null)
       setShowDeleteModal(false)
       setInterviewToDelete(null)
+      setAssignmentCount(0)
+      setShowForceDeleteConfirm(false)
+    } catch (error) {
+      toast.dismiss(loadingToast)
+      toast.error('Error al eliminar la entrevista')
+      console.error('Error:', error)
+    } finally {
+      setDeletingId(null)
     }
   }
 
@@ -201,7 +207,7 @@ export default function InterviewsPage() {
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleDeleteClick(interview)}
+                        onClick={() => handleDelete(interview)}
                         disabled={deletingId === interview.id}
                         className="text-red-600 hover:text-red-900 hover:bg-red-50 p-2 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                         title="Eliminar"
@@ -229,24 +235,78 @@ export default function InterviewsPage() {
               ¿Eliminar entrevista?
             </h3>
             
-            <p className="text-gray-600 text-center mb-8 px-4">
-              Estás a punto de eliminar <span className="font-semibold text-gray-900">"{interviewToDelete?.name}"</span>. 
-              Esta acción no se puede deshacer y eliminará todas las preguntas asociadas.
-            </p>
+            {!showForceDeleteConfirm ? (
+              <>
+                <p className="text-gray-600 text-center mb-6 px-4">
+                  Estás a punto de eliminar <span className="font-semibold text-gray-900">"{interviewToDelete?.name}"</span>. 
+                  Esta acción no se puede deshacer.
+                </p>
+                
+                {assignmentCount > 0 && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+                    <div className="flex items-start gap-3">
+                      <Users className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-semibold text-amber-900">
+                          Hay {assignmentCount} candidato{assignmentCount > 1 ? 's' : ''} asignado{assignmentCount > 1 ? 's' : ''}
+                        </p>
+                        <p className="text-sm text-amber-700 mt-1">
+                          Al eliminar esta entrevista, también se eliminarán todas las asignaciones y respuestas de los candidatos.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                <p className="text-sm font-semibold text-red-900 mb-2">
+                  ⚠️ Confirmación adicional requerida
+                </p>
+                <p className="text-sm text-red-700">
+                  Esta entrevista tiene {assignmentCount} candidato{assignmentCount > 1 ? 's' : ''} asignado{assignmentCount > 1 ? 's' : ''}.
+                  Se eliminarán permanentemente:
+                </p>
+                <ul className="text-sm text-red-700 mt-2 ml-4 list-disc">
+                  <li>La entrevista y todas sus preguntas</li>
+                  <li>Todas las asignaciones de candidatos</li>
+                  <li>Todas las respuestas enviadas</li>
+                  <li>Videos y transcripciones</li>
+                </ul>
+              </div>
+            )}
             
             <div className="flex gap-4">
               <button
-                onClick={() => setShowDeleteModal(false)}
+                onClick={() => {
+                  setShowDeleteModal(false)
+                  setShowForceDeleteConfirm(false)
+                  setAssignmentCount(0)
+                }}
                 className="flex-1 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium transition-all"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleDeleteConfirm}
-                disabled={deletingId !== null}
-                className="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                disabled={deletingId === interviewToDelete?.id}
+                className={`flex-1 px-6 py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2 
+                  ${showForceDeleteConfirm 
+                    ? 'bg-red-600 hover:bg-red-700 text-white' 
+                    : 'bg-red-500 hover:bg-red-600 text-white'
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
-                {deletingId ? 'Eliminando...' : 'Eliminar'}
+                {deletingId === interviewToDelete?.id ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Eliminando...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    {showForceDeleteConfirm ? 'Sí, eliminar todo' : 'Eliminar'}
+                  </>
+                )}
               </button>
             </div>
           </div>
