@@ -72,7 +72,31 @@ export default function DashboardPage() {
         }).length || 0,
       })
 
-      setInterviews(interviews || [])
+      // Mapear las entrevistas al formato esperado por InterviewCard
+      if (interviews) {
+        const mappedInterviews = interviews.slice(0, 3).map(interview => {
+          const totalCandidates = interview.assignments?.length || 0
+          const completedCount = interview.assignments?.filter((a: any) => a.status === 'completed').length || 0
+          const completionRate = totalCandidates > 0 ? Math.round((completedCount / totalCandidates) * 100) : 0
+          
+          return {
+            id: interview.id,
+            title: interview.name || 'Sin título',
+            position: interview.description || 'Sin descripción',
+            candidates: totalCandidates,
+            completed: completedCount,
+            date: new Date(interview.created_at).toLocaleDateString('es-ES', { 
+              day: 'numeric', 
+              month: 'short', 
+              year: 'numeric' 
+            }),
+            status: completedCount < totalCandidates ? 'active' : 'completed' as 'active' | 'completed',
+            completionRate
+          }
+        })
+        setInterviews(mappedInterviews)
+      }
+
       setLoading(false)
     } catch (error) {
       console.error('Error loading dashboard data:', error)
@@ -91,11 +115,16 @@ export default function DashboardPage() {
     if (!error && activities) {
       const formattedActivities = activities.map((activity) => {
         const candidate = activity.assignments?.profiles
+        const candidateName = candidate 
+          ? `${candidate.first_name || ''} ${candidate.last_name || ''}`.trim() || candidate.email 
+          : 'Usuario desconocido'
+        
         return {
           id: activity.id,
-          candidateName: candidate ? `${candidate.first_name || ''} ${candidate.last_name || ''}`.trim() || candidate.email : 'Usuario desconocido',
-          questionText: activity.questions?.question_text || 'Pregunta desconocida',
-          timeAgo: getTimeAgo(new Date(activity.created_at))
+          type: 'response' as const,
+          title: 'Nueva respuesta recibida',
+          subtitle: `${candidateName} - ${activity.questions?.question_text || 'Pregunta desconocida'}`,
+          time: getTimeAgo(new Date(activity.created_at))
         }
       })
       setActivities(formattedActivities)
