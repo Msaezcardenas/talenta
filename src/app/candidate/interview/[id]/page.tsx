@@ -216,12 +216,11 @@ export default function InterviewPage({ params }: { params: { id: string } }) {
       const currentQuestion = assignment.interview.questions[currentQuestionIndex]
       const supabase = createClient()
       
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('No authenticated user')
+      // No necesitamos autenticación - usar el user_id de la asignación
+      const userId = assignment.user_id
 
       // Upload video to storage
-      const fileName = `${user.id}/${params.id}/${currentQuestion.id}.webm`
+      const fileName = `${userId}/${params.id}/${currentQuestion.id}.webm`
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('videos')
         .upload(fileName, blob, {

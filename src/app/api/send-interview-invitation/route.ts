@@ -6,7 +6,9 @@ export async function POST(request: NextRequest) {
   try {
     const { assignmentId, candidateEmail, candidateName, interviewTitle, token } = await request.json()
     
-    const invitationLink = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/interview/${token}`
+    // Usar NEXT_PUBLIC_SITE_URL o NEXT_PUBLIC_APP_URL o localhost como fallback
+    const appUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const invitationLink = `${appUrl}/interview/${token}`
     
     // Para desarrollo, simularemos el envío de email si no hay API key de Resend
     if (!process.env.RESEND_API_KEY || process.env.NODE_ENV === 'development') {
