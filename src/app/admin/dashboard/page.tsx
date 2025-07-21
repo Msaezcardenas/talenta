@@ -153,7 +153,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8 py-8">
+    <div className="max-w-5xl mx-auto space-y-8 py-8">
       {/* Welcome Section */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
@@ -222,70 +222,68 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column - Actions and Interviews */}
-        <div className="lg:col-span-2 space-y-8">
-          {/* Quick Actions */}
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Plus className="w-5 h-5 text-violet-600" />
-              Acciones Rápidas
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <ActionCard
-                icon={<Plus className="w-5 h-5" />}
-                iconBg="bg-violet-100"
-                iconColor="text-violet-600"
-                title="Crear Entrevista"
-                description="Nueva plantilla de entrevista"
-                onClick={() => router.push('/admin/interviews/new')}
-              />
-              <ActionCard
-                icon={<UserPlus className="w-5 h-5" />}
-                iconBg="bg-emerald-100"
-                iconColor="text-emerald-600"
-                title="Asignar Candidatos"
-                description="Enviar invitaciones masivas"
-                onClick={() => router.push('/admin/assign-interviews')}
-              />
-              <ActionCard
-                icon={<Eye className="w-5 h-5" />}
-                iconBg="bg-blue-100"
-                iconColor="text-blue-600"
-                title="Ver Respuestas"
-                description="Revisar entrevistas completadas"
-                onClick={() => router.push('/admin/interviews')}
-              />
-              <ActionCard
-                icon={<Send className="w-5 h-5" />}
-                iconBg="bg-amber-100"
-                iconColor="text-amber-600"
-                title="Enviar Recordatorios"
-                description="Notificar candidatos pendientes"
-                onClick={() => {}}
-              />
-            </div>
-          </div>
-
-          {/* Recent Interviews */}
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Entrevistas Recientes</h2>
-              <button
-                onClick={() => router.push('/admin/interviews')}
-                className="text-sm text-violet-600 hover:text-violet-700 font-medium"
-              >
-                Ver todas
-              </button>
-            </div>
-            <div className="space-y-4">
-              {interviews.map((interview) => (
-                <InterviewCard key={interview.id} {...interview} />
-              ))}
-            </div>
+      {/* Layout principal sin espacios vacíos */}
+      <div className="max-w-5xl mx-auto space-y-8 py-8">
+        {/* Quick Actions y Entrevistas Recientes */}
+        {/* Quick Actions */}
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <Plus className="w-5 h-5 text-violet-600" />
+            Acciones Rápidas
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <ActionCard
+              icon={<Plus className="w-5 h-5" />}
+              iconBg="bg-violet-100"
+              iconColor="text-violet-600"
+              title="Crear Entrevista"
+              description="Nueva plantilla de entrevista"
+              onClick={() => router.push('/admin/interviews/new')}
+            />
+            <ActionCard
+              icon={<UserPlus className="w-5 h-5" />}
+              iconBg="bg-emerald-100"
+              iconColor="text-emerald-600"
+              title="Asignar Candidatos"
+              description="Enviar invitaciones masivas"
+              onClick={() => router.push('/admin/assign-interviews')}
+            />
+            <ActionCard
+              icon={<Eye className="w-5 h-5" />}
+              iconBg="bg-blue-100"
+              iconColor="text-blue-600"
+              title="Ver Respuestas"
+              description="Revisar entrevistas completadas"
+              onClick={() => router.push('/admin/interviews')}
+            />
+            <ActionCard
+              icon={<Send className="w-5 h-5" />}
+              iconBg="bg-amber-100"
+              iconColor="text-amber-600"
+              title="Enviar Recordatorios"
+              description="Notificar candidatos pendientes"
+              onClick={() => {}}
+            />
           </div>
         </div>
-        {/* Eliminadas las columnas de Actividad Reciente e Insights para un diseño minimalista */}
+
+        {/* Entrevistas Recientes */}
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">Entrevistas Recientes</h2>
+            <button
+              onClick={() => router.push('/admin/interviews')}
+              className="text-sm text-violet-600 hover:text-violet-700 font-medium"
+            >
+              Ver todas
+            </button>
+          </div>
+          <div className="space-y-4">
+            {interviews.map((interview) => (
+              <InterviewCard key={interview.id} {...interview} />
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   )
