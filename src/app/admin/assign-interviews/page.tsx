@@ -271,11 +271,22 @@ export default function AssignInterviewsPage() {
                 value={selectedInterview}
                 onChange={(e) => setSelectedInterview(e.target.value)}
                 className="w-full px-4 py-3 pr-10 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-600 focus:border-violet-600 bg-white text-gray-900 font-medium appearance-none cursor-pointer transition-all hover:border-gray-400"
-                style={{ backgroundColor: 'white' }}
+                style={{ 
+                  backgroundColor: 'white',
+                  color: '#111827',
+                  WebkitAppearance: 'none',
+                  MozAppearance: 'none'
+                }}
               >
-                <option value="">Selecciona una entrevista</option>
+                <option value="" style={{ backgroundColor: 'white', color: '#111827' }}>
+                  Selecciona una entrevista
+                </option>
                 {interviews.map(interview => (
-                  <option key={interview.id} value={interview.id}>
+                  <option 
+                    key={interview.id} 
+                    value={interview.id}
+                    style={{ backgroundColor: 'white', color: '#111827' }}
+                  >
                     {interview.name} ({interview.questions?.length || 0} preguntas)
                   </option>
                 ))}

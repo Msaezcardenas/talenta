@@ -30,6 +30,31 @@ button:not([disabled]) {
   cursor: pointer;
 }
 
+/* Estilos para select dropdowns */
+select {
+  background-color: white !important;
+  color: #111827 !important;
+}
+
+select option {
+  background-color: white !important;
+  color: #111827 !important;
+  padding: 8px;
+}
+
+/* Asegurar que el dropdown se vea bien en modo oscuro también */
+@media (prefers-color-scheme: dark) {
+  select {
+    background-color: white !important;
+    color: #111827 !important;
+  }
+  
+  select option {
+    background-color: white !important;
+    color: #111827 !important;
+  }
+}
+
 /* Animación suave para íconos en hover */
 button svg {
   transition: transform 0.2s ease;
