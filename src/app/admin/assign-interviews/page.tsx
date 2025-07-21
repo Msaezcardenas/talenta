@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { ArrowLeft, Users, FileText, Send, Check, X, Search, UserPlus, Mail, Copy, ChevronDown } from 'lucide-react'
 import Link from 'next/link'
@@ -36,6 +36,25 @@ export default function AssignInterviewsPage() {
     link: string
   }>>([])
   const supabase = createClientComponentClient()
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Cerrar el dropdown al hacer click fuera
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    if (dropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownOpen]);
 
   useEffect(() => {
     loadData()
@@ -266,32 +285,48 @@ export default function AssignInterviewsPage() {
           </h2>
           
           {interviews.length > 0 ? (
-            <div className="relative">
-              <select
-                value={selectedInterview}
-                onChange={(e) => setSelectedInterview(e.target.value)}
-                className="w-full px-4 py-3 pr-10 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-600 focus:border-violet-600 bg-white text-gray-900 font-medium appearance-none cursor-pointer transition-all hover:border-gray-400"
-                style={{ 
-                  backgroundColor: 'white',
-                  color: '#111827',
-                  WebkitAppearance: 'none',
-                  MozAppearance: 'none'
-                }}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                type="button"
+                className={`w-full flex items-center justify-between px-4 py-3 border-2 border-gray-300 rounded-lg bg-white text-gray-900 font-medium transition-all hover:border-violet-400 focus:ring-2 focus:ring-violet-600 focus:border-violet-600 outline-none ${dropdownOpen ? 'ring-2 ring-violet-600 border-violet-600' : ''}`}
+                onClick={() => setDropdownOpen((open) => !open)}
+                aria-haspopup="listbox"
+                aria-expanded={dropdownOpen}
               >
-                <option value="" style={{ backgroundColor: 'white', color: '#111827' }}>
-                  Selecciona una entrevista
-                </option>
-                {interviews.map(interview => (
-                  <option 
-                    key={interview.id} 
-                    value={interview.id}
-                    style={{ backgroundColor: 'white', color: '#111827' }}
+                <span>
+                  {selectedInterview
+                    ? `${interviews.find(i => i.id === selectedInterview)?.name} (${interviews.find(i => i.id === selectedInterview)?.questions?.length || 0} preguntas)`
+                    : 'Selecciona una entrevista'}
+                </span>
+                <ChevronDown className={`w-5 h-5 ml-2 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {dropdownOpen && (
+                <ul
+                  className="absolute z-10 mt-2 w-full bg-white border-2 border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto animate-fade-in"
+                  tabIndex={-1}
+                  role="listbox"
+                >
+                  <li
+                    className={`px-4 py-2 cursor-pointer hover:bg-violet-50 text-gray-700 rounded-t-lg ${!selectedInterview ? 'bg-violet-50 font-semibold' : ''}`}
+                    onClick={() => { setSelectedInterview(''); setDropdownOpen(false); }}
+                    role="option"
+                    aria-selected={!selectedInterview}
                   >
-                    {interview.name} ({interview.questions?.length || 0} preguntas)
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
+                    Selecciona una entrevista
+                  </li>
+                  {interviews.map(interview => (
+                    <li
+                      key={interview.id}
+                      className={`px-4 py-2 cursor-pointer hover:bg-violet-50 text-gray-700 ${selectedInterview === interview.id ? 'bg-violet-100 font-semibold' : ''}`}
+                      onClick={() => { setSelectedInterview(interview.id); setDropdownOpen(false); }}
+                      role="option"
+                      aria-selected={selectedInterview === interview.id}
+                    >
+                      {interview.name} ({interview.questions?.length || 0} preguntas)
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           ) : (
             <div className="text-center py-12 bg-gradient-to-br from-violet-50 to-purple-50 rounded-lg border border-violet-200">
