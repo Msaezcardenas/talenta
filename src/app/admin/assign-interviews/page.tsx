@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { ArrowLeft, Users, FileText, Send, Check, X, Search, UserPlus, Mail, Copy } from 'lucide-react'
+import { ArrowLeft, Users, FileText, Send, Check, X, Search, UserPlus, Mail, Copy, ChevronDown } from 'lucide-react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 
@@ -266,38 +266,23 @@ export default function AssignInterviewsPage() {
               Seleccionar Entrevista
             </h2>
             
-            <div className="space-y-3">
-              {interviews.map(interview => (
-                <label
-                  key={interview.id}
-                  className={`block p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                    selectedInterview === interview.id
-                      ? 'border-violet-600 bg-violet-50'
-                      : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                  }`}
+            {interviews.length > 0 ? (
+              <div className="relative">
+                <select
+                  value={selectedInterview}
+                  onChange={(e) => setSelectedInterview(e.target.value)}
+                  className="w-full px-4 py-3 pr-10 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-600 focus:border-violet-600 bg-white text-gray-900 font-medium appearance-none cursor-pointer transition-all hover:border-gray-400"
                 >
-                  <input
-                    type="radio"
-                    name="interview"
-                    value={interview.id}
-                    checked={selectedInterview === interview.id}
-                    onChange={(e) => setSelectedInterview(e.target.value)}
-                    className="sr-only"
-                  />
-                  <div>
-                    <p className="font-medium text-gray-900">{interview.name}</p>
-                    {interview.description && (
-                      <p className="text-sm text-gray-600 mt-1">{interview.description}</p>
-                    )}
-                    <p className="text-xs text-gray-500 mt-2">
-                      {interview.questions?.length || 0} preguntas
-                    </p>
-                  </div>
-                </label>
-              ))}
-            </div>
-
-            {interviews.length === 0 && (
+                  <option value="">Selecciona una entrevista</option>
+                  {interviews.map(interview => (
+                    <option key={interview.id} value={interview.id}>
+                      {interview.name} ({interview.questions?.length || 0} preguntas)
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
+              </div>
+            ) : (
               <div className="text-center py-12 bg-gradient-to-br from-violet-50 to-purple-50 rounded-lg border border-violet-200">
                 <FileText className="w-12 h-12 text-violet-400 mx-auto mb-3" />
                 <p className="text-gray-700 font-medium mb-2">
