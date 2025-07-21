@@ -71,7 +71,8 @@ export default function InterviewPage() {
       }
 
       if (data.status === 'completed') {
-        setError('Esta entrevista ya ha sido completada')
+        // Redirigir a la página de la entrevista que mostrará la pantalla de completado
+        router.push(`/candidate/interview/${token}`)
         return
       }
 

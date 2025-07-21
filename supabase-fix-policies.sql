@@ -1,92 +1,73 @@
--- Corregir políticas RLS para permitir acceso anónimo a las asignaciones
--- Esto permite que los candidatos accedan sin autenticación usando el UUID como token
+-- Políticas para permitir acceso anónimo basado en assignment UUID
 
--- Primero, eliminar políticas existentes que puedan causar conflictos
-DROP POLICY IF EXISTS "candidates_select_own_assignments" ON public.assignments;
-DROP POLICY IF EXISTS "candidates_update_own_assignments" ON public.assignments;
+-- 1. Políticas para la tabla assignments
+DROP POLICY IF EXISTS "Allow anonymous read assignments by UUID" ON assignments;
+CREATE POLICY "Allow anonymous read assignments by UUID" ON assignments
+    FOR SELECT USING (true);
 
--- Crear nueva política que permite SELECT basado en el ID de la asignación
-CREATE POLICY "anon_select_assignments_by_id" ON public.assignments
-FOR SELECT
-USING (true);  -- Permitir a cualquiera hacer SELECT si conoce el ID
+DROP POLICY IF EXISTS "Allow anonymous update assignment status" ON assignments;
+CREATE POLICY "Allow anonymous update assignment status" ON assignments
+    FOR UPDATE USING (true)
+    WITH CHECK (true);
 
--- Crear política que permite UPDATE del status para usuarios anónimos
-CREATE POLICY "anon_update_assignment_status" ON public.assignments
-FOR UPDATE
-USING (true)  -- Permitir si conoce el ID
-WITH CHECK (true);  -- Solo pueden actualizar su propia asignación (controlado por WHERE en la query)
+-- 2. Políticas para la tabla interviews  
+DROP POLICY IF EXISTS "Allow anonymous read interviews" ON interviews;
+CREATE POLICY "Allow anonymous read interviews" ON interviews
+    FOR SELECT USING (true);
 
--- Políticas para que los candidatos puedan ver las entrevistas y preguntas asociadas
-DROP POLICY IF EXISTS "candidates_view_own_interviews" ON public.interviews;
-CREATE POLICY "anon_view_assigned_interviews" ON public.interviews
-FOR SELECT
-USING (
-  id IN (
-    SELECT interview_id 
-    FROM public.assignments 
-    WHERE true  -- Permitir si la entrevista está asignada
-  )
-);
+-- 3. Políticas para la tabla questions
+DROP POLICY IF EXISTS "Allow anonymous read questions" ON questions;
+CREATE POLICY "Allow anonymous read questions" ON questions
+    FOR SELECT USING (true);
 
--- Políticas para preguntas
-DROP POLICY IF EXISTS "candidates_view_own_questions" ON public.questions;
-CREATE POLICY "anon_view_assigned_questions" ON public.questions
-FOR SELECT
-USING (
-  interview_id IN (
-    SELECT interview_id 
-    FROM public.assignments 
-    WHERE true
-  )
-);
+-- 4. Políticas para la tabla profiles
+DROP POLICY IF EXISTS "Allow anonymous read profiles" ON profiles;
+CREATE POLICY "Allow anonymous read profiles" ON profiles
+    FOR SELECT USING (true);
 
--- Políticas para responses (respuestas)
-DROP POLICY IF EXISTS "candidates_manage_own_responses" ON public.responses;
+-- 5. Políticas para la tabla responses
+DROP POLICY IF EXISTS "Allow anonymous insert responses" ON responses;
+CREATE POLICY "Allow anonymous insert responses" ON responses
+    FOR INSERT WITH CHECK (true);
 
--- Permitir INSERT de respuestas para asignaciones no completadas
-CREATE POLICY "anon_insert_responses" ON public.responses
-FOR INSERT
-WITH CHECK (
-  assignment_id IN (
-    SELECT id 
-    FROM public.assignments 
-    WHERE status != 'completed'
-  )
-);
+DROP POLICY IF EXISTS "Allow anonymous update responses" ON responses;
+CREATE POLICY "Allow anonymous update responses" ON responses
+    FOR UPDATE USING (true)
+    WITH CHECK (true);
 
--- Permitir UPDATE de respuestas para asignaciones no completadas
-CREATE POLICY "anon_update_responses" ON public.responses
-FOR UPDATE
-USING (
-  assignment_id IN (
-    SELECT id 
-    FROM public.assignments 
-    WHERE status != 'completed'
-  )
-)
-WITH CHECK (
-  assignment_id IN (
-    SELECT id 
-    FROM public.assignments 
-    WHERE status != 'completed'
-  )
-);
+DROP POLICY IF EXISTS "Allow anonymous read responses" ON responses;
+CREATE POLICY "Allow anonymous read responses" ON responses
+    FOR SELECT USING (true);
 
--- Permitir SELECT de respuestas
-CREATE POLICY "anon_select_responses" ON public.responses
-FOR SELECT
-USING (true);
+-- 6. Configurar el bucket de storage para permitir uploads anónimos
+-- IMPORTANTE: Ejecutar esto en la sección de SQL Editor de Supabase
 
--- Políticas para profiles (para ver info del candidato)
-CREATE POLICY "anon_view_assigned_profiles" ON public.profiles
-FOR SELECT
-USING (
-  id IN (
-    SELECT user_id 
-    FROM public.assignments 
-    WHERE true
-  )
-);
+-- Primero, asegurarse de que el bucket existe y es público
+INSERT INTO storage.buckets (id, name, public, avif_autodetection, file_size_limit, allowed_mime_types)
+VALUES ('videos', 'videos', true, false, 104857600, ARRAY['video/webm', 'video/mp4', 'video/quicktime'])
+ON CONFLICT (id) DO UPDATE SET 
+    public = true,
+    file_size_limit = 104857600,
+    allowed_mime_types = ARRAY['video/webm', 'video/mp4', 'video/quicktime'];
 
--- IMPORTANTE: Estas políticas son más permisivas porque la seguridad 
--- se basa en el UUID único de la asignación que actúa como token de acceso 
+-- 7. Políticas para el bucket de videos
+-- Permitir upload anónimo
+DROP POLICY IF EXISTS "Allow anonymous uploads" ON storage.objects;
+CREATE POLICY "Allow anonymous uploads" ON storage.objects 
+    FOR INSERT WITH CHECK (bucket_id = 'videos');
+
+-- Permitir lectura pública
+DROP POLICY IF EXISTS "Allow public read" ON storage.objects;
+CREATE POLICY "Allow public read" ON storage.objects 
+    FOR SELECT USING (bucket_id = 'videos');
+
+-- Permitir update/upsert anónimo
+DROP POLICY IF EXISTS "Allow anonymous update" ON storage.objects;
+CREATE POLICY "Allow anonymous update" ON storage.objects 
+    FOR UPDATE USING (bucket_id = 'videos')
+    WITH CHECK (bucket_id = 'videos');
+
+-- Permitir delete para admins autenticados
+DROP POLICY IF EXISTS "Allow authenticated delete" ON storage.objects;
+CREATE POLICY "Allow authenticated delete" ON storage.objects 
+    FOR DELETE USING (bucket_id = 'videos' AND auth.role() = 'authenticated'); 

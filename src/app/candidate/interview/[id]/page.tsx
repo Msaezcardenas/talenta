@@ -195,9 +195,8 @@ export default function InterviewPage({ params }: { params: { id: string } }) {
 
       if (updateError) throw updateError
 
-      // Force a complete refresh
-      setAssignment(null)
-      await fetchAssignment()
+      // Update local state to show completion screen immediately
+      setAssignment(prev => prev ? { ...prev, status: 'completed' } : null)
     } catch (err) {
       console.error('Error finishing interview:', err)
       setError('Error al finalizar la entrevista')
