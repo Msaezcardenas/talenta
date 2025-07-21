@@ -476,7 +476,7 @@ export default function InterviewPage({ params }: { params: { id: string } }) {
                   setCurrentQuestionIndex(Math.max(0, currentQuestionIndex - 1))
                 }}
                 disabled={currentQuestionIndex === 0}
-                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm border border-gray-200"
               >
                 Anterior
               </button>

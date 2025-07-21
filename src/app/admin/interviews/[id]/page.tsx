@@ -208,7 +208,7 @@ export default function InterviewDetailPage() {
       <div className="mt-8 flex justify-end gap-4">
         <button
           onClick={() => router.push(`/admin/interviews/${id}/results`)}
-          className="px-6 py-3 bg-white border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-all shadow-sm flex items-center gap-2"
+          className="px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-all shadow-sm border border-gray-200 flex items-center gap-2"
         >
           <Eye className="w-5 h-5" />
           Ver Resultados

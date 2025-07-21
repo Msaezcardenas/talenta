@@ -463,7 +463,7 @@ export default function EditInterviewPage() {
             <button
               type="button"
               onClick={() => router.back()}
-              className="px-6 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 font-medium transition-all"
+              className="px-8 py-3 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-all shadow-sm border border-gray-200"
             >
               Cancelar
             </button>
