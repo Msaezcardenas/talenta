@@ -69,6 +69,25 @@ export default function InterviewResultsPage() {
     }
   }, [selectedAssignment])
 
+  // Auto-refresh para videos en procesamiento
+  useEffect(() => {
+    if (!selectedAssignment) return
+
+    // Verificar si hay videos pendientes o procesándose
+    const hasProcessingVideos = responses.some(r => 
+      r.data?.type === 'video' && 
+      (r.processing_status === 'pending' || r.processing_status === 'processing')
+    )
+
+    if (hasProcessingVideos) {
+      const interval = setInterval(() => {
+        loadResponses(selectedAssignment.id)
+      }, 5000) // Actualizar cada 5 segundos
+
+      return () => clearInterval(interval)
+    }
+  }, [selectedAssignment, responses])
+
   const loadInterview = async () => {
     try {
       // Cargar entrevista
@@ -325,25 +344,62 @@ export default function InterviewResultsPage() {
                                                   </button>
                                                 ) : null}
                                               </div>
-                                              {response.data.transcript ? (
-                                                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
-                                                  {response.data.transcript}
-                                                </p>
-                                              ) : response.processing_status === 'processing' || response.processing_status === 'pending' ? (
-                                                <div className="flex items-center gap-2 text-sm text-amber-600">
-                                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-amber-600"></div>
-                                                  {response.processing_status === 'pending' ? 'En cola para procesar...' : 'Procesando transcripción...'}
-                                                </div>
-                                              ) : response.processing_status === 'failed' ? (
-                                                <p className="text-sm text-red-600">
-                                                  Error al procesar la transcripción. El video podría estar dañado o ser muy largo.
-                                                </p>
-                                              ) : (
-                                                <div className="text-sm text-gray-500">
-                                                  <p className="italic mb-2">Transcripción no disponible</p>
-                                                  <p className="text-xs">El worker de transcripción podría no estar activo.</p>
-                                                </div>
-                                              )}
+                                              {(() => {
+                                                // Debug logging para video
+                                                console.log('Video response debug:', {
+                                                  responseId: response.id,
+                                                  processingStatus: response.processing_status,
+                                                  hasTranscript: !!response.data.transcript,
+                                                  transcriptLength: response.data.transcript?.length,
+                                                  fullData: response.data
+                                                });
+                                                
+                                                if (response.data.transcript) {
+                                                  return (
+                                                    <div>
+                                                      <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+                                                        {response.data.transcript}
+                                                      </p>
+                                                      <p className="text-xs text-gray-400 mt-2">
+                                                        Procesado: {response.processing_status === 'completed' ? '✅' : '⏳'}
+                                                      </p>
+                                                    </div>
+                                                  );
+                                                } else if (response.processing_status === 'processing' || response.processing_status === 'pending') {
+                                                  return (
+                                                    <div className="flex items-center gap-2 text-sm text-amber-600">
+                                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-amber-600"></div>
+                                                      {response.processing_status === 'pending' ? 'En cola para procesar...' : 'Procesando transcripción...'}
+                                                    </div>
+                                                  );
+                                                } else if (response.processing_status === 'completed') {
+                                                  // Completed pero sin transcript - algo salió mal
+                                                  return (
+                                                    <div className="text-sm text-amber-600">
+                                                      <p className="mb-2">Procesado pero sin transcripción</p>
+                                                      <button 
+                                                        onClick={refreshResponses}
+                                                        className="text-xs underline"
+                                                      >
+                                                        Recargar datos
+                                                      </button>
+                                                    </div>
+                                                  );
+                                                } else if (response.processing_status === 'failed') {
+                                                  return (
+                                                    <p className="text-sm text-red-600">
+                                                      Error al procesar la transcripción. El video podría estar dañado o ser muy largo.
+                                                    </p>
+                                                  );
+                                                } else {
+                                                  return (
+                                                    <div className="text-sm text-gray-500">
+                                                      <p className="italic mb-2">Transcripción no disponible</p>
+                                                      <p className="text-xs">Estado: {response.processing_status || 'desconocido'}</p>
+                                                    </div>
+                                                  );
+                                                }
+                                              })()}
                                             </div>
                                           </div>
                                         ) : (
