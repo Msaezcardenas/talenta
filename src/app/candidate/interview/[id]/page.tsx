@@ -282,25 +282,60 @@ export default function InterviewPage({ params }: { params: { id: string } }) {
     )
   }
 
-  // Completed interview view
+  // Show completion screen if interview is already submitted
   if (assignment?.status === 'completed') {
     const totalQuestions = assignment.interview?.questions?.length || 0
     const answeredQuestions = assignment.responses?.length || 0
     
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
-        <div className="flex items-center justify-center min-h-screen px-4">
-          <div className="bg-white rounded-xl shadow-lg p-8 max-w-md">
-            <div className="text-center">
-              <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+        {/* Header */}
+        <header className="bg-white shadow-sm border-b border-gray-200">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-center h-16">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-violet-600 to-purple-600 rounded-xl flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">T</span>
+                </div>
+                <h1 className="text-xl font-bold text-gray-900">Talium</h1>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div className="flex items-center justify-center py-16">
+          <div className="max-w-md w-full">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+              {/* Success Icon */}
+              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
                 ¡Entrevista Completada!
               </h2>
-              <p className="text-gray-600 mb-4">
-                Ya has completado esta entrevista. Muchas gracias por tu participación.
+              <p className="text-gray-600 mb-8">
+                Gracias por completar la entrevista. Hemos recibido tus respuestas exitosamente.
               </p>
               
-              {/* Progress Summary */}
+              {/* Info Box */}
+              <div className="bg-purple-50 rounded-lg p-4 mb-6">
+                <div className="flex items-start gap-3">
+                  <svg className="w-5 h-5 text-purple-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div className="text-left">
+                    <p className="text-sm font-medium text-purple-900">Próximos pasos</p>
+                    <p className="text-sm text-purple-700 mt-1">
+                      El equipo de Recursos Humanos revisará tu entrevista y se pondrá en contacto contigo pronto.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Summary */}
               <div className="bg-gray-50 rounded-lg p-4 mb-6">
                 <div className="text-sm text-gray-600 mb-2">Resumen de tu entrevista</div>
                 <div className="text-lg font-semibold text-gray-900">
@@ -316,12 +351,9 @@ export default function InterviewPage({ params }: { params: { id: string } }) {
                 </div>
               </div>
               
-              <button
-                onClick={() => router.push('/candidate/dashboard')}
-                className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700"
-              >
-                Volver al Dashboard
-              </button>
+              <p className="text-xs text-gray-500">
+                Si tienes alguna pregunta, no dudes en contactarnos.
+              </p>
             </div>
           </div>
         </div>
@@ -341,10 +373,8 @@ export default function InterviewPage({ params }: { params: { id: string } }) {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
-              <div className="flex">
-                <Circle className="w-6 h-6 text-pink-500 fill-pink-500" />
-                <Circle className="w-6 h-6 text-purple-500 fill-purple-500 -ml-1.5" />
-                <Circle className="w-6 h-6 text-blue-500 fill-blue-500 -ml-1.5" />
+              <div className="w-10 h-10 bg-gradient-to-br from-violet-600 to-purple-600 rounded-xl flex items-center justify-center">
+                <span className="text-white font-bold text-lg">T</span>
               </div>
               <h1 className="text-xl font-bold text-gray-900">Talium</h1>
             </div>
