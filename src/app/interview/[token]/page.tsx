@@ -39,7 +39,8 @@ export default function InterviewPage() {
 
   const validateAccess = async () => {
     try {
-      // Validar el token (ID de assignment)
+      // Buscar la asignación usando el token (que es el assignment ID)
+      // No necesitamos autenticación porque el UUID es único y actúa como token de acceso
       const { data, error } = await supabase
         .from('assignments')
         .select(`
@@ -73,19 +74,21 @@ export default function InterviewPage() {
     if (!assignment) return
 
     try {
-      // Actualizar el estado a "in_progress"
-      const { error } = await supabase
-        .from('assignments')
-        .update({ status: 'in_progress' })
-        .eq('id', assignment.id)
+      // Actualizar el estado a "in_progress" si aún está pendiente
+      if (assignment.status === 'pending') {
+        const { error } = await supabase
+          .from('assignments')
+          .update({ status: 'in_progress' })
+          .eq('id', assignment.id)
 
-      if (error) throw error
+        if (error) throw error
+      }
 
       toast.success('¡Entrevista iniciada!')
       
-      // Aquí redirigirías a la interfaz de entrevista real
-      // Por ahora solo mostramos un mensaje
-      router.push(`/interview/${token}/questions`)
+      // Redirigir directamente a la página de entrevista del candidato
+      // usando el assignment ID como identificador
+      router.push(`/candidate/interview/${assignment.id}`)
     } catch (err) {
       console.error('Error starting interview:', err)
       toast.error('Error al iniciar la entrevista')
@@ -94,7 +97,7 @@ export default function InterviewPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-50 to-purple-50">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
       </div>
     )
@@ -102,17 +105,11 @@ export default function InterviewPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-50 to-purple-50 px-4">
         <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 text-center">
           <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Acceso Denegado</h1>
           <p className="text-gray-600">{error}</p>
-          <button
-            onClick={() => router.push('/')}
-            className="mt-6 px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors"
-          >
-            Volver al inicio
-          </button>
         </div>
       </div>
     )
@@ -137,7 +134,9 @@ export default function InterviewPage() {
                 ¡Bienvenido a tu entrevista!
               </h2>
               <p className="text-gray-600">
-                {assignment?.user.first_name || assignment?.user.email}
+                {assignment?.user.first_name 
+                  ? `${assignment.user.first_name} ${assignment.user.last_name || ''}`
+                  : assignment?.user.email}
               </p>
             </div>
 

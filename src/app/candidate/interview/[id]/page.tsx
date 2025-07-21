@@ -24,52 +24,30 @@ export default function InterviewPage({ params }: { params: { id: string } }) {
     try {
       const supabase = createClient()
       
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        router.push('/')
-        return
-      }
-
+      // No necesitamos verificar autenticación
+      // El assignment ID es suficiente para identificar al candidato
+      
       // Fetch assignment with interview details
       const { data: assignmentData, error: assignmentError } = await supabase
         .from('assignments')
         .select(`
           *,
           interview:interviews(*, questions(*)),
-          responses(*)
+          responses(*),
+          user:profiles(*)
         `)
         .eq('id', params.id)
-        .eq('user_id', user.id)
         .single()
 
-      if (assignmentData?.responses) {
-        // Remove duplicate responses per question
-        const uniqueResponses = assignmentData.responses.reduce((acc: any[], response: any) => {
-          const existingIndex = acc.findIndex(r => r.question_id === response.question_id)
-          if (existingIndex === -1) {
-            acc.push(response)
-          } else {
-            // Keep the most recent response
-            if (new Date(response.updated_at) > new Date(acc[existingIndex].updated_at)) {
-              acc[existingIndex] = response
-            }
-          }
-          return acc
-        }, [])
-        assignmentData.responses = uniqueResponses
-      }
-
-      if (assignmentError) throw assignmentError
-
-      if (!assignmentData) {
-        setError('No se encontró la entrevista')
+      if (assignmentError || !assignmentData) {
+        setError('Entrevista no encontrada')
+        setLoading(false)
         return
       }
 
-      // Check if already completed
+      // Verificar que la entrevista no esté completada
       if (assignmentData.status === 'completed') {
-        setAssignment(assignmentData)
+        setError('Esta entrevista ya ha sido completada')
         setLoading(false)
         return
       }
