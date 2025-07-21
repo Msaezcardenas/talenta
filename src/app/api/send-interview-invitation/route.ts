@@ -59,7 +59,7 @@ Equipo de Talium
     console.log('📧 Enviando email real con Resend a:', candidateEmail)
     
     const emailResponse = await resend.emails.send({
-      from: 'monicasaez@agendapro.com', // Cambiado al correo verificado
+      from: 'Talium <onboarding@resend.dev>', // Cambiar a tu dominio verificado
       to: candidateEmail,
       subject: `Invitación a Entrevista - ${interviewTitle}`,
       html: `
