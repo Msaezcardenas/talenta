@@ -15,25 +15,24 @@ import {
   TrendingUp,
   Target,
   Award,
-  Sparkles
+  Sparkles,
+  Building2,
+  CheckCircle2
 } from 'lucide-react'
 import { StatsCard } from '@/components/dashboard/StatsCard'
 import { ActionCard } from '@/components/dashboard/ActionCard'
 import { InterviewCard } from '@/components/dashboard/InterviewCard'
 import { ActivityItem } from '@/components/dashboard/ActivityItem'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default function DashboardPage() {
   const router = useRouter()
   const supabase = createClientComponentClient()
   const [stats, setStats] = useState({
-    activeInterviews: 0,
-    totalCandidates: 0,
+    totalInterviews: 0,
+    activeCandidates: 0,
     completedToday: 0,
-    averageTime: 0,
-    activeChange: 0,
-    candidatesChange: 0,
-    completedChange: 0,
-    timeChange: 0
+    activeProcesses: 0,
   })
   const [interviews, setInterviews] = useState<any[]>([])
   const [activities, setActivities] = useState<any[]>([])
@@ -41,90 +40,65 @@ export default function DashboardPage() {
 
   useEffect(() => {
     loadDashboardData()
+    loadRecentActivity()
   }, [])
 
   const loadDashboardData = async () => {
     try {
       // Cargar estadísticas
-      const { data: interviewProcesses } = await supabase
-        .from('interview_processes')
-        .select('*, candidate_interviews(*), questions(*)')
+      const { data: interviews, error: interviewsError } = await supabase
+        .from('interviews')
+        .select('*, assignments(*), questions(*)')
 
-      const { data: candidatesData } = await supabase
-        .from('candidate_interviews')
+      const { data: candidates, error: candidatesError } = await supabase
+        .from('assignments')
         .select('*')
 
-      const { data: todayCompleted } = await supabase
-        .from('candidate_interviews')
+      const { data: todayCompletions, error: completionsError } = await supabase
+        .from('assignments')
         .select('*')
         .eq('status', 'completed')
         .gte('completed_at', new Date().toISOString().split('T')[0])
 
       // Calcular estadísticas
-      const activeInterviews = interviewProcesses?.filter(p => p.is_active).length || 0
-      const totalCandidates = candidatesData?.length || 0
-      const completedToday = todayCompleted?.length || 0
-
       setStats({
-        activeInterviews,
-        totalCandidates,
-        completedToday,
-        averageTime: 18,
-        activeChange: 12,
-        candidatesChange: 8,
-        completedChange: 23,
-        timeChange: -5
+        totalInterviews: interviews?.length || 0,
+        activeCandidates: candidates?.length || 0,
+        completedToday: todayCompletions?.length || 0,
+        activeProcesses: interviews?.filter((interview) => {
+          const candidates = interview.assignments?.length || 0
+          const completed = interview.assignments?.filter((c: any) => c.status === 'completed').length || 0
+          return candidates > 0 && completed < candidates
+        }).length || 0,
       })
 
-      // Cargar entrevistas recientes
-      if (interviewProcesses) {
-        const recentInterviews = interviewProcesses.slice(0, 3).map(interview => {
-          const candidates = interview.candidate_interviews?.length || 0
-          const completed = interview.candidate_interviews?.filter((c: any) => c.status === 'completed').length || 0
-          const completionRate = candidates > 0 ? Math.round((completed / candidates) * 100) : 0
-
-          return {
-            id: interview.id,
-            title: interview.title,
-            position: interview.position || 'Sin especificar',
-            candidates,
-            completed,
-            date: new Date(interview.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'numeric', year: 'numeric' }),
-            status: interview.is_active ? 'active' : 'completed',
-            completionRate
-          }
-        })
-        setInterviews(recentInterviews)
-      }
-
-      // Cargar actividades recientes
-      const { data: recentActivities } = await supabase
-        .from('interview_responses')
-        .select('*, candidate_interviews(*, candidates(*)), questions(*)')
-        .order('created_at', { ascending: false })
-        .limit(5)
-
-      if (recentActivities) {
-        const activities = recentActivities.map(activity => {
-          const candidate = activity.candidate_interviews?.candidates
-          const question = activity.questions
-          const timeAgo = getTimeAgo(new Date(activity.created_at))
-
-          return {
-            id: activity.id,
-            type: 'response' as const,
-            title: 'Nueva respuesta recibida',
-            subtitle: `${candidate?.first_name || 'Candidato'} ${candidate?.last_name || ''} - ${question?.title || 'Pregunta'}`,
-            time: timeAgo
-          }
-        })
-        setActivities(activities)
-      }
-
+      setInterviews(interviews || [])
+      setLoading(false)
     } catch (error) {
       console.error('Error loading dashboard data:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadRecentActivity = async () => {
+    const { data: activities, error } = await supabase
+      .from('responses')
+      .select('*, assignments(*, profiles(*)), questions(*)')
+      .order('created_at', { ascending: false })
+      .limit(5)
+
+    if (!error && activities) {
+      const formattedActivities = activities.map((activity) => {
+        const candidate = activity.assignments?.profiles
+        return {
+          id: activity.id,
+          candidateName: candidate ? `${candidate.first_name || ''} ${candidate.last_name || ''}`.trim() || candidate.email : 'Usuario desconocido',
+          questionText: activity.questions?.question_text || 'Pregunta desconocida',
+          timeAgo: getTimeAgo(new Date(activity.created_at))
+        }
+      })
+      setActivities(formattedActivities)
     }
   }
 
@@ -160,43 +134,63 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatsCard
-          title="Entrevistas Activas"
-          value={stats.activeInterviews}
-          change={stats.activeChange}
-          changeText="vs mes anterior"
-          icon={<FileText className="w-5 h-5" />}
-          iconColor="text-violet-600"
-          iconBg="bg-violet-100"
-        />
-        <StatsCard
-          title="Candidatos Totales"
-          value={stats.totalCandidates}
-          change={stats.candidatesChange}
-          changeText="vs mes anterior"
-          icon={<Users className="w-5 h-5" />}
-          iconColor="text-emerald-600"
-          iconBg="bg-emerald-100"
-        />
-        <StatsCard
-          title="Completadas Hoy"
-          value={stats.completedToday}
-          change={stats.completedChange}
-          changeText="vs mes anterior"
-          icon={<CheckCircle className="w-5 h-5" />}
-          iconColor="text-blue-600"
-          iconBg="bg-blue-100"
-        />
-        <StatsCard
-          title="Tiempo Promedio"
-          value={`${stats.averageTime}m`}
-          change={stats.timeChange}
-          changeText="vs mes anterior"
-          icon={<Clock className="w-5 h-5" />}
-          iconColor="text-amber-600"
-          iconBg="bg-amber-100"
-        />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Entrevistas Totales
+            </CardTitle>
+            <Building2 className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalInterviews}</div>
+            <p className="text-xs text-muted-foreground">
+              Procesos de entrevista creados
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Candidatos Activos
+            </CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.activeCandidates}</div>
+            <p className="text-xs text-muted-foreground">
+              Candidatos con entrevistas asignadas
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Completadas Hoy
+            </CardTitle>
+            <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.completedToday}</div>
+            <p className="text-xs text-muted-foreground">
+              Entrevistas finalizadas hoy
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Procesos Activos
+            </CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.activeProcesses}</div>
+            <p className="text-xs text-muted-foreground">
+              Con candidatos en proceso
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
