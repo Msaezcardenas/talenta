@@ -246,7 +246,7 @@ export default function DashboardPage() {
                 iconColor="text-emerald-600"
                 title="Asignar Candidatos"
                 description="Enviar invitaciones masivas"
-                onClick={() => router.push('/admin/assignments')}
+                onClick={() => router.push('/admin/assign-interviews')}
               />
               <ActionCard
                 icon={<Eye className="w-5 h-5" />}
