@@ -37,7 +37,8 @@ interface Response {
   question_id: string
   data: any
   created_at: string
-  processing_status: 'pending' | 'processing' | 'completed' | 'failed'
+  processing_status: 'pending' | 'processing' | 'completed' | 'failed' | null
+  transcript?: string  // Campo transcript opcional en el nivel raíz
 }
 
 const questionTypeIcons = {
@@ -346,19 +347,23 @@ export default function InterviewResultsPage() {
                                               </div>
                                               {(() => {
                                                 // Debug logging para video
+                                                const transcript = response.data?.transcript || response.transcript;
+                                                
                                                 console.log('Video response debug:', {
                                                   responseId: response.id,
                                                   processingStatus: response.processing_status,
-                                                  hasTranscript: !!response.data.transcript,
-                                                  transcriptLength: response.data.transcript?.length,
-                                                  fullData: response.data
+                                                  hasTranscriptInData: !!response.data?.transcript,
+                                                  hasTranscriptInRoot: !!response.transcript,
+                                                  transcriptLength: transcript?.length,
+                                                  fullResponse: response,
+                                                  dataField: response.data
                                                 });
                                                 
-                                                if (response.data.transcript) {
+                                                if (transcript) {
                                                   return (
                                                     <div>
                                                       <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
-                                                        {response.data.transcript}
+                                                        {transcript}
                                                       </p>
                                                       <p className="text-xs text-gray-400 mt-2">
                                                         Procesado: {response.processing_status === 'completed' ? '✅' : '⏳'}
