@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { ArrowLeft, Users, FileText, Send, Check, X, Search, UserPlus } from 'lucide-react'
+import { ArrowLeft, Users, FileText, Send, Check, X, Search, UserPlus, Mail, Copy } from 'lucide-react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 
@@ -29,6 +29,12 @@ export default function AssignInterviewsPage() {
   const [loading, setLoading] = useState(true)
   const [assigning, setAssigning] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
+  const [showLinksModal, setShowLinksModal] = useState(false)
+  const [assignmentLinks, setAssignmentLinks] = useState<Array<{
+    candidateName: string
+    candidateEmail: string
+    link: string
+  }>>([])
   const supabase = createClientComponentClient()
 
   useEffect(() => {
@@ -77,6 +83,9 @@ export default function AssignInterviewsPage() {
     setAssigning(true)
 
     try {
+      // Obtener información de la entrevista seleccionada
+      const selectedInterviewData = interviews.find(i => i.id === selectedInterview)
+      
       // Crear asignaciones para cada candidato seleccionado
       const assignments = selectedCandidates.map(candidateId => ({
         interview_id: selectedInterview,
@@ -84,13 +93,88 @@ export default function AssignInterviewsPage() {
         status: 'pending'
       }))
 
-      const { error } = await supabase
+      const { data: createdAssignments, error } = await supabase
         .from('assignments')
         .insert(assignments)
+        .select()
 
       if (error) throw error
 
-      toast.success(`${selectedCandidates.length} candidatos asignados exitosamente`)
+      // Preparar datos para envío de emails
+      const candidatesData = candidates.filter(c => selectedCandidates.includes(c.id))
+      let emailsSent = 0
+      const failedEmails: string[] = []
+
+      // Enviar emails usando la API existente
+      for (let i = 0; i < createdAssignments.length; i++) {
+        const assignment = createdAssignments[i]
+        const candidate = candidatesData.find(c => c.id === assignment.user_id)
+        
+        if (candidate) {
+          try {
+            const response = await fetch('/api/send-interview-invitation', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                assignmentId: assignment.id,
+                candidateEmail: candidate.email,
+                candidateName: `${candidate.first_name || ''} ${candidate.last_name || ''}`.trim(),
+                interviewTitle: selectedInterviewData?.name || 'Entrevista',
+                token: assignment.id // Usar el ID del assignment como token
+              })
+            })
+
+            const result = await response.json()
+            if (result.success) {
+              emailsSent++
+            } else {
+              failedEmails.push(candidate.email)
+            }
+          } catch (err) {
+            console.error(`Error enviando email a ${candidate.email}:`, err)
+            failedEmails.push(candidate.email)
+          }
+        }
+      }
+
+      // Mostrar resultado
+      if (emailsSent === createdAssignments.length) {
+        toast.success(`✅ ${selectedCandidates.length} candidatos asignados y emails enviados exitosamente`)
+      } else if (emailsSent > 0) {
+        toast.success(`${selectedCandidates.length} candidatos asignados. ${emailsSent} emails enviados, ${failedEmails.length} fallaron.`)
+        
+        // Si algunos emails fallaron, mostrar los enlaces
+        if (failedEmails.length > 0) {
+          const links = createdAssignments
+            .filter(assignment => {
+              const candidate = candidatesData.find(c => c.id === assignment.user_id)
+              return candidate && failedEmails.includes(candidate.email)
+            })
+            .map(assignment => {
+              const candidate = candidatesData.find(c => c.id === assignment.user_id)!
+              return {
+                candidateName: `${candidate.first_name || ''} ${candidate.last_name || ''}`.trim() || candidate.email,
+                candidateEmail: candidate.email,
+                link: `${window.location.origin}/interview/${assignment.id}`
+              }
+            })
+          setAssignmentLinks(links)
+          setShowLinksModal(true)
+        }
+      } else {
+        // Si no se enviaron emails, mostrar todos los enlaces
+        const links = createdAssignments.map(assignment => {
+          const candidate = candidatesData.find(c => c.id === assignment.user_id)!
+          return {
+            candidateName: `${candidate.first_name || ''} ${candidate.last_name || ''}`.trim() || candidate.email,
+            candidateEmail: candidate.email,
+            link: `${window.location.origin}/interview/${assignment.id}`
+          }
+        })
+        setAssignmentLinks(links)
+        setShowLinksModal(true)
+        toast.error('Los emails no se pudieron enviar. Comparte los enlaces manualmente.')
+      }
       
       // Limpiar selección
       setSelectedCandidates([])
@@ -316,6 +400,80 @@ export default function AssignInterviewsPage() {
           )}
         </button>
       </div>
+
+      {/* Modal de Enlaces */}
+      {showLinksModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl max-w-4xl w-full max-h-[80vh] overflow-hidden">
+            <div className="p-6 border-b">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                  <Mail className="w-6 h-6 text-blue-600" />
+                  Enlaces de Invitación
+                </h3>
+                <button
+                  onClick={() => setShowLinksModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              <p className="text-sm text-gray-600 mt-2">
+                El servicio de email no está configurado. Comparte estos enlaces manualmente con los candidatos:
+              </p>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              <div className="space-y-4">
+                {assignmentLinks.map((item, index) => (
+                  <div key={index} className="border rounded-lg p-4 bg-gray-50">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-900">{item.candidateName}</p>
+                        <p className="text-sm text-gray-600">{item.candidateEmail}</p>
+                        <div className="mt-2 flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={item.link}
+                            readOnly
+                            className="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm"
+                          />
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(item.link)
+                              toast.success('Enlace copiado')
+                            }}
+                            className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            title="Copiar enlace"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  <strong>Nota:</strong> Para habilitar el envío automático de emails, configura un servicio de email 
+                  (como Supabase Edge Functions, SendGrid, o Resend) en tu proyecto.
+                </p>
+              </div>
+            </div>
+            
+            <div className="p-6 border-t bg-gray-50 flex justify-end">
+              <button
+                onClick={() => setShowLinksModal(false)}
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 } 
