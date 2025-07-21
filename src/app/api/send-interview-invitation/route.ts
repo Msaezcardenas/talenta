@@ -56,7 +56,9 @@ Equipo de Talium
     // Envío real con Resend
     const resend = new Resend(process.env.RESEND_API_KEY)
     
-    await resend.emails.send({
+    console.log('📧 Enviando email real con Resend a:', candidateEmail)
+    
+    const emailResponse = await resend.emails.send({
       from: 'Talium <onboarding@resend.dev>', // Cambiar a tu dominio verificado
       to: candidateEmail,
       subject: `Invitación a Entrevista - ${interviewTitle}`,
@@ -94,9 +96,17 @@ Equipo de Talium
       `
     })
 
+    console.log('📧 Respuesta de Resend:', emailResponse)
+
     return NextResponse.json({ 
       success: true, 
-      message: 'Invitación enviada correctamente'
+      message: 'Invitación enviada correctamente',
+      emailId: emailResponse.data?.id, // ID del email para rastrear en Resend
+      debug: {
+        to: candidateEmail,
+        from: 'onboarding@resend.dev',
+        resendId: emailResponse.data?.id
+      }
     })
 
   } catch (error) {
