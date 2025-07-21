@@ -325,9 +325,9 @@ export default function InterviewResultsPage() {
                                                   </button>
                                                 ) : null}
                                               </div>
-                                              {response.data.transcription ? (
+                                              {response.data.transcript ? (
                                                 <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
-                                                  {response.data.transcription}
+                                                  {response.data.transcript}
                                                 </p>
                                               ) : response.processing_status === 'processing' || response.processing_status === 'pending' ? (
                                                 <div className="flex items-center gap-2 text-sm text-amber-600">
