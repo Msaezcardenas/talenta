@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     })
     
     // Para desarrollo, simularemos el envío de email si no hay API key de Resend
-    if (!process.env.RESEND_API_KEY || process.env.NODE_ENV === 'development') {
+    if (!process.env.RESEND_API_KEY) {
       console.log('📧 Running in development mode or no Resend API key')
       console.log('=== EMAIL SIMULADO ===')
       console.log(`Para: ${candidateEmail}`)
