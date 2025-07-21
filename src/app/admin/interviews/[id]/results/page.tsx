@@ -354,20 +354,35 @@ export default function InterviewResultsPage() {
                                     
                                     {question.type === 'multiple_choice' && (
                                       <div>
-                                        {response.data.selected ? (
-                                          <div className="flex items-center gap-2">
-                                            <div className="w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center">
-                                              <span className="text-xs font-medium text-violet-600">
-                                                {String.fromCharCode(65 + (question.options?.findIndex((opt: any) => opt.value === response.data.selected) || 0))}
-                                              </span>
-                                            </div>
-                                            <span className="text-gray-800">
-                                              {question.options?.find((opt: any) => opt.value === response.data.selected)?.label || response.data.selected}
-                                            </span>
-                                          </div>
-                                        ) : (
-                                          <p className="text-gray-500">Sin respuesta</p>
-                                        )}
+                                        {(() => {
+                                          // Debug logging
+                                          console.log('Multiple choice response:', {
+                                            responseId: response.id,
+                                            data: response.data,
+                                            selected: response.data.selected,
+                                            options: question.options
+                                          });
+                                          
+                                          if (response.data.selected) {
+                                            const selectedOption = question.options?.find((opt: any) => opt.value === response.data.selected);
+                                            const optionIndex = question.options?.findIndex((opt: any) => opt.value === response.data.selected) || 0;
+                                            
+                                            return (
+                                              <div className="flex items-center gap-2">
+                                                <div className="w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center">
+                                                  <span className="text-xs font-medium text-violet-600">
+                                                    {String.fromCharCode(65 + optionIndex)}
+                                                  </span>
+                                                </div>
+                                                <span className="text-gray-800">
+                                                  {selectedOption?.label || response.data.selected}
+                                                </span>
+                                              </div>
+                                            );
+                                          } else {
+                                            return <p className="text-gray-500">Sin respuesta</p>;
+                                          }
+                                        })()}
                                       </div>
                                     )}
 
