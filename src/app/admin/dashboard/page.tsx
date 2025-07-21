@@ -285,62 +285,7 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-
-        {/* Right Column - Activity and Insights */}
-        <div className="space-y-8">
-          {/* Recent Activity */}
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Clock className="w-5 h-5 text-emerald-600" />
-              Actividad Reciente
-            </h2>
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-              <div className="divide-y divide-gray-100">
-                {activities.map((activity) => (
-                  <ActivityItem key={activity.id} {...activity} />
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Insights */}
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-violet-600" />
-              Insights
-            </h2>
-            <div className="space-y-4">
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-                <div className="flex items-center gap-3 mb-2">
-                  <Target className="w-5 h-5 text-emerald-500" />
-                  <h3 className="font-medium text-gray-900">Tasa de Completación</h3>
-                </div>
-                <p className="text-2xl font-bold text-gray-900">85%</p>
-                <p className="text-sm text-gray-600 mt-1">
-                  de candidatos completan las entrevistas
-                </p>
-              </div>
-
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-                <div className="flex items-center gap-3 mb-2">
-                  <Clock className="w-5 h-5 text-blue-500" />
-                  <h3 className="font-medium text-gray-900">Tiempo Promedio</h3>
-                </div>
-                <p className="text-2xl font-bold text-gray-900">18 minutos</p>
-                <p className="text-sm text-gray-600 mt-1">por entrevista</p>
-              </div>
-
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-                <div className="flex items-center gap-3 mb-2">
-                  <Award className="w-5 h-5 text-violet-500" />
-                  <h3 className="font-medium text-gray-900">Mejor Posición</h3>
-                </div>
-                <p className="text-lg font-bold text-gray-900">Desarrollador Frontend</p>
-                <p className="text-sm text-gray-600 mt-1">(92% completación)</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Eliminadas las columnas de Actividad Reciente e Insights para un diseño minimalista */}
       </div>
     </div>
   )
