@@ -119,7 +119,7 @@ export default function VideoRecorder({ onSave, questionId }: VideoRecorderProps
   return (
     <div className="space-y-6">
       {/* Video Preview/Recording Area */}
-      <div className="relative bg-black rounded-xl overflow-hidden shadow-lg">
+      <div className="relative bg-black rounded-2xl overflow-hidden shadow-2xl border-2 border-gray-200">
         <video
           ref={videoRef}
           autoPlay
@@ -138,7 +138,7 @@ export default function VideoRecorder({ onSave, questionId }: VideoRecorderProps
                   <p className="text-sm mb-4">{permissionError}</p>
                   <button
                     onClick={requestPermissions}
-                    className="px-4 py-2 bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors"
+                    className="px-6 py-3 bg-violet-600 hover:bg-violet-700 rounded-xl transition-all transform hover:scale-105 font-medium shadow-md"
                   >
                     Reintentar
                   </button>
@@ -157,7 +157,7 @@ export default function VideoRecorder({ onSave, questionId }: VideoRecorderProps
           <button
             onClick={isRecording ? stopRecording : startRecording}
             disabled={!hasPermission || isUploading}
-            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed ${
+            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-md ${
               isRecording 
                 ? 'bg-red-600 hover:bg-red-700 text-white' 
                 : 'bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white'
@@ -180,15 +180,15 @@ export default function VideoRecorder({ onSave, questionId }: VideoRecorderProps
             <button
               onClick={resetRecording}
               disabled={isUploading}
-              className="flex items-center gap-2 px-6 py-3 bg-gray-200 hover:bg-gray-300 rounded-xl font-medium transition-all transform hover:scale-105 disabled:opacity-50"
+              className="flex items-center gap-2 px-6 py-3 bg-white border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-700 rounded-xl font-medium transition-all transform hover:scale-105 disabled:opacity-50 shadow-md"
             >
-              <RotateCcw className="w-5 h-5" />
+              <RotateCcw className="w-5 h-5 text-gray-600" />
               Regrabar
             </button>
             <button
               onClick={saveRecording}
               disabled={isUploading}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white rounded-xl font-medium transition-all transform hover:scale-105 disabled:opacity-50"
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white rounded-xl font-medium transition-all transform hover:scale-105 disabled:opacity-50 shadow-md"
             >
               {isUploading ? (
                 <>
