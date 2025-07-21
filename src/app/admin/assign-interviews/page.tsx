@@ -257,48 +257,46 @@ export default function AssignInterviewsPage() {
         <p className="text-gray-600 mt-2">Asigna entrevistas a múltiples candidatos de forma masiva</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="space-y-8">
         {/* Selección de Entrevista */}
-        <div className="lg:col-span-1">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <FileText className="w-5 h-5 text-violet-600" />
-              Seleccionar Entrevista
-            </h2>
-            
-            {interviews.length > 0 ? (
-              <div className="relative">
-                <select
-                  value={selectedInterview}
-                  onChange={(e) => setSelectedInterview(e.target.value)}
-                  className="w-full px-4 py-3 pr-10 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-600 focus:border-violet-600 bg-white text-gray-900 font-medium appearance-none cursor-pointer transition-all hover:border-gray-400"
-                >
-                  <option value="">Selecciona una entrevista</option>
-                  {interviews.map(interview => (
-                    <option key={interview.id} value={interview.id}>
-                      {interview.name} ({interview.questions?.length || 0} preguntas)
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
-              </div>
-            ) : (
-              <div className="text-center py-12 bg-gradient-to-br from-violet-50 to-purple-50 rounded-lg border border-violet-200">
-                <FileText className="w-12 h-12 text-violet-400 mx-auto mb-3" />
-                <p className="text-gray-700 font-medium mb-2">
-                  No hay entrevistas disponibles
-                </p>
-                <p className="text-sm text-gray-600">
-                  Crea una entrevista primero para poder asignarla
-                </p>
-              </div>
-            )}
-          </div>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <FileText className="w-5 h-5 text-violet-600" />
+            Seleccionar Entrevista
+          </h2>
+          
+          {interviews.length > 0 ? (
+            <div className="relative">
+              <select
+                value={selectedInterview}
+                onChange={(e) => setSelectedInterview(e.target.value)}
+                className="w-full px-4 py-3 pr-10 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-600 focus:border-violet-600 bg-white text-gray-900 font-medium appearance-none cursor-pointer transition-all hover:border-gray-400"
+                style={{ backgroundColor: 'white' }}
+              >
+                <option value="">Selecciona una entrevista</option>
+                {interviews.map(interview => (
+                  <option key={interview.id} value={interview.id}>
+                    {interview.name} ({interview.questions?.length || 0} preguntas)
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
+            </div>
+          ) : (
+            <div className="text-center py-12 bg-gradient-to-br from-violet-50 to-purple-50 rounded-lg border border-violet-200">
+              <FileText className="w-12 h-12 text-violet-400 mx-auto mb-3" />
+              <p className="text-gray-700 font-medium mb-2">
+                No hay entrevistas disponibles
+              </p>
+              <p className="text-sm text-gray-600">
+                Crea una entrevista primero para poder asignarla
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Selección de Candidatos */}
-        <div className="lg:col-span-2">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                 <Users className="w-5 h-5 text-emerald-600" />
@@ -387,7 +385,6 @@ export default function AssignInterviewsPage() {
               </div>
             )}
           </div>
-        </div>
       </div>
 
       {/* Botón de acción */}
