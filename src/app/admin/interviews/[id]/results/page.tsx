@@ -37,6 +37,7 @@ interface Response {
   question_id: string
   data: any
   created_at: string
+  processing_status: 'pending' | 'processing' | 'completed' | 'failed'
 }
 
 const questionTypeIcons = {
@@ -133,6 +134,12 @@ export default function InterviewResultsPage() {
     } finally {
       setLoadingResponses(false)
     }
+  }
+
+  const refreshResponses = async () => {
+    if (!selectedAssignment) return
+    await loadResponses(selectedAssignment.id)
+    toast.success('Respuestas actualizadas')
   }
 
   const getResponseForQuestion = (questionId: string) => {
@@ -301,27 +308,41 @@ export default function InterviewResultsPage() {
                                             
                                             {/* Transcripción */}
                                             <div className="bg-gray-50 rounded-lg p-4">
-                                              <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                                                <MessageSquare className="w-4 h-4" />
-                                                Transcripción
-                                              </h4>
+                                              <div className="flex items-center justify-between mb-3">
+                                                <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                                  <MessageSquare className="w-4 h-4" />
+                                                  Transcripción
+                                                </h4>
+                                                {response.processing_status === 'pending' || response.processing_status === 'processing' ? (
+                                                  <button
+                                                    onClick={refreshResponses}
+                                                    className="text-xs text-violet-600 hover:text-violet-700 flex items-center gap-1"
+                                                  >
+                                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                                    </svg>
+                                                    Actualizar
+                                                  </button>
+                                                ) : null}
+                                              </div>
                                               {response.data.transcription ? (
-                                                <p className="text-sm text-gray-700 leading-relaxed">
+                                                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
                                                   {response.data.transcription}
                                                 </p>
-                                              ) : response.data.processing_status === 'processing' ? (
+                                              ) : response.processing_status === 'processing' || response.processing_status === 'pending' ? (
                                                 <div className="flex items-center gap-2 text-sm text-amber-600">
                                                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-amber-600"></div>
-                                                  Procesando transcripción...
+                                                  {response.processing_status === 'pending' ? 'En cola para procesar...' : 'Procesando transcripción...'}
                                                 </div>
-                                              ) : response.data.processing_status === 'failed' ? (
+                                              ) : response.processing_status === 'failed' ? (
                                                 <p className="text-sm text-red-600">
-                                                  Error al procesar la transcripción
+                                                  Error al procesar la transcripción. El video podría estar dañado o ser muy largo.
                                                 </p>
                                               ) : (
-                                                <p className="text-sm text-gray-500 italic">
-                                                  Transcripción no disponible
-                                                </p>
+                                                <div className="text-sm text-gray-500">
+                                                  <p className="italic mb-2">Transcripción no disponible</p>
+                                                  <p className="text-xs">El worker de transcripción podría no estar activo.</p>
+                                                </div>
                                               )}
                                             </div>
                                           </div>
@@ -333,15 +354,15 @@ export default function InterviewResultsPage() {
                                     
                                     {question.type === 'multiple_choice' && (
                                       <div>
-                                        {response.data.selected_option ? (
+                                        {response.data.selected ? (
                                           <div className="flex items-center gap-2">
                                             <div className="w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center">
                                               <span className="text-xs font-medium text-violet-600">
-                                                {String.fromCharCode(65 + (question.options?.findIndex((opt: any) => opt.value === response.data.selected_option) || 0))}
+                                                {String.fromCharCode(65 + (question.options?.findIndex((opt: any) => opt.value === response.data.selected) || 0))}
                                               </span>
                                             </div>
                                             <span className="text-gray-800">
-                                              {question.options?.find((opt: any) => opt.value === response.data.selected_option)?.label || response.data.selected_option}
+                                              {question.options?.find((opt: any) => opt.value === response.data.selected)?.label || response.data.selected}
                                             </span>
                                           </div>
                                         ) : (
