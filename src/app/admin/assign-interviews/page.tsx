@@ -112,6 +112,8 @@ export default function AssignInterviewsPage() {
         
         if (candidate) {
           try {
+            console.log(`📧 Enviando email ${i + 1}/${createdAssignments.length} a:`, candidate.email)
+            
             const response = await fetch('/api/send-interview-invitation', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -125,17 +127,22 @@ export default function AssignInterviewsPage() {
             })
 
             const result = await response.json()
+            console.log('📧 Respuesta del servidor:', result)
+            
             if (result.success) {
               emailsSent++
             } else {
+              console.error('❌ Email falló:', result)
               failedEmails.push(candidate.email)
             }
           } catch (err) {
-            console.error(`Error enviando email a ${candidate.email}:`, err)
+            console.error(`❌ Error enviando email a ${candidate.email}:`, err)
             failedEmails.push(candidate.email)
           }
         }
       }
+
+      console.log(`📧 Resumen: ${emailsSent}/${createdAssignments.length} emails enviados`)
 
       // Mostrar resultado
       if (emailsSent === createdAssignments.length) {

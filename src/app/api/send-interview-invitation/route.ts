@@ -4,14 +4,25 @@ import { Resend } from 'resend'
 
 export async function POST(request: NextRequest) {
   try {
-    const { assignmentId, candidateEmail, candidateName, interviewTitle, token } = await request.json()
+    const body = await request.json()
+    console.log('📧 Send invitation API called with:', body)
+    
+    const { assignmentId, candidateEmail, candidateName, interviewTitle, token } = body
     
     // Usar NEXT_PUBLIC_SITE_URL o NEXT_PUBLIC_APP_URL o localhost como fallback
     const appUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
     const invitationLink = `${appUrl}/interview/${token}`
     
+    console.log('📧 Environment check:', {
+      hasResendKey: !!process.env.RESEND_API_KEY,
+      nodeEnv: process.env.NODE_ENV,
+      appUrl,
+      invitationLink
+    })
+    
     // Para desarrollo, simularemos el envío de email si no hay API key de Resend
     if (!process.env.RESEND_API_KEY || process.env.NODE_ENV === 'development') {
+      console.log('📧 Running in development mode or no Resend API key')
       console.log('=== EMAIL SIMULADO ===')
       console.log(`Para: ${candidateEmail}`)
       console.log(`Asunto: Invitación a Entrevista - ${interviewTitle}`)
@@ -33,7 +44,12 @@ Equipo de Talium
       return NextResponse.json({ 
         success: true, 
         message: 'Invitación enviada (modo desarrollo)',
-        invitationLink // En desarrollo, devolvemos el link para testing
+        invitationLink, // En desarrollo, devolvemos el link para testing
+        debug: {
+          mode: 'development',
+          hasResendKey: !!process.env.RESEND_API_KEY,
+          email: candidateEmail
+        }
       })
     }
 
