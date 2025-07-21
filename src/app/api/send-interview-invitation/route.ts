@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       console.log(`Para: ${candidateEmail}`)
       console.log(`Asunto: Invitación a Entrevista - ${interviewTitle}`)
       console.log(`
-Hola ${candidateName || 'Candidato'},
+Hola${candidateName && candidateName.trim() ? ` ${candidateName}` : ''},
 
 Has sido seleccionado para participar en el proceso de entrevista para: ${interviewTitle}
 
@@ -68,7 +68,7 @@ Equipo de Talium
             <h1 style="color: white; margin: 0;">Talium</h1>
           </div>
           <div style="padding: 30px; background: #f9fafb;">
-            <h2 style="color: #111827;">Hola ${candidateName || 'Candidato'},</h2>
+            <h2 style="color: #111827;">Hola${candidateName && candidateName.trim() ? ` ${candidateName}` : ''},</h2>
             <p style="color: #6b7280; line-height: 1.6;">
               Has sido seleccionado para participar en el proceso de entrevista para:
             </p>

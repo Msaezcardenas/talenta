@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, FileText, Video, MessageSquare, List, Users, Calendar, Edit, Eye } from 'lucide-react'
+import { ArrowLeft, FileText, Video, MessageSquare, List, Users, Calendar, Edit, Eye, Plus } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface Interview {
@@ -141,9 +141,23 @@ export default function InterviewDetailPage() {
         <h2 className="text-xl font-semibold text-gray-900 mb-6">Preguntas de la Entrevista</h2>
 
         {!interview.questions || interview.questions.length === 0 ? (
-          <div className="text-center py-12 bg-gray-50 rounded-xl">
-            <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">No hay preguntas en esta entrevista</p>
+          <div className="text-center py-12 bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl border-2 border-dashed border-violet-300">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-violet-100 rounded-full mb-4">
+              <FileText className="w-8 h-8 text-violet-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              No hay preguntas en esta entrevista
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Agrega preguntas para comenzar a usar esta entrevista
+            </p>
+            <button
+              onClick={() => router.push(`/admin/interviews/${id}/edit`)}
+              className="inline-flex items-center px-6 py-3 bg-violet-600 text-white font-medium rounded-xl hover:bg-violet-700 transition-all shadow-md"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Agregar Preguntas
+            </button>
           </div>
         ) : (
           <div className="space-y-4">

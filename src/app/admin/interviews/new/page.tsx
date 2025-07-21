@@ -271,15 +271,20 @@ export default function NewInterviewPage() {
             </div>
 
             {questions.length === 0 ? (
-              <div className="text-center py-16 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-dashed border-gray-300">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-200 rounded-full mb-4">
-                  <MessageSquare className="w-8 h-8 text-gray-500" />
+              <div className="text-center py-12 bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl border-2 border-dashed border-violet-300">
+                <div className="inline-flex items-center justify-center w-20 h-20 bg-violet-100 rounded-full mb-6">
+                  <MessageSquare className="w-10 h-10 text-violet-600" />
                 </div>
-                <p className="text-gray-600 mb-4">No hay preguntas agregadas aún</p>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  No hay preguntas agregadas aún
+                </h3>
+                <p className="text-gray-600 mb-6 max-w-sm mx-auto">
+                  Comienza agregando preguntas para tu entrevista. Puedes crear preguntas de texto, video o selección múltiple.
+                </p>
                 <button
                   type="button"
                   onClick={addQuestion}
-                  className="inline-flex items-center px-6 py-3 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors shadow-sm"
+                  className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white font-medium rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg"
                 >
                   <Plus className="w-5 h-5 mr-2" />
                   Crear Primera Pregunta

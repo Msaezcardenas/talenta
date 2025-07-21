@@ -127,7 +127,11 @@ export default function AssignInterviewsPage() {
             })
 
             const result = await response.json()
-            console.log('📧 Respuesta del servidor:', result)
+            const candidateFullName = `${candidate.first_name || ''} ${candidate.last_name || ''}`.trim()
+            console.log(`📧 Respuesta del servidor:`, {
+              ...result,
+              sentTo: candidateFullName || 'Sin nombre (solo Hola)'
+            })
             
             if (result.success) {
               emailsSent++
@@ -294,9 +298,15 @@ export default function AssignInterviewsPage() {
             </div>
 
             {interviews.length === 0 && (
-              <p className="text-center text-gray-500 py-8">
-                No hay entrevistas disponibles
-              </p>
+              <div className="text-center py-12 bg-gradient-to-br from-violet-50 to-purple-50 rounded-lg border border-violet-200">
+                <FileText className="w-12 h-12 text-violet-400 mx-auto mb-3" />
+                <p className="text-gray-700 font-medium mb-2">
+                  No hay entrevistas disponibles
+                </p>
+                <p className="text-sm text-gray-600">
+                  Crea una entrevista primero para poder asignarla
+                </p>
+              </div>
             )}
           </div>
         </div>
@@ -379,9 +389,17 @@ export default function AssignInterviewsPage() {
             </div>
 
             {filteredCandidates.length === 0 && (
-              <p className="text-center text-gray-500 py-8">
-                {searchTerm ? 'No se encontraron candidatos' : 'No hay candidatos disponibles'}
-              </p>
+              <div className="text-center py-12 bg-gradient-to-br from-emerald-50 to-green-50 rounded-lg border border-emerald-200">
+                <Users className="w-12 h-12 text-emerald-400 mx-auto mb-3" />
+                <p className="text-gray-700 font-medium mb-2">
+                  {searchTerm ? 'No se encontraron candidatos' : 'No hay candidatos disponibles'}
+                </p>
+                <p className="text-sm text-gray-600">
+                  {searchTerm 
+                    ? 'Intenta con otro término de búsqueda' 
+                    : 'Registra candidatos para poder asignarles entrevistas'}
+                </p>
+              </div>
             )}
           </div>
         </div>
