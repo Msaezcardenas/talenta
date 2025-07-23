@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,32 +13,13 @@ export async function POST(request: NextRequest) {
     const appUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
     const invitationLink = `${appUrl}/interview/${token}`
     
-    console.log('📧 Environment check:', {
-      hasResendKey: !!process.env.RESEND_API_KEY,
-      nodeEnv: process.env.NODE_ENV,
-      appUrl,
-      invitationLink
-    })
-    
-    // Para desarrollo, simularemos el envío de email si no hay API key de Resend
-    if (!process.env.RESEND_API_KEY || process.env.NODE_ENV === 'development') {
-      console.log('📧 Running in development mode or no Resend API key')
+    // Para desarrollo, simularemos el envío de email si no hay credenciales de Gmail
+    if (!process.env.GMAIL_USER || !process.env.GMAIL_PASS || process.env.NODE_ENV === 'development') {
+      console.log('📧 Running in development mode or no Gmail credentials')
       console.log('=== EMAIL SIMULADO ===')
       console.log(`Para: ${candidateEmail}`)
       console.log(`Asunto: Invitación a Entrevista - ${interviewTitle}`)
-      console.log(`
-Hola${candidateName && candidateName.trim() ? ` ${candidateName}` : ''},
-
-Has sido seleccionado para participar en el proceso de entrevista para: ${interviewTitle}
-
-Para acceder a tu entrevista, haz clic en el siguiente enlace:
-${invitationLink}
-
-Este enlace es único y personal. No lo compartas con nadie más.
-
-Saludos,
-Equipo de Talium
-      `)
+      console.log(`\nHola${candidateName && candidateName.trim() ? ` ${candidateName}` : ''},\n\nHas sido seleccionado para participar en el proceso de entrevista para: ${interviewTitle}\n\nPara acceder a tu entrevista, haz clic en el siguiente enlace:\n${invitationLink}\n\nEste enlace es único y personal. No lo compartas con nadie más.\n\nSaludos,\nEquipo de Talium\n      `)
       console.log('=== FIN EMAIL ===')
       
       return NextResponse.json({ 
@@ -47,19 +28,23 @@ Equipo de Talium
         invitationLink, // En desarrollo, devolvemos el link para testing
         debug: {
           mode: 'development',
-          hasResendKey: !!process.env.RESEND_API_KEY,
+          hasGmail: !!process.env.GMAIL_USER,
           email: candidateEmail
         }
       })
     }
 
-    // Envío real con Resend
-    const resend = new Resend(process.env.RESEND_API_KEY)
-    
-    console.log('📧 Enviando email real con Resend a:', candidateEmail)
-    
-    const emailResponse = await resend.emails.send({
-      from: 'Talium <onboarding@resend.dev>', // Cambiar a tu dominio verificado
+    // Envío real con nodemailer (Gmail)
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASS,
+      },
+    })
+
+    const mailOptions = {
+      from: `Talium <${process.env.GMAIL_USER}>`,
       to: candidateEmail,
       subject: `Invitación a Entrevista - ${interviewTitle}`,
       html: `
@@ -93,19 +78,20 @@ Equipo de Talium
             </p>
           </div>
         </div>
-      `
-    })
+      `,
+    }
 
-    console.log('📧 Respuesta de Resend:', emailResponse)
+    const emailResponse = await transporter.sendMail(mailOptions)
+    console.log('📧 Respuesta de nodemailer:', emailResponse)
 
     return NextResponse.json({ 
       success: true, 
       message: 'Invitación enviada correctamente',
-      emailId: emailResponse.data?.id, // ID del email para rastrear en Resend
+      emailId: emailResponse.messageId, // ID del email para rastrear
       debug: {
         to: candidateEmail,
-        from: 'onboarding@resend.dev',
-        resendId: emailResponse.data?.id
+        from: process.env.GMAIL_USER,
+        messageId: emailResponse.messageId
       }
     })
 
