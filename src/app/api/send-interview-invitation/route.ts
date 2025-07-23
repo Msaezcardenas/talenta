@@ -65,7 +65,9 @@ export async function POST(request: NextRequest) {
           <table width="600" align="center" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;box-shadow:0 2px 8px rgba(80,0,120,0.07);margin:40px auto 24px auto;overflow:hidden;">
             <tr>
               <td style="background:linear-gradient(90deg,#7c3aed 0%,#a855f7 100%);padding:36px 0;text-align:center;">
-                <div style="font-size:2rem;font-weight:700;color:#fff;letter-spacing:1px;"> <span style="display:inline-block;vertical-align:middle;margin-right:8px;">👤</span> Talium </div>
+                <a href="https://talium.vercel.app/" style="text-decoration:none;">
+                  <div style="font-size:2rem;font-weight:700;color:#fff;letter-spacing:1px;display:inline-block;"> <span style="display:inline-block;vertical-align:middle;margin-right:8px;">👤</span> Talium </div>
+                </a>
                 <div style="color:#e0d7fa;font-size:1rem;margin-top:8px;">Plataforma de Entrevistas Inteligentes</div>
               </td>
             </tr>
