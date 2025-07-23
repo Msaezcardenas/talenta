@@ -12,6 +12,9 @@ export async function POST(request: NextRequest) {
     // Usar NEXT_PUBLIC_SITE_URL o NEXT_PUBLIC_APP_URL o localhost como fallback
     const appUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
     const invitationLink = `${appUrl}/interview/${token}`
+    const interviewDuration = '45-60 min'
+    const supportEmail = 'soporte@talium.com'
+    const expirationDays = 7
     
     // Para desarrollo, simularemos el envío de email si no hay credenciales de Gmail
     if (!process.env.GMAIL_USER || !process.env.GMAIL_PASS || process.env.NODE_ENV === 'development') {
@@ -48,36 +51,89 @@ export async function POST(request: NextRequest) {
       to: candidateEmail,
       subject: `Invitación a Entrevista - ${interviewTitle}`,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: linear-gradient(to right, #7c3aed, #a855f7); padding: 30px; text-align: center;">
-            <h1 style="color: white; margin: 0;">Talium</h1>
-          </div>
-          <div style="padding: 30px; background: #f9fafb;">
-            <h2 style="color: #111827;">Hola${candidateName && candidateName.trim() ? ` ${candidateName}` : ''},</h2>
-            <p style="color: #6b7280; line-height: 1.6;">
-              Has sido seleccionado para participar en el proceso de entrevista para:
-            </p>
-            <h3 style="color: #7c3aed;">${interviewTitle}</h3>
-            <p style="color: #6b7280; line-height: 1.6;">
-              Para acceder a tu entrevista, haz clic en el siguiente botón:
-            </p>
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${invitationLink}" 
-                 style="display: inline-block; padding: 12px 30px; background: linear-gradient(to right, #7c3aed, #a855f7); 
-                        color: white; text-decoration: none; border-radius: 8px; font-weight: bold;">
-                Comenzar Entrevista
-              </a>
-            </div>
-            <p style="color: #6b7280; font-size: 14px;">
-              O copia y pega este enlace en tu navegador:<br>
-              <code style="background: #e5e7eb; padding: 5px; border-radius: 4px;">${invitationLink}</code>
-            </p>
-            <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
-            <p style="color: #9ca3af; font-size: 12px;">
-              Este enlace es único y personal. No lo compartas con nadie más.
-            </p>
-          </div>
-        </div>
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Invitación a Entrevista - Talium</title>
+  </head>
+  <body style="margin:0;padding:0;background:#f6f7fb;font-family:'Segoe UI',Arial,sans-serif;color:#222;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f6f7fb;padding:0;margin:0;">
+      <tr>
+        <td>
+          <table width="600" align="center" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;box-shadow:0 2px 8px rgba(80,0,120,0.07);margin:40px auto 24px auto;overflow:hidden;">
+            <tr>
+              <td style="background:linear-gradient(90deg,#7c3aed 0%,#a855f7 100%);padding:36px 0;text-align:center;">
+                <div style="font-size:2rem;font-weight:700;color:#fff;letter-spacing:1px;"> <span style="display:inline-block;vertical-align:middle;margin-right:8px;">👤</span> Talium </div>
+                <div style="color:#e0d7fa;font-size:1rem;margin-top:8px;">Plataforma de Entrevistas Inteligentes</div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:40px 32px 24px 32px;">
+                <div style="font-size:1.4rem;font-weight:600;margin-bottom:8px;">¡Hola${candidateName && candidateName.trim() ? ` ${candidateName}` : ''}! <span style="font-size:1.2rem;">👋</span></div>
+                <div style="font-size:1.1rem;color:#555;margin-bottom:32px;">Te invitamos a participar en nuestro proceso de selección.</div>
+                <table width="100%" cellpadding="0" cellspacing="0" style="background:#f6f1ff;border:1.5px solid #a855f7;border-radius:12px;margin-bottom:32px;">
+                  <tr>
+                    <td style="padding:24px 20px;">
+                      <div style="display:flex;align-items:center;gap:12px;">
+                        <div style="background:#ede9fe;border-radius:8px;padding:10px 12px;display:inline-block;">
+                          <span style="font-size:1.3rem;">📅</span>
+                        </div>
+                        <div>
+                          <div style="font-weight:600;font-size:1.08rem;color:#3b0764;">Posición: ${interviewTitle}</div>
+                          <div style="color:#6b7280;font-size:0.98rem;margin-top:2px;">Te invitamos a completar la siguiente etapa de nuestro proceso de selección a través de nuestra plataforma de entrevistas.</div>
+                          <div style="color:#7c3aed;font-size:0.95rem;margin-top:8px;display:flex;align-items:center;gap:12px;">
+                            <span style="display:inline-flex;align-items:center;gap:4px;">⏱️ <span style="font-size:0.97rem;">Duración: ${interviewDuration}</span></span>
+                            <span style="display:inline-flex;align-items:center;gap:4px;">🔒 <span style="font-size:0.97rem;">Enlace seguro</span></span>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+                <div style="text-align:center;margin-bottom:32px;">
+                  <a href="${invitationLink}" style="display:inline-block;padding:18px 38px;background:linear-gradient(90deg,#a855f7 0%,#7c3aed 100%);color:#fff;font-weight:600;font-size:1.15rem;border-radius:12px;text-decoration:none;box-shadow:0 2px 8px rgba(124,58,237,0.10);transition:background 0.2s;">Comenzar Entrevista</a>
+                </div>
+                <div style="text-align:center;color:#6b7280;font-size:1rem;margin-bottom:32px;">
+                  Haz clic en el botón para acceder directamente a tu entrevista
+                </div>
+                <table width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;border-radius:10px;margin-bottom:32px;">
+                  <tr>
+                    <td style="padding:18px 20px;">
+                      <div style="font-weight:600;color:#111827;margin-bottom:6px;">¿Problemas con el botón?</div>
+                      <div style="color:#6b7280;font-size:0.98rem;margin-bottom:8px;">También puedes copiar y pegar este enlace en tu navegador:</div>
+                      <div style="background:#fff;border:1px solid #e5e7eb;border-radius:7px;padding:10px 12px;font-size:0.97rem;word-break:break-all;color:#7c3aed;">${invitationLink}</div>
+                    </td>
+                  </tr>
+                </table>
+                <table width="100%" cellpadding="0" cellspacing="0" style="background:#fef9c3;border:1.5px solid #fde68a;border-radius:10px;margin-bottom:32px;">
+                  <tr>
+                    <td style="padding:16px 20px;">
+                      <div style="display:flex;align-items:center;gap:8px;">
+                        <span style="font-size:1.2rem;">⚠️</span>
+                        <div style="color:#b45309;font-weight:600;font-size:1rem;">Información importante</div>
+                      </div>
+                      <div style="color:#92400e;font-size:0.98rem;margin-top:4px;">Este enlace es único y personal. Por favor, no lo compartas con terceros. El enlace expirará en ${expirationDays} días desde la fecha de envío.</div>
+                    </td>
+                  </tr>
+                </table>
+                <div style="text-align:center;color:#6b7280;font-size:0.97rem;margin-bottom:0;">
+                  ¿Tienes alguna pregunta? Contáctanos en <a href="mailto:${supportEmail}" style="color:#7c3aed;text-decoration:underline;">${supportEmail}</a>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td style="background:#f6f7fb;text-align:center;padding:24px 0 18px 0;color:#a1a1aa;font-size:0.98rem;border-radius:0 0 16px 16px;">
+                © 2024 Talium. Todos los derechos reservados.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
       `,
     }
 
