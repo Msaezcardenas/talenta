@@ -43,6 +43,7 @@ export default function AssignInterviewsPage() {
   const [newCandidateEmail, setNewCandidateEmail] = useState('')
   const [newCandidateName, setNewCandidateName] = useState('')
   const [creating, setCreating] = useState(false)
+  const emailInputRef = useRef<HTMLInputElement>(null)
 
   // Cerrar el dropdown al hacer click fuera
   useEffect(() => {
@@ -64,6 +65,18 @@ export default function AssignInterviewsPage() {
   useEffect(() => {
     loadData()
   }, [])
+
+  useEffect(() => {
+    // Cuando se abre el formulario, inicializar el email solo una vez
+    if (creatingCandidate) {
+      setNewCandidateEmail(searchTerm)
+      setTimeout(() => {
+        emailInputRef.current?.focus()
+      }, 100)
+    }
+    // No limpiar el email si se cierra, para evitar perder lo escrito
+    // eslint-disable-next-line
+  }, [creatingCandidate])
 
   const loadData = async () => {
     try {
@@ -460,9 +473,9 @@ export default function AssignInterviewsPage() {
             </div>
 
             {filteredCandidates.length === 0 && searchTerm && (
-              <div className="text-center py-8 bg-gradient-to-br from-emerald-50 to-green-50 rounded-lg border border-emerald-200">
+              <div className="text-center py-8 bg-green-50 border border-emerald-200 rounded-lg">
                 <Users className="w-10 h-10 text-emerald-400 mx-auto mb-2" />
-                <p className="text-gray-700 font-medium mb-2">No se encontró ningún candidato con ese email.</p>
+                <p className="text-gray-700 font-semibold mb-2">No se encontró ningún candidato con ese email.</p>
                 <p className="text-sm text-gray-600 mb-4">¿Quieres crear un nuevo candidato con este email?</p>
                 {!creatingCandidate ? (
                   <button
@@ -474,24 +487,24 @@ export default function AssignInterviewsPage() {
                 ) : (
                   <div className="max-w-xs mx-auto mt-4 space-y-3">
                     <input
+                      ref={emailInputRef}
                       type="email"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-600 focus:border-transparent"
+                      className="w-full px-4 py-2 border-2 border-violet-400 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-violet-600 focus:border-violet-600 transition-all"
                       placeholder="Email del candidato"
-                      value={newCandidateEmail || searchTerm}
+                      value={newCandidateEmail}
                       onChange={e => setNewCandidateEmail(e.target.value)}
                       required
-                      autoFocus
                     />
                     <input
                       type="text"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-600 focus:border-transparent"
+                      className="w-full px-4 py-2 border-2 border-violet-200 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-violet-600 focus:border-violet-400 transition-all"
                       placeholder="Nombre completo (opcional)"
                       value={newCandidateName}
                       onChange={e => setNewCandidateName(e.target.value)}
                     />
-                    <div className="flex gap-2 justify-center">
+                    <div className="flex gap-2 justify-center mt-2">
                       <button
-                        className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
+                        className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg font-medium hover:bg-gray-400 transition-all border border-gray-400"
                         onClick={() => setCreatingCandidate(false)}
                         type="button"
                         disabled={creating}
