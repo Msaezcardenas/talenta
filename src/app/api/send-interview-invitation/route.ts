@@ -76,17 +76,11 @@ export async function POST(request: NextRequest) {
                 <table width="100%" cellpadding="0" cellspacing="0" style="background:#f6f1ff;border:1.5px solid #a855f7;border-radius:12px;margin-bottom:32px;">
                   <tr>
                     <td style="padding:24px 20px;">
-                      <div style="display:flex;align-items:center;gap:12px;">
-                        <div style="background:#ede9fe;border-radius:8px;padding:10px 12px;display:inline-block;">
-                          <span style="font-size:1.3rem;">📅</span>
-                        </div>
-                        <div>
-                          <div style="font-weight:600;font-size:1.08rem;color:#3b0764;">Posición: ${interviewTitle}</div>
-                          <div style="color:#6b7280;font-size:0.98rem;margin-top:2px;">Te invitamos a completar la siguiente etapa de nuestro proceso de selección a través de nuestra plataforma de entrevistas.</div>
-                          <div style="color:#7c3aed;font-size:0.95rem;margin-top:8px;display:flex;align-items:center;gap:12px;">
-                            <span style="display:inline-flex;align-items:center;gap:4px;">⏱️ <span style="font-size:0.97rem;">Duración: ${interviewDuration}</span></span>
-                            <span style="display:inline-flex;align-items:center;gap:4px;">🔒 <span style="font-size:0.97rem;">Enlace seguro</span></span>
-                          </div>
+                      <div>
+                        <div style="font-weight:600;font-size:1.08rem;color:#3b0764;margin-bottom:2px;">Posición: ${interviewTitle}</div>
+                        <div style="color:#6b7280;font-size:0.98rem;margin-bottom:8px;">Te invitamos a completar la siguiente etapa de nuestro proceso de selección a través de nuestra plataforma de entrevistas.</div>
+                        <div style="color:#7c3aed;font-size:0.97rem;margin-top:8px;">
+                          <span style="font-weight:500;">⏱️ Duración: ${interviewDuration}</span> &nbsp; <span style="font-weight:500;">🔒 Enlace seguro</span>
                         </div>
                       </div>
                     </td>
