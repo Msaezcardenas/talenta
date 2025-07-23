@@ -267,6 +267,26 @@ export default function AssignInterviewsPage() {
       setNewCandidateEmail('')
       setNewCandidateName('')
       toast.success('Candidato creado exitosamente')
+      // Seleccionar automáticamente el nuevo candidato y asignar si hay entrevista seleccionada
+      if (data.user && data.user.id) {
+        setSelectedCandidates([data.user.id])
+        if (selectedInterview) {
+          setTimeout(() => {
+            handleAssign()
+          }, 300)
+        }
+      } else if (data.user && data.user.email) {
+        // fallback: buscar por email si no hay id
+        const nuevo = candidates.find(c => c.email === newCandidateEmail)
+        if (nuevo) {
+          setSelectedCandidates([nuevo.id])
+          if (selectedInterview) {
+            setTimeout(() => {
+              handleAssign()
+            }, 300)
+          }
+        }
+      }
     } catch (err: any) {
       toast.error(err.message || 'Error al crear candidato')
     } finally {
