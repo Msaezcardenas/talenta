@@ -49,6 +49,20 @@ export default function AdminLoginPage() {
     setLoading(true)
     setError(null)
 
+    // Validación manual UX
+    if (!email) {
+      setError('Ingresa tu correo electrónico')
+      toast.error('Por favor ingresa tu correo electrónico.')
+      setLoading(false)
+      return
+    }
+    if (!password) {
+      setError('Ingresa tu contraseña')
+      toast.error('Por favor ingresa tu contraseña.')
+      setLoading(false)
+      return
+    }
+
     try {
       console.log('[Login] Starting login process...')
       
@@ -156,13 +170,17 @@ export default function AdminLoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-4 py-3 pl-12 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent focus:bg-white transition-all text-gray-900 placeholder-gray-500"
                   placeholder="admin@empresa.com"
-                  required
+                  // required // Quitar required nativo
                   disabled={loading}
+                  autoComplete="username"
                 />
                 <svg className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>
+              {error === 'Ingresa tu correo electrónico' && (
+                <p className="text-sm text-red-600 mt-1">Por favor ingresa tu correo electrónico.</p>
+              )}
             </div>
 
             <div>
@@ -177,13 +195,17 @@ export default function AdminLoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-4 py-3 pl-12 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent focus:bg-white transition-all text-gray-900 placeholder-gray-500"
                   placeholder="••••••••"
-                  required
+                  // required // Quitar required nativo
                   disabled={loading}
+                  autoComplete="current-password"
                 />
                 <svg className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
               </div>
+              {error === 'Ingresa tu contraseña' && (
+                <p className="text-sm text-red-600 mt-1">Por favor ingresa tu contraseña.</p>
+              )}
             </div>
 
             {error && (
