@@ -529,7 +529,9 @@ export default function AssignInterviewsPage() {
                         onClick={handleCreateCandidate}
                         type="button"
                         disabled={creating}
-                      >{creating ? 'Creando...' : 'Crear'}</button>
+                      >
+                        {creating ? 'Creando...' : 'Crear'}
+                      </button>
                     </div>
                   </div>
                 )}
