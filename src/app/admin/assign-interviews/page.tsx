@@ -250,30 +250,25 @@ export default function AssignInterviewsPage() {
     }
     setCreating(true)
     try {
-      // 1. Crear usuario en auth.users usando Supabase Admin API (Edge Function o RPC)
-      // 2. Insertar en profiles (trigger lo hace automáticamente)
-      // Usamos el endpoint de Supabase para crear usuario (requiere service role key en backend real, aquí simulamos con insert a profiles)
-      // Generar un UUID para el nuevo usuario
-      const newUserId = uuidv4()
-      const [first_name, ...rest] = newCandidateName.trim().split(' ')
-      const last_name = rest.join(' ')
-      // Insertar en profiles (en producción, deberías crear en auth.users y dejar que el trigger cree el profile)
-      const { error: profileError } = await supabase.from('profiles').insert({
-        id: newUserId,
-        email: newCandidateEmail,
-        role: 'candidate',
-        first_name: first_name || null,
-        last_name: last_name || null
+      // Llamar al endpoint seguro que crea el usuario en auth.users
+      const response = await fetch('/api/create-candidate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: newCandidateEmail,
+          name: newCandidateName
+        })
       })
-      if (profileError) throw profileError
+      const data = await response.json()
+      if (!data.success) throw new Error(data.error || 'Error creando candidato')
       // Refrescar lista de candidatos
       await loadData()
       setCreatingCandidate(false)
       setNewCandidateEmail('')
       setNewCandidateName('')
       toast.success('Candidato creado exitosamente')
-    } catch (err) {
-      toast.error('Error al crear candidato')
+    } catch (err: any) {
+      toast.error(err.message || 'Error al crear candidato')
     } finally {
       setCreating(false)
     }
