@@ -5,6 +5,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { ArrowLeft, Users, FileText, Send, Check, X, Search, UserPlus, Mail, Copy, ChevronDown } from 'lucide-react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
+import { v4 as uuidv4 } from 'uuid'
 
 interface Interview {
   id: string
@@ -38,6 +39,10 @@ export default function AssignInterviewsPage() {
   const supabase = createClientComponentClient()
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [creatingCandidate, setCreatingCandidate] = useState(false)
+  const [newCandidateEmail, setNewCandidateEmail] = useState('')
+  const [newCandidateName, setNewCandidateName] = useState('')
+  const [creating, setCreating] = useState(false)
 
   // Cerrar el dropdown al hacer click fuera
   useEffect(() => {
@@ -221,6 +226,43 @@ export default function AssignInterviewsPage() {
       }
     } finally {
       setAssigning(false)
+    }
+  }
+
+  // Crear candidato si no existe
+  const handleCreateCandidate = async () => {
+    if (!newCandidateEmail || !newCandidateEmail.includes('@')) {
+      toast.error('Ingresa un email válido')
+      return
+    }
+    setCreating(true)
+    try {
+      // 1. Crear usuario en auth.users usando Supabase Admin API (Edge Function o RPC)
+      // 2. Insertar en profiles (trigger lo hace automáticamente)
+      // Usamos el endpoint de Supabase para crear usuario (requiere service role key en backend real, aquí simulamos con insert a profiles)
+      // Generar un UUID para el nuevo usuario
+      const newUserId = uuidv4()
+      const [first_name, ...rest] = newCandidateName.trim().split(' ')
+      const last_name = rest.join(' ')
+      // Insertar en profiles (en producción, deberías crear en auth.users y dejar que el trigger cree el profile)
+      const { error: profileError } = await supabase.from('profiles').insert({
+        id: newUserId,
+        email: newCandidateEmail,
+        role: 'candidate',
+        first_name: first_name || null,
+        last_name: last_name || null
+      })
+      if (profileError) throw profileError
+      // Refrescar lista de candidatos
+      await loadData()
+      setCreatingCandidate(false)
+      setNewCandidateEmail('')
+      setNewCandidateName('')
+      toast.success('Candidato creado exitosamente')
+    } catch (err) {
+      toast.error('Error al crear candidato')
+    } finally {
+      setCreating(false)
     }
   }
 
@@ -417,17 +459,52 @@ export default function AssignInterviewsPage() {
               })}
             </div>
 
-            {filteredCandidates.length === 0 && (
-              <div className="text-center py-12 bg-gradient-to-br from-emerald-50 to-green-50 rounded-lg border border-emerald-200">
-                <Users className="w-12 h-12 text-emerald-400 mx-auto mb-3" />
-                <p className="text-gray-700 font-medium mb-2">
-                  {searchTerm ? 'No se encontraron candidatos' : 'No hay candidatos disponibles'}
-                </p>
-                <p className="text-sm text-gray-600">
-                  {searchTerm 
-                    ? 'Intenta con otro término de búsqueda' 
-                    : 'Registra candidatos para poder asignarles entrevistas'}
-                </p>
+            {filteredCandidates.length === 0 && searchTerm && (
+              <div className="text-center py-8 bg-gradient-to-br from-emerald-50 to-green-50 rounded-lg border border-emerald-200">
+                <Users className="w-10 h-10 text-emerald-400 mx-auto mb-2" />
+                <p className="text-gray-700 font-medium mb-2">No se encontró ningún candidato con ese email.</p>
+                <p className="text-sm text-gray-600 mb-4">¿Quieres crear un nuevo candidato con este email?</p>
+                {!creatingCandidate ? (
+                  <button
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-lg font-medium hover:from-violet-700 hover:to-purple-700 transition-all shadow-md"
+                    onClick={() => setCreatingCandidate(true)}
+                  >
+                    <UserPlus className="w-5 h-5" /> Crear candidato
+                  </button>
+                ) : (
+                  <div className="max-w-xs mx-auto mt-4 space-y-3">
+                    <input
+                      type="email"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-600 focus:border-transparent"
+                      placeholder="Email del candidato"
+                      value={newCandidateEmail || searchTerm}
+                      onChange={e => setNewCandidateEmail(e.target.value)}
+                      required
+                      autoFocus
+                    />
+                    <input
+                      type="text"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-600 focus:border-transparent"
+                      placeholder="Nombre completo (opcional)"
+                      value={newCandidateName}
+                      onChange={e => setNewCandidateName(e.target.value)}
+                    />
+                    <div className="flex gap-2 justify-center">
+                      <button
+                        className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
+                        onClick={() => setCreatingCandidate(false)}
+                        type="button"
+                        disabled={creating}
+                      >Cancelar</button>
+                      <button
+                        className="px-4 py-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-lg font-medium hover:from-violet-700 hover:to-purple-700 transition-all shadow-md"
+                        onClick={handleCreateCandidate}
+                        type="button"
+                        disabled={creating}
+                      >{creating ? 'Creando...' : 'Crear y asignar'}</button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
