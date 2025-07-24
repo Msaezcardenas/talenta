@@ -1,6 +1,18 @@
 # Talium
 
+<p align="center">
+  <img src="/public/next.svg" alt="Talium logo" width="120" />
+</p>
+
 **Talium** es una plataforma inteligente de entrevistas que optimiza el proceso de selección de talento, permitiendo a empresas y candidatos vivir una experiencia ágil, moderna y segura.
+
+---
+
+## 🎨 ¿Por qué el color violeta?
+El color principal de Talium es el **violeta**. Esta elección no es casual:
+- **Innovación y tecnología:** El violeta es asociado a creatividad, futuro y tecnología, valores clave para una plataforma de entrevistas inteligente.
+- **Confianza y diferenciación:** Es un color poco usado en RRHH, lo que hace que Talium destaque y transmita confianza y modernidad.
+- **Accesibilidad:** El contraste con blanco y negro asegura máxima legibilidad y una experiencia visual agradable para todos los usuarios.
 
 ---
 
