@@ -126,7 +126,6 @@ NEXT_PUBLIC_APP_URL=...
 ## 👨‍💻 Créditos y Contacto
 - **Desarrollo & Diseño:** Molu Sáez (github.com/Msaezcardenas)
 - **UI/UX:** Inspirado en los mejores sistemas SaaS modernos.
-- **Contacto:** soporte@talium.com
 
 ---
 
