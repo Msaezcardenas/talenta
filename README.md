@@ -1,101 +1,122 @@
-# Talium - Plataforma de Entrevistas Automatizadas
+# Talium
 
-Sistema de entrevistas automatizadas con IA para facilitar el proceso de reclutamiento en RRHH.
+**Talium** es una plataforma inteligente de entrevistas que optimiza el proceso de selección de talento, permitiendo a empresas y candidatos vivir una experiencia ágil, moderna y segura.
 
-## Características
+---
 
-- 🎯 **Panel de administración** completo para gestionar entrevistas y candidatos
-- 📊 **Dashboard** con estadísticas en tiempo real
-- 👥 **Gestión de candidatos** con seguimiento de progreso
-- 📝 **Creación de entrevistas** con preguntas de video, texto y opción múltiple
-- 🔐 **Autenticación segura** con roles (admin/candidato)
-- 📱 **Diseño responsive** optimizado para todos los dispositivos
-- 🔗 **Magic Link** para candidatos - login sin contraseña
-- 🎨 **Branding AgendaPro** con colores y diseño personalizado
+## 🚀 ¿Qué es Talium?
+Talium es un sistema de entrevistas asincrónicas y automatizadas, pensado para equipos de RRHH y candidatos. Permite:
+- Crear entrevistas personalizadas (texto, video, selección múltiple)
+- Asignar entrevistas a candidatos por email
+- Recibir respuestas y transcripciones automáticas
+- Analizar resultados desde un panel de administración intuitivo
 
-## Tecnologías
+---
 
-- **Frontend**: Next.js 14 (App Router), TypeScript, Tailwind CSS
-- **Backend**: Supabase (PostgreSQL + Auth + Storage)
-- **UI Components**: Lucide React para iconos
-- **Estado**: React Hooks
+## ✨ Principios de Usabilidad y UX
+- **Sin fricción:** Los candidatos acceden con un solo click desde su email, sin registros ni contraseñas.
+- **Feedback inmediato:** Toasts, validaciones visuales y mensajes claros en cada acción.
+- **Accesibilidad:** Contraste alto, fuentes legibles (Poppins), navegación por teclado y diseño responsive.
+- **Minimalismo:** Interfaz limpia, sin ruido visual, solo lo esencial para cada usuario.
+- **Consistencia:** Colores, botones y componentes mantienen un look & feel profesional y moderno.
 
-## Configuración
+---
 
-### 1. Clonar el repositorio
+## 👩‍💼 Guía de Uso
+### Para Administradores
+1. **Login seguro:** Accede con tu email y contraseña de admin.
+2. **Dashboard:** Visualiza estadísticas clave y entrevistas recientes.
+3. **Crear Entrevistas:** Define preguntas de texto, video o selección múltiple.
+4. **Asignar Entrevistas:** Selecciona una entrevista y asigna a uno o varios candidatos. Si el candidato no existe, créalo en el momento.
+5. **Resultados:** Analiza respuestas, videos y transcripciones desde el panel.
+6. **Notificaciones:** Recibe feedback visual inmediato de cada acción.
 
+### Para Candidatos
+- Recibe un email con un enlace único y seguro.
+- Accede a la entrevista sin necesidad de registro.
+- Responde preguntas de texto, video o selección múltiple.
+- Recibe confirmación visual al completar la entrevista.
+
+---
+
+## 🛠️ Instalación y Despliegue
+
+### Requisitos
+- Node.js 18+
+- Cuenta en [Supabase](https://supabase.com/)
+- Cuenta de Gmail para envío de emails (o SMTP alternativo)
+- (Opcional) Cuenta en Vercel para despliegue
+
+### Instalación local
 ```bash
-git clone [tu-repositorio]
-cd aplicacion_interview
+# Clona el repositorio
+ git clone https://github.com/Msaezcardenas/Talium.git
+ cd Talium
+
+# Instala dependencias
+ npm install
+
+# Configura variables de entorno
+ cp .env.example .env.local
+# Edita .env.local con tus claves de Supabase y Gmail
+
+# Ejecuta en desarrollo
+ npm run dev
 ```
 
-### 2. Instalar dependencias
+### Despliegue en producción (Vercel recomendado)
+- Sube el repo a GitHub
+- Importa el proyecto en [Vercel](https://vercel.com/)
+- Configura las variables de entorno en Vercel:
+  - `NEXT_PUBLIC_SUPABASE_URL`
+  - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+  - `SUPABASE_SERVICE_ROLE_KEY`
+  - `GMAIL_USER` y `GMAIL_PASS` (contraseña de aplicación)
+  - `NEXT_PUBLIC_APP_URL` (URL de producción)
+- Haz deploy y ¡listo!
 
-```bash
-npm install
-```
+---
 
-### 3. Configurar Supabase
-
-1. Crea un proyecto en [Supabase](https://supabase.com)
-2. Ejecuta el script SQL proporcionado en `interview-ai-rules/supabase-setup.sql` en el SQL Editor de Supabase
-3. Configura las políticas de Storage según las instrucciones en el archivo SQL
-
-### 4. Variables de entorno
-
-Crea un archivo `.env.local` en la raíz del proyecto:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=tu_url_de_supabase
-NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_anon_key_de_supabase
-```
-
-### 5. Ejecutar el proyecto
-
-```bash
-npm run dev
-```
-
-Abre [http://localhost:3000/admin/dashboard](http://localhost:3000/admin/dashboard) para ver el panel de administración.
-
-## Estructura del proyecto
+## ⚙️ Variables de Entorno
 
 ```
-src/
-├── app/
-│   └── admin/
-│       ├── layout.tsx         # Layout principal del admin
-│       └── dashboard/
-│           └── page.tsx       # Página del dashboard
-├── components/
-│   └── admin/
-│       ├── StatsCard.tsx      # Tarjetas de estadísticas
-│       └── RecentActivityTable.tsx  # Tabla de actividad
-├── lib/
-│   ├── supabase/
-│   │   └── client.ts          # Cliente de Supabase
-│   └── types/
-│       └── database.ts        # Tipos TypeScript
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...
+GMAIL_USER=...
+GMAIL_PASS=...
+NEXT_PUBLIC_APP_URL=...
 ```
 
-## Crear un usuario administrador
+---
 
-Después de que un usuario se registre, actualiza su rol en la base de datos:
+## 🏗️ Arquitectura Técnica
+- **Frontend & Backend:** Next.js 13+ (App Router, React Server/Client Components)
+- **Base de datos:** Supabase (PostgreSQL, RLS, triggers, storage para videos)
+- **Emails:** nodemailer + Gmail (o SMTP alternativo)
+- **Transcripción de video:** Worker externo (FastAPI + Whisper/OpenAI)
+- **UI:** Tailwind CSS, Poppins, Lucide Icons
+- **Autenticación:** Supabase Auth (admin/candidato), RLS estricta
+- **Notificaciones:** react-hot-toast
+- **Despliegue:** Vercel (frontend/backend), Render (worker)
 
-```sql
-UPDATE public.profiles 
-SET role = 'admin' 
-WHERE email = 'admin@tuempresa.com';
-```
+---
 
-## Próximos pasos
+## 🔒 Seguridad y Buenas Prácticas
+- **RLS en todas las tablas:** Solo admins pueden ver/crear candidatos, candidatos solo acceden a sus datos.
+- **Service Role Key solo en backend:** Nunca expongas la service key en el frontend.
+- **Validación de emails y formularios:** UX amigable y segura.
+- **Enlaces únicos y expirables para candidatos.**
+- **Contraseñas de aplicación para Gmail.**
 
-- [ ] Implementar página de gestión de candidatos
-- [ ] Crear formulario para nuevas entrevistas
-- [ ] Añadir funcionalidad de asignación de entrevistas
-- [ ] Implementar vista de respuestas y evaluación
-- [ ] Integrar procesamiento de videos con IA
+---
 
-## Licencia
+## 👨‍💻 Créditos y Contacto
+- **Desarrollo & Diseño:** Molu Sáez (github.com/Msaezcardenas)
+- **UI/UX:** Inspirado en los mejores sistemas SaaS modernos.
+- **Contacto:** soporte@talium.com
 
+---
+
+## 📝 Licencia
 MIT
