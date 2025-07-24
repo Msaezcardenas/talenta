@@ -519,11 +519,13 @@ export default function AssignInterviewsPage() {
                     />
                     <div className="flex gap-2 justify-center mt-2">
                       <button
-                        className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg font-medium hover:bg-gray-400 transition-all border border-gray-400"
+                        className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-100 transition-all"
                         onClick={() => setCreatingCandidate(false)}
                         type="button"
                         disabled={creating}
-                      >Cancelar</button>
+                      >
+                        Cancelar
+                      </button>
                       <button
                         className="px-4 py-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-lg font-medium hover:from-violet-700 hover:to-purple-700 transition-all shadow-md"
                         onClick={handleCreateCandidate}
