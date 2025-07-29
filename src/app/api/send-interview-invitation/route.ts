@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     const appUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
     const invitationLink = `${appUrl}/interview/${token}`
     const interviewDuration = '45-60 min'
-    const supportEmail = 'soporte@talium.com'
+    const supportEmail = 'soporte@skillzapro.com'
     const expirationDays = 7
     
     // Para desarrollo, simularemos el envío de email si no hay credenciales de Gmail
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
       console.log('=== EMAIL SIMULADO ===')
       console.log(`Para: ${candidateEmail}`)
       console.log(`Asunto: Invitación a Entrevista - ${interviewTitle}`)
-      console.log(`\nHola${candidateName && candidateName.trim() ? ` ${candidateName}` : ''},\n\nHas sido seleccionado para participar en el proceso de entrevista para: ${interviewTitle}\n\nPara acceder a tu entrevista, haz clic en el siguiente enlace:\n${invitationLink}\n\nEste enlace es único y personal. No lo compartas con nadie más.\n\nSaludos,\nEquipo de Talium\n      `)
+      console.log(`\nHola${candidateName && candidateName.trim() ? ` ${candidateName}` : ''},\n\nHas sido seleccionado para participar en el proceso de entrevista para: ${interviewTitle}\n\nPara acceder a tu entrevista, haz clic en el siguiente enlace:\n${invitationLink}\n\nEste enlace es único y personal. No lo compartas con nadie más.\n\nSaludos,\nEquipo de SkillzaPro\n      `)
       console.log('=== FIN EMAIL ===')
       
       return NextResponse.json({ 
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     })
 
     const mailOptions = {
-      from: `Talium <${process.env.GMAIL_USER}>`,
+      from: `SkillzaPro <${process.env.GMAIL_USER}>`,
       to: candidateEmail,
       subject: `Invitación a Entrevista - ${interviewTitle}`,
       html: `
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Invitación a Entrevista - Talium</title>
+    <title>Invitación a Entrevista - SkillzaPro</title>
   </head>
   <body style="margin:0;padding:0;background:#f6f7fb;font-family:'Segoe UI',Arial,sans-serif;color:#222;">
     <table width="100%" cellpadding="0" cellspacing="0" style="background:#f6f7fb;padding:0;margin:0;">
@@ -65,8 +65,8 @@ export async function POST(request: NextRequest) {
           <table width="600" align="center" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;box-shadow:0 2px 8px rgba(80,0,120,0.07);margin:40px auto 24px auto;overflow:hidden;">
             <tr>
               <td style="background:linear-gradient(90deg,#7c3aed 0%,#a855f7 100%);padding:36px 0;text-align:center;">
-                <a href="https://talium.vercel.app/" style="text-decoration:none;">
-                  <div style="font-size:2rem;font-weight:700;color:#fff;letter-spacing:1px;display:inline-block;">Talium</div>
+                <a href="https://skillzapro.vercel.app/" style="text-decoration:none;">
+                  <div style="font-size:2rem;font-weight:700;color:#fff;letter-spacing:1px;display:inline-block;">SkillzaPro</div>
                 </a>
                 <div style="color:#e0d7fa;font-size:1rem;margin-top:8px;">Plataforma de Entrevistas Inteligentes</div>
               </td>
@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
             </tr>
             <tr>
               <td style="background:#f6f7fb;text-align:center;padding:24px 0 18px 0;color:#a1a1aa;font-size:0.98rem;border-radius:0 0 16px 16px;">
-                © 2024 Talium. Todos los derechos reservados.
+                © 2024 SkillzaPro. Todos los derechos reservados.
               </td>
             </tr>
           </table>

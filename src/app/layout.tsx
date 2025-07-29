@@ -10,7 +10,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Talium - Sistema Inteligente de Entrevistas",
+  title: "SkillzaPro - Sistema Inteligente de Entrevistas",
   description: "Optimiza tu proceso de selección con tecnología avanzada",
 };
 

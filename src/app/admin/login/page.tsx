@@ -113,7 +113,7 @@ export default function AdminLoginPage() {
         console.log('[Login] User is admin, redirecting to dashboard...')
         
         // Mostrar toast de éxito
-        toast.success('¡Bienvenido a Talium!')
+        toast.success('¡Bienvenido a SkillzaPro!')
         
         // Pequeña espera para que se vea el toast
         setTimeout(() => {
@@ -142,10 +142,10 @@ export default function AdminLoginPage() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-6">
             <div className="w-20 h-20 bg-gradient-to-r from-violet-600 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl transform hover:scale-110 transition-transform">
-              <span className="text-white font-bold text-3xl">T</span>
+              <span className="text-white font-bold text-3xl">S</span>
             </div>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Talium</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">SkillzaPro</h1>
           <h2 className="text-xl text-gray-700">Panel de Administración</h2>
           <p className="mt-2 text-gray-600">
             Sistema inteligente de entrevistas

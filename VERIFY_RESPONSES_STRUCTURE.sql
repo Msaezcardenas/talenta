@@ -1,4 +1,4 @@
--- Verificar estructura de respuestas en Talium
+-- Verificar estructura de respuestas en SkillzaPro
 -- Ejecutar en Supabase SQL Editor
 
 -- 1. Ver TODAS las respuestas con su estructura completa

@@ -6,7 +6,7 @@ El error indica que las variables de entorno de Supabase no están configuradas 
 
 ### 1. Ve a tu Dashboard de Vercel
 - Ingresa a [vercel.com](https://vercel.com)
-- Selecciona tu proyecto "aplicacioninterview" o "Talium"
+- Selecciona tu proyecto "aplicacioninterview" o "SkillzaPro"
 
 ### 2. Configura las Variables de Entorno
 - Ve a **Settings** → **Environment Variables**

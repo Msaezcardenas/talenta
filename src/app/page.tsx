@@ -9,12 +9,12 @@ export default function HomePage() {
       <div className="max-w-2xl mx-auto px-4 text-center">
         <div className="flex items-center justify-center mb-8">
           <div className="w-20 h-20 bg-gradient-to-r from-violet-600 to-purple-600 rounded-3xl flex items-center justify-center shadow-xl transform rotate-3 hover:rotate-0 transition-transform duration-300">
-            <span className="text-white font-bold text-3xl">T</span>
+            <span className="text-white font-bold text-3xl">S</span>
           </div>
         </div>
         
         <h1 className="text-6xl font-bold text-gray-900 mb-4">
-          Talium
+          SkillzaPro
         </h1>
         
         <p className="text-xl text-gray-700 mb-4 flex items-center justify-center gap-2">
@@ -55,7 +55,7 @@ export default function HomePage() {
         </div>
 
         <div className="mt-12 text-sm text-gray-500">
-          <p>© 2024 Talium. Transformando la selección de talento.</p>
+          <p>© 2024 SkillzaPro. Transformando la selección de talento.</p>
         </div>
       </div>
     </div>

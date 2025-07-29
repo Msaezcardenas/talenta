@@ -259,7 +259,7 @@ export default function InterviewAccessPage() {
           {/* Logo */}
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-              Talium
+              SkillzaPro
             </h1>
           </div>
 

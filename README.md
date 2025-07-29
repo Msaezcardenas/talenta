@@ -1,23 +1,23 @@
-# Talium
+# SkillzaPro
 
-<p align="center">
-  <img src="/public/next.svg" alt="Talium logo" width="120" />
-</p>
+*Sistema Inteligente de Entrevistas para la Selección de Talento*
 
-**Talium** es una plataforma inteligente de entrevistas que optimiza el proceso de selección de talento, permitiendo a empresas y candidatos vivir una experiencia ágil, moderna y segura.
+<img src="/public/next.svg" alt="SkillzaPro logo" width="120" />
 
 ---
 
-## 🎨 ¿Por qué el color violeta?
-El color principal de Talium es el **violeta**. Esta elección no es casual:
-- **Innovación y tecnología:** El violeta es asociado a creatividad, futuro y tecnología, valores clave para una plataforma de entrevistas inteligente.
-- **Confianza y diferenciación:** Es un color poco usado en RRHH, lo que hace que Talium destaque y transmita confianza y modernidad.
-- **Accesibilidad:** El contraste con blanco y negro asegura máxima legibilidad y una experiencia visual agradable para todos los usuarios.
+**SkillzaPro** es una plataforma inteligente de entrevistas que optimiza el proceso de selección de talento, permitiendo a empresas y candidatos vivir una experiencia ágil, moderna y segura.
 
----
+## 🎨 Identidad Visual
 
-## 🚀 ¿Qué es Talium?
-Talium es un sistema de entrevistas asincrónicas y automatizadas, pensado para equipos de RRHH y candidatos. Permite:
+El color principal de SkillzaPro es el **violeta**. Esta elección no es casual:
+
+- **Confianza y diferenciación:** Es un color poco usado en RRHH, lo que hace que SkillzaPro destaque y transmita confianza y modernidad.
+- **Innovación:** Representa la visión de futuro que tiene la plataforma para revolucionar las entrevistas tradicionales.
+- **Profesionalismo:** Mantiene un equilibrio perfecto entre creatividad y seriedad.
+
+## 🚀 ¿Qué es SkillzaPro?
+SkillzaPro es un sistema de entrevistas asincrónicas y automatizadas, pensado para equipos de RRHH y candidatos. Permite:
 - Crear entrevistas personalizadas (texto, video, selección múltiple)
 - Asignar entrevistas a candidatos por email
 - Recibir respuestas y transcripciones automáticas
@@ -62,8 +62,8 @@ Talium es un sistema de entrevistas asincrónicas y automatizadas, pensado para 
 ### Instalación local
 ```bash
 # Clona el repositorio
- git clone https://github.com/Msaezcardenas/Talium.git
- cd Talium
+ git clone https://github.com/Msaezcardenas/SkillzaPro.git
+cd SkillzaPro
 
 # Instala dependencias
  npm install
@@ -126,7 +126,7 @@ NEXT_PUBLIC_APP_URL=...
 ## 👨‍💻 Créditos y Contacto
 - **Desarrollo & Diseño:** Molu Sáez (github.com/Msaezcardenas)
 - **UI/UX:** Inspirado en los mejores sistemas SaaS modernos.
-- **Contacto:** soporte@talium.com
+- **Contacto:** soporte@skillzapro.com
 
 ---
 

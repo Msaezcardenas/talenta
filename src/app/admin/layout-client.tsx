@@ -149,7 +149,7 @@ export default function AdminLayoutClient({
                 <span className="text-white font-bold text-lg">T</span>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">Talium</h1>
+                <h1 className="text-xl font-bold text-gray-900">SkillzaPro</h1>
                 <p className="text-xs text-gray-500">Sistema de Entrevistas</p>
               </div>
             </Link>

@@ -1,4 +1,4 @@
--- Script de Debugging para Respuestas en Talium
+-- Script de Debugging para Respuestas en SkillzaPro
 -- Ejecutar en Supabase SQL Editor
 
 -- 1. Ver estructura exacta de las respuestas de selección múltiple

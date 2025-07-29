@@ -1,4 +1,4 @@
--- Script para verificar y configurar usuarios admin en Talium
+-- Script para verificar y configurar usuarios admin en SkillzaPro
 
 -- 1. Ver todos los usuarios y sus roles
 SELECT 
@@ -48,9 +48,9 @@ WHERE tablename = 'profiles';
 INSERT INTO profiles (id, email, role, first_name, last_name)
 VALUES (
     'UUID-DEL-USUARIO-AQUI',
-    'admin@talium.com',
+    'admin@skillzapro.com',
     'admin',
     'Admin',
-    'Talium'
+    'SkillzaPro'
 );
 */ 

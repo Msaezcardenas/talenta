@@ -1,6 +1,6 @@
-# 🚀 Guía de Deployment - Talium MVP
+# 🚀 Guía de Deployment - SkillzaPro MVP
 
-Esta guía te ayudará a deployar la aplicación Talium en producción con todas las funcionalidades activas.
+Esta guía te ayudará a deployar la aplicación SkillzaPro en producción con todas las funcionalidades activas.
 
 ## 📋 Requisitos Previos
 
@@ -113,7 +113,7 @@ En Vercel:
 
 ## 🎉 ¡Listo!
 
-Tu aplicación Talium está ahora en producción con:
+Tu aplicación SkillzaPro está ahora en producción con:
 - ✅ Envío real de emails (Gmail/nodemailer)
 - ✅ Transcripción automática de videos
 - ✅ Sistema completo de entrevistas
