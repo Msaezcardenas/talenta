@@ -258,9 +258,27 @@ export default function InterviewAccessPage() {
         <div className="max-w-2xl mx-auto">
           {/* Logo */}
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-              SkillzaPro
-            </h1>
+            <div className="flex items-center justify-center">
+              {/* Logo de SkillzaPro */}
+              <div className="flex items-center gap-2">
+                {/* Iconos cuadrados del logo */}
+                <div className="flex items-center">
+                  <div className="w-5 h-5 bg-gradient-to-br from-blue-600 to-blue-700 rounded-sm transform rotate-45"></div>
+                  <div className="w-5 h-5 bg-gradient-to-br from-purple-600 to-purple-700 rounded-sm transform rotate-45 -ml-2"></div>
+                </div>
+                <div className="flex items-center -ml-1">
+                  <div className="w-5 h-5 bg-gradient-to-br from-purple-600 to-purple-700 rounded-sm transform rotate-45"></div>
+                  <div className="w-5 h-5 bg-gradient-to-br from-pink-500 to-pink-600 rounded-sm transform rotate-45 -ml-2"></div>
+                </div>
+                {/* Texto del logo */}
+                <div className="ml-2">
+                  <span className="text-3xl font-bold">
+                    <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Skillza</span>
+                    <span className="bg-gradient-to-r from-pink-500 to-pink-600 bg-clip-text text-transparent">Pro</span>
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Tarjeta de bienvenida */}
