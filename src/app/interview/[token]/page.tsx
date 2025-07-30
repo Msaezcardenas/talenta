@@ -145,10 +145,25 @@ export default function InterviewAccessPage() {
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-center h-16">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-violet-600 to-purple-600 rounded-xl flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">T</span>
+                {/* Logo de SkillzaPro */}
+                <div className="flex items-center gap-1">
+                  {/* Iconos cuadrados del logo */}
+                  <div className="flex items-center">
+                    <div className="w-3 h-3 bg-gradient-to-br from-blue-600 to-blue-700 rounded-sm transform rotate-45"></div>
+                    <div className="w-3 h-3 bg-gradient-to-br from-purple-600 to-purple-700 rounded-sm transform rotate-45 -ml-1"></div>
+                  </div>
+                  <div className="flex items-center -ml-0.5">
+                    <div className="w-3 h-3 bg-gradient-to-br from-purple-600 to-purple-700 rounded-sm transform rotate-45"></div>
+                    <div className="w-3 h-3 bg-gradient-to-br from-pink-500 to-pink-600 rounded-sm transform rotate-45 -ml-1"></div>
+                  </div>
+                  {/* Texto del logo */}
+                  <div className="ml-2">
+                    <span className="text-lg font-bold">
+                      <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Skillza</span>
+                      <span className="bg-gradient-to-r from-pink-500 to-pink-600 bg-clip-text text-transparent">Pro</span>
+                    </span>
+                  </div>
                 </div>
-                <h1 className="text-xl font-bold text-gray-900">Talium</h1>
               </div>
             </div>
           </div>
