@@ -10,8 +10,8 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "SkillzaPro - Sistema Inteligente de Entrevistas",
-  description: "Optimiza tu proceso de selección con tecnología avanzada",
+  title: "TalentaPro - Plataforma Profesional de Entrevistas",
+  description: "Optimiza tu proceso de selección de talento con tecnología avanzada y experiencia profesional",
 };
 
 export default function RootLayout({

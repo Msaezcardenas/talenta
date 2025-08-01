@@ -113,7 +113,7 @@ export default function AdminLoginPage() {
         console.log('[Login] User is admin, redirecting to dashboard...')
         
         // Mostrar toast de éxito
-        toast.success('¡Bienvenido a SkillzaPro!')
+        toast.success('¡Bienvenido a TalentaPro!')
         
         // Pequeña espera para que se vea el toast
         setTimeout(() => {
@@ -129,41 +129,41 @@ export default function AdminLoginPage() {
 
   if (checkingAuth) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-violet-50 to-purple-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 to-purple-100 flex items-center justify-center">
+          <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
       <div className="max-w-md w-full">
         {/* Logo y Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-6">
-            {/* Logo de SkillzaPro */}
-            <div className="flex items-center gap-2 p-4 bg-white rounded-2xl shadow-2xl transform hover:scale-105 transition-transform">
-              {/* Iconos cuadrados del logo */}
+            {/* Logo de TalentaPro */}
+            <div className="flex items-center gap-3 p-4 bg-white rounded-2xl shadow-2xl transform hover:scale-105 transition-transform">
+              {/* Logo TalentaPro con cuadrados personalizados */}
               <div className="flex items-center">
-                <div className="w-5 h-5 bg-gradient-to-br from-blue-600 to-blue-700 rounded-sm transform rotate-45"></div>
-                <div className="w-5 h-5 bg-gradient-to-br from-purple-600 to-purple-700 rounded-sm transform rotate-45 -ml-2"></div>
+                <div className="w-5 h-5 rounded-sm transform rotate-45" style={{background: '#5b4aef'}}></div>
+                <div className="w-5 h-5 rounded-sm transform rotate-45 -ml-2" style={{background: 'linear-gradient(135deg, #5b4aef 0%, #fb33af 100%)'}}></div>
               </div>
               <div className="flex items-center -ml-1">
-                <div className="w-5 h-5 bg-gradient-to-br from-purple-600 to-purple-700 rounded-sm transform rotate-45"></div>
-                <div className="w-5 h-5 bg-gradient-to-br from-pink-500 to-pink-600 rounded-sm transform rotate-45 -ml-2"></div>
+                <div className="w-5 h-5 rounded-sm transform rotate-45" style={{background: 'linear-gradient(135deg, #fb33af 0%, #5b4aef 100%)'}}></div>
+                <div className="w-5 h-5 rounded-sm transform rotate-45 -ml-2" style={{background: '#fb33af'}}></div>
               </div>
               {/* Texto del logo */}
-              <div className="ml-2">
+              <div className="ml-1">
                 <span className="text-xl font-bold">
-                  <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Skillza</span>
-                  <span className="bg-gradient-to-r from-pink-500 to-pink-600 bg-clip-text text-transparent">Pro</span>
+                                      <span className="bg-clip-text text-transparent" style={{backgroundImage: 'linear-gradient(90deg, #5b4aef 0%, #fb33af 100%)'}}>Talenta</span>
+                    <span className="bg-clip-text text-transparent" style={{backgroundImage: 'linear-gradient(90deg, #fb33af 0%, #5b4aef 100%)'}}>Pro</span>
                 </span>
               </div>
             </div>
           </div>
           <h2 className="text-xl text-gray-700">Panel de Administración</h2>
           <p className="mt-2 text-gray-600">
-            Sistema inteligente de entrevistas
+            Plataforma profesional de entrevistas
           </p>
         </div>
 
@@ -235,7 +235,21 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 px-6 bg-gradient-to-r from-violet-600 to-purple-600 text-white font-medium rounded-xl hover:from-violet-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+              className="w-full py-4 px-6 text-white font-medium rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+              style={{
+                background: 'linear-gradient(135deg, #5b4aef 0%, #fb33af 100%)',
+                focusRingColor: '#5b4aef'
+              }}
+              onMouseEnter={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.background = 'linear-gradient(135deg, #4a3bd8 0%, #e02a98 100%)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.background = 'linear-gradient(135deg, #5b4aef 0%, #fb33af 100%)';
+                }
+              }}
             >
               {loading ? (
                 <span className="flex items-center justify-center">

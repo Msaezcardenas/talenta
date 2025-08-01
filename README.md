@@ -1,23 +1,24 @@
-# SkillzaPro
+# TalentaPro
 
-*Sistema Inteligente de Entrevistas para la Selección de Talento*
+*Plataforma Profesional de Entrevistas para la Selección de Talento*
 
-<img src="/public/next.svg" alt="SkillzaPro logo" width="120" />
+<img src="/public/next.svg" alt="TalentaPro logo" width="120" />
 
 ---
 
-**SkillzaPro** es una plataforma inteligente de entrevistas que optimiza el proceso de selección de talento, permitiendo a empresas y candidatos vivir una experiencia ágil, moderna y segura.
+**TalentaPro** es una plataforma profesional de entrevistas que optimiza el proceso de selección de talento, ofreciendo a empresas y candidatos una experiencia profesional, eficiente y confiable.
 
 ## 🎨 Identidad Visual
 
-El color principal de SkillzaPro es el **violeta**. Esta elección no es casual:
+La paleta de colores de TalentaPro se basa en tonos **profesionales y sobrios**:
 
-- **Confianza y diferenciación:** Es un color poco usado en RRHH, lo que hace que SkillzaPro destaque y transmita confianza y modernidad.
-- **Innovación:** Representa la visión de futuro que tiene la plataforma para revolucionar las entrevistas tradicionales.
-- **Profesionalismo:** Mantiene un equilibrio perfecto entre creatividad y seriedad.
+- **Slate/Gris corporativo:** Transmite profesionalismo, confianza y estabilidad.
+- **Azul empresarial:** Representa confianza, eficiencia y comunicación clara.
+- **Tonos neutros:** Garantizan legibilidad y una experiencia visual limpia y profesional.
+- **Diseño minimalista:** Inspirado en las mejores prácticas de UX empresarial, siguiendo estándares de plataformas profesionales reconocidas.
 
-## 🚀 ¿Qué es SkillzaPro?
-SkillzaPro es un sistema de entrevistas asincrónicas y automatizadas, pensado para equipos de RRHH y candidatos. Permite:
+## 🚀 ¿Qué es TalentaPro?
+TalentaPro es una plataforma profesional de entrevistas asincrónicas, diseñada para equipos de RRHH y candidatos. Permite:
 - Crear entrevistas personalizadas (texto, video, selección múltiple)
 - Asignar entrevistas a candidatos por email
 - Recibir respuestas y transcripciones automáticas

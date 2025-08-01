@@ -157,7 +157,7 @@ export default function DashboardPage() {
       {/* Welcome Section */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-          Bienvenido a SkillzaPro <Sparkles className="w-8 h-8 text-violet-600" />
+                        Bienvenido a TalentaPro <Sparkles className="w-8 h-8" style={{color: '#5b4aef'}} />
         </h1>
         <p className="text-gray-600 mt-2">Gestiona tus procesos de selección de manera inteligente</p>
       </div>

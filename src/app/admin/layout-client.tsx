@@ -145,22 +145,22 @@ export default function AdminLayoutClient({
               {sidebarOpen ? <X className="w-5 h-5 text-gray-600 hover:text-gray-900" /> : <Menu className="w-5 h-5 text-gray-600 hover:text-gray-900" />}
             </button>
             <Link href="/admin/dashboard" className="flex items-center gap-3">
-              {/* Logo de SkillzaPro */}
+              {/* Logo de TalentaPro */}
               <div className="flex items-center gap-2">
-                {/* Iconos cuadrados del logo */}
+                {/* Logo TalentaPro con cuadrados personalizados */}
                 <div className="flex items-center">
-                  <div className="w-4 h-4 bg-gradient-to-br from-blue-600 to-blue-700 rounded-sm transform rotate-45"></div>
-                  <div className="w-4 h-4 bg-gradient-to-br from-purple-600 to-purple-700 rounded-sm transform rotate-45 -ml-2"></div>
+                  <div className="w-4 h-4 rounded-sm transform rotate-45" style={{background: '#5b4aef'}}></div>
+                  <div className="w-4 h-4 rounded-sm transform rotate-45 -ml-2" style={{background: 'linear-gradient(135deg, #5b4aef 0%, #fb33af 100%)'}}></div>
                 </div>
                 <div className="flex items-center -ml-1">
-                  <div className="w-4 h-4 bg-gradient-to-br from-purple-600 to-purple-700 rounded-sm transform rotate-45"></div>
-                  <div className="w-4 h-4 bg-gradient-to-br from-pink-500 to-pink-600 rounded-sm transform rotate-45 -ml-2"></div>
+                  <div className="w-4 h-4 rounded-sm transform rotate-45" style={{background: 'linear-gradient(135deg, #fb33af 0%, #5b4aef 100%)'}}></div>
+                  <div className="w-4 h-4 rounded-sm transform rotate-45 -ml-2" style={{background: '#fb33af'}}></div>
                 </div>
                 {/* Texto del logo */}
-                <div className="ml-2">
+                <div className="ml-1">
                   <span className="text-lg font-bold">
-                    <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Skillza</span>
-                    <span className="bg-gradient-to-r from-pink-500 to-pink-600 bg-clip-text text-transparent">Pro</span>
+                    <span className="bg-clip-text text-transparent" style={{backgroundImage: 'linear-gradient(90deg, #5b4aef 0%, #fb33af 100%)'}}>Talenta</span>
+                    <span className="bg-clip-text text-transparent" style={{backgroundImage: 'linear-gradient(90deg, #fb33af 0%, #5b4aef 100%)'}}>Pro</span>
                   </span>
                 </div>
               </div>

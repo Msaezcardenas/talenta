@@ -119,15 +119,15 @@ export default function InterviewAccessPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-50 to-purple-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{borderBottomColor: '#5b4aef'}}></div>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-50 to-purple-50 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 px-4">
         <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 text-center">
           <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Acceso Denegado</h1>
@@ -139,28 +139,29 @@ export default function InterviewAccessPage() {
 
   if (isCompleted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
         {/* Header */}
         <header className="bg-white shadow-sm border-b border-gray-200">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-center h-16">
               <div className="flex items-center gap-3">
-                {/* Logo de SkillzaPro */}
-                <div className="flex items-center gap-1">
-                  {/* Iconos cuadrados del logo */}
+                {/* Logo de TalentaPro */}
+                <div className="flex items-center gap-2">
+                  {/* Nuevo logo profesional */}
+                  {/* Logo TalentaPro con cuadrados personalizados */}
                   <div className="flex items-center">
-                    <div className="w-3 h-3 bg-gradient-to-br from-blue-600 to-blue-700 rounded-sm transform rotate-45"></div>
-                    <div className="w-3 h-3 bg-gradient-to-br from-purple-600 to-purple-700 rounded-sm transform rotate-45 -ml-1"></div>
+                    <div className="w-3 h-3 rounded-sm transform rotate-45" style={{background: '#5b4aef'}}></div>
+                    <div className="w-3 h-3 rounded-sm transform rotate-45 -ml-1" style={{background: 'linear-gradient(135deg, #5b4aef 0%, #fb33af 100%)'}}></div>
                   </div>
                   <div className="flex items-center -ml-0.5">
-                    <div className="w-3 h-3 bg-gradient-to-br from-purple-600 to-purple-700 rounded-sm transform rotate-45"></div>
-                    <div className="w-3 h-3 bg-gradient-to-br from-pink-500 to-pink-600 rounded-sm transform rotate-45 -ml-1"></div>
+                    <div className="w-3 h-3 rounded-sm transform rotate-45" style={{background: 'linear-gradient(135deg, #fb33af 0%, #5b4aef 100%)'}}></div>
+                    <div className="w-3 h-3 rounded-sm transform rotate-45 -ml-1" style={{background: '#fb33af'}}></div>
                   </div>
                   {/* Texto del logo */}
-                  <div className="ml-2">
+                  <div className="ml-1">
                     <span className="text-lg font-bold">
-                      <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Skillza</span>
-                      <span className="bg-gradient-to-r from-pink-500 to-pink-600 bg-clip-text text-transparent">Pro</span>
+                      <span className="bg-clip-text text-transparent" style={{backgroundImage: 'linear-gradient(90deg, #5b4aef 0%, #fb33af 100%)'}}>Talenta</span>
+                      <span className="bg-clip-text text-transparent" style={{backgroundImage: 'linear-gradient(90deg, #fb33af 0%, #5b4aef 100%)'}}>Pro</span>
                     </span>
                   </div>
                 </div>
@@ -268,28 +269,29 @@ export default function InterviewAccessPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-2xl mx-auto">
           {/* Logo */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center">
-              {/* Logo de SkillzaPro */}
-              <div className="flex items-center gap-2">
-                {/* Iconos cuadrados del logo */}
+              {/* Logo de TalentaPro */}
+              <div className="flex items-center gap-3">
+                {/* Nuevo logo profesional */}
+                {/* Logo TalentaPro con cuadrados personalizados */}
                 <div className="flex items-center">
-                  <div className="w-5 h-5 bg-gradient-to-br from-blue-600 to-blue-700 rounded-sm transform rotate-45"></div>
-                  <div className="w-5 h-5 bg-gradient-to-br from-purple-600 to-purple-700 rounded-sm transform rotate-45 -ml-2"></div>
+                  <div className="w-5 h-5 rounded-sm transform rotate-45" style={{background: '#5b4aef'}}></div>
+                  <div className="w-5 h-5 rounded-sm transform rotate-45 -ml-2" style={{background: 'linear-gradient(135deg, #5b4aef 0%, #fb33af 100%)'}}></div>
                 </div>
                 <div className="flex items-center -ml-1">
-                  <div className="w-5 h-5 bg-gradient-to-br from-purple-600 to-purple-700 rounded-sm transform rotate-45"></div>
-                  <div className="w-5 h-5 bg-gradient-to-br from-pink-500 to-pink-600 rounded-sm transform rotate-45 -ml-2"></div>
+                  <div className="w-5 h-5 rounded-sm transform rotate-45" style={{background: 'linear-gradient(135deg, #fb33af 0%, #5b4aef 100%)'}}></div>
+                  <div className="w-5 h-5 rounded-sm transform rotate-45 -ml-2" style={{background: '#fb33af'}}></div>
                 </div>
                 {/* Texto del logo */}
-                <div className="ml-2">
+                <div className="ml-1">
                   <span className="text-3xl font-bold">
-                    <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Skillza</span>
-                    <span className="bg-gradient-to-r from-pink-500 to-pink-600 bg-clip-text text-transparent">Pro</span>
+                    <span className="bg-clip-text text-transparent" style={{backgroundImage: 'linear-gradient(90deg, #5b4aef 0%, #fb33af 100%)'}}>Talenta</span>
+                    <span className="bg-clip-text text-transparent" style={{backgroundImage: 'linear-gradient(90deg, #fb33af 0%, #5b4aef 100%)'}}>Pro</span>
                   </span>
                 </div>
               </div>
