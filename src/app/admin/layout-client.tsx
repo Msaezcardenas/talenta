@@ -254,7 +254,18 @@ export default function AdminLayoutClient({
 
       // Ordenar por tiempo y limitar a 10
       newNotifications.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
-      setNotifications(newNotifications.slice(0, 10))
+      
+      // Aplicar estado de lectura desde localStorage
+      const readIds = getReadNotifications()
+      const notificationsWithReadStatus = newNotifications.slice(0, 10).map(notification => ({
+        ...notification,
+        read: readIds.has(notification.id)
+      }))
+      
+      setNotifications(notificationsWithReadStatus)
+      
+      // Limpiar notificaciones antiguas del localStorage
+      setTimeout(() => cleanupOldReadNotifications(), 100)
       
     } catch (error) {
       console.error('Error loading notifications:', error)
@@ -280,7 +291,45 @@ export default function AdminLayoutClient({
     return Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
   }
 
+  // Funciones para manejar localStorage de notificaciones leídas
+  const getReadNotifications = (): Set<string> => {
+    if (typeof window === 'undefined') return new Set()
+    try {
+      const stored = localStorage.getItem('readNotifications')
+      return new Set(stored ? JSON.parse(stored) : [])
+    } catch {
+      return new Set()
+    }
+  }
+
+  const saveReadNotifications = (readIds: Set<string>) => {
+    if (typeof window === 'undefined') return
+    try {
+      localStorage.setItem('readNotifications', JSON.stringify([...readIds]))
+    } catch (error) {
+      console.error('Error saving read notifications:', error)
+    }
+  }
+
+  const cleanupOldReadNotifications = () => {
+    if (typeof window === 'undefined') return
+    try {
+      // Limpiar localStorage cada vez que se cargan notificaciones
+      // Solo mantener las que estén en las notificaciones actuales
+      const currentNotificationIds = new Set(notifications.map(n => n.id))
+      const readIds = getReadNotifications()
+      
+      // Filtrar solo las IDs que siguen siendo relevantes
+      const relevantReadIds = new Set([...readIds].filter(id => currentNotificationIds.has(id)))
+      
+      saveReadNotifications(relevantReadIds)
+    } catch (error) {
+      console.error('Error cleaning up read notifications:', error)
+    }
+  }
+
   const markNotificationAsRead = (notificationId: string) => {
+    // Actualizar estado local
     setNotifications(prev => 
       prev.map(notification => 
         notification.id === notificationId 
@@ -288,10 +337,20 @@ export default function AdminLayoutClient({
           : notification
       )
     )
+    
+    // Persistir en localStorage
+    const readIds = getReadNotifications()
+    readIds.add(notificationId)
+    saveReadNotifications(readIds)
   }
 
   const markAllNotificationsAsRead = () => {
+    // Actualizar estado local
     setNotifications(prev => prev.map(n => ({ ...n, read: true })))
+    
+    // Persistir en localStorage
+    const allIds = new Set(notifications.map(n => n.id))
+    saveReadNotifications(allIds)
   }
 
   const getNotificationIcon = (type: string) => {
