@@ -14,8 +14,23 @@ import {
   LogOut,
   Menu,
   X,
-  UserPlus
+  UserPlus,
+  CheckCircle,
+  Clock,
+  UserCheck,
+  MessageSquare,
+  AlertTriangle
 } from 'lucide-react'
+
+interface Notification {
+  id: string
+  type: 'response' | 'assignment_completed' | 'assignment_pending' | 'new_candidate'
+  title: string
+  message: string
+  time: string
+  read: boolean
+  actionUrl?: string
+}
 
 export default function AdminLayoutClient({
   children,
@@ -28,6 +43,9 @@ export default function AdminLayoutClient({
   const [profile, setProfile] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [notificationsOpen, setNotificationsOpen] = useState(false)
+  const [loadingNotifications, setLoadingNotifications] = useState(false)
   const supabase = createClientComponentClient()
 
   useEffect(() => {
@@ -44,6 +62,18 @@ export default function AdminLayoutClient({
     
     return () => clearTimeout(timer)
   }, [pathname])
+
+  // Cargar notificaciones cuando el usuario esté autenticado
+  useEffect(() => {
+    if (user && profile?.role === 'admin') {
+      loadNotifications()
+      
+      // Recargar notificaciones cada 5 minutos
+      const interval = setInterval(loadNotifications, 5 * 60 * 1000)
+      
+      return () => clearInterval(interval)
+    }
+  }, [user, profile])
 
   const checkUser = async () => {
     try {
@@ -94,6 +124,196 @@ export default function AdminLayoutClient({
       router.push('/admin/login')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadNotifications = async () => {
+    if (!user) return
+    
+    setLoadingNotifications(true)
+    try {
+      const now = new Date()
+      const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000)
+      const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+      
+      // Obtener datos en paralelo
+      const [responsesResult, assignmentsResult, candidatesResult] = await Promise.all([
+        // Respuestas recientes (últimas 24h)
+        supabase
+          .from('responses')
+          .select(`
+            id,
+            created_at,
+            assignment_id,
+            assignments!inner(
+              interview_id,
+              interviews(title),
+              user_id,
+              profiles(first_name, last_name, email)
+            )
+          `)
+          .gte('created_at', yesterday.toISOString())
+          .order('created_at', { ascending: false }),
+          
+        // Asignaciones completadas recientemente y pendientes
+        supabase
+          .from('assignments')
+          .select(`
+            id,
+            status,
+            assigned_at,
+            user_id,
+            interview_id,
+            interviews(title),
+            profiles(first_name, last_name, email)
+          `)
+          .order('assigned_at', { ascending: false }),
+          
+        // Candidatos nuevos (última semana)
+        supabase
+          .from('profiles')
+          .select('id, first_name, last_name, email, created_at')
+          .eq('role', 'candidate')
+          .gte('created_at', weekAgo.toISOString())
+          .order('created_at', { ascending: false })
+      ])
+
+      const newNotifications: Notification[] = []
+
+      // Procesar respuestas nuevas
+      if (responsesResult.data) {
+        responsesResult.data.forEach(response => {
+          const assignment = response.assignments
+          const profile = assignment?.profiles
+          const interview = assignment?.interviews
+          
+          newNotifications.push({
+            id: `response_${response.id}`,
+            type: 'response',
+            title: 'Nueva Respuesta',
+            message: `${profile?.first_name || 'Candidato'} ${profile?.last_name || ''} respondió a "${interview?.title || 'entrevista'}"`,
+            time: formatTime(response.created_at),
+            read: false,
+            actionUrl: `/admin/interviews/${assignment?.interview_id}/results`
+          })
+        })
+      }
+
+      // Procesar asignaciones completadas (últimas 24h)
+      if (assignmentsResult.data) {
+        const completedRecently = assignmentsResult.data.filter(a => 
+          a.status === 'completed' && 
+          new Date(a.assigned_at) >= yesterday
+        )
+        
+        completedRecently.forEach(assignment => {
+          const profile = assignment.profiles
+          const interview = assignment.interviews
+          
+          newNotifications.push({
+            id: `completed_${assignment.id}`,
+            type: 'assignment_completed',
+            title: 'Entrevista Completada',
+            message: `${profile?.first_name || 'Candidato'} completó "${interview?.title || 'entrevista'}"`,
+            time: formatTime(assignment.assigned_at),
+            read: false,
+            actionUrl: `/admin/interviews/${assignment.interview_id}/results`
+          })
+        })
+
+        // Procesar asignaciones pendientes (más de 2 días)
+        const twoDaysAgo = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000)
+        const pendingOld = assignmentsResult.data.filter(a => 
+          a.status === 'pending' && 
+          new Date(a.assigned_at) <= twoDaysAgo
+        ).slice(0, 3) // Solo las 3 más antiguas
+        
+        pendingOld.forEach(assignment => {
+          const profile = assignment.profiles
+          const interview = assignment.interviews
+          
+          newNotifications.push({
+            id: `pending_${assignment.id}`,
+            type: 'assignment_pending',
+            title: 'Asignación Pendiente',
+            message: `${profile?.first_name || 'Candidato'} tiene "${interview?.title || 'entrevista'}" pendiente hace ${getDaysAgo(assignment.assigned_at)} días`,
+            time: formatTime(assignment.assigned_at),
+            read: false,
+            actionUrl: `/admin/candidates`
+          })
+        })
+      }
+
+      // Procesar candidatos nuevos
+      if (candidatesResult.data) {
+        candidatesResult.data.slice(0, 3).forEach(candidate => {
+          newNotifications.push({
+            id: `candidate_${candidate.id}`,
+            type: 'new_candidate',
+            title: 'Nuevo Candidato',
+            message: `${candidate.first_name || 'Candidato'} ${candidate.last_name || ''} se registró`,
+            time: formatTime(candidate.created_at),
+            read: false,
+            actionUrl: `/admin/candidates`
+          })
+        })
+      }
+
+      // Ordenar por tiempo y limitar a 10
+      newNotifications.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+      setNotifications(newNotifications.slice(0, 10))
+      
+    } catch (error) {
+      console.error('Error loading notifications:', error)
+    } finally {
+      setLoadingNotifications(false)
+    }
+  }
+
+  const formatTime = (timestamp: string) => {
+    const date = new Date(timestamp)
+    const now = new Date()
+    const diffMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
+    
+    if (diffMinutes < 1) return 'Ahora'
+    if (diffMinutes < 60) return `${diffMinutes}m`
+    if (diffMinutes < 1440) return `${Math.floor(diffMinutes / 60)}h`
+    return `${Math.floor(diffMinutes / 1440)}d`
+  }
+
+  const getDaysAgo = (timestamp: string) => {
+    const date = new Date(timestamp)
+    const now = new Date()
+    return Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
+  }
+
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case 'response':
+        return <MessageSquare className="w-4 h-4 text-blue-600" />
+      case 'assignment_completed':
+        return <CheckCircle className="w-4 h-4 text-green-600" />
+      case 'assignment_pending':
+        return <Clock className="w-4 h-4 text-amber-600" />
+      case 'new_candidate':
+        return <UserCheck className="w-4 h-4 text-purple-600" />
+      default:
+        return <Bell className="w-4 h-4 text-gray-600" />
+    }
+  }
+
+  const getNotificationIconBg = (type: string) => {
+    switch (type) {
+      case 'response':
+        return 'bg-blue-100'
+      case 'assignment_completed':
+        return 'bg-green-100'
+      case 'assignment_pending':
+        return 'bg-amber-100'
+      case 'new_candidate':
+        return 'bg-purple-100'
+      default:
+        return 'bg-gray-100'
     }
   }
 
@@ -199,10 +419,102 @@ export default function AdminLayoutClient({
               <UserPlus className="w-4 h-4" />
               <span className="hidden sm:inline">Asignar Entrevistas</span>
             </Link>
-            <button className="relative p-2 hover:bg-gray-100 rounded-lg transition-all hover:scale-105">
-              <Bell className="w-5 h-5 text-gray-600 hover:text-gray-900 transition-colors" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-            </button>
+            <div className="relative">
+              <button 
+                onClick={() => setNotificationsOpen(!notificationsOpen)}
+                className="relative p-2 hover:bg-gray-100 rounded-lg transition-all hover:scale-105"
+              >
+                <Bell className="w-5 h-5 text-gray-600 hover:text-gray-900 transition-colors" />
+                {notifications.filter(n => !n.read).length > 0 && (
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                )}
+                {notifications.filter(n => !n.read).length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
+                    {notifications.filter(n => !n.read).length > 9 ? '9+' : notifications.filter(n => !n.read).length}
+                  </span>
+                )}
+              </button>
+              
+              {/* Dropdown de notificaciones */}
+              {notificationsOpen && (
+                <>
+                  {/* Overlay para cerrar al hacer click afuera */}
+                  <div 
+                    className="fixed inset-0 z-40" 
+                    onClick={() => setNotificationsOpen(false)}
+                  />
+                  
+                  {/* Dropdown */}
+                  <div className="absolute right-0 top-full mt-2 w-96 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-96 overflow-y-auto">
+                    <div className="p-4 border-b border-gray-100">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-semibold text-gray-900">Notificaciones</h3>
+                        {loadingNotifications && (
+                          <div className="w-4 h-4 border-2 border-gray-300 border-t-violet-600 rounded-full animate-spin"></div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="max-h-80 overflow-y-auto">
+                      {notifications.length === 0 ? (
+                        <div className="p-8 text-center text-gray-500">
+                          <Bell className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                          <p>No hay notificaciones</p>
+                        </div>
+                      ) : (
+                        notifications.map((notification) => (
+                          <div
+                            key={notification.id}
+                            className={`p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer ${
+                              !notification.read ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
+                            }`}
+                            onClick={() => {
+                              if (notification.actionUrl) {
+                                router.push(notification.actionUrl)
+                                setNotificationsOpen(false)
+                              }
+                            }}
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className={`p-2 rounded-lg ${getNotificationIconBg(notification.type)}`}>
+                                {getNotificationIcon(notification.type)}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between">
+                                  <p className="font-medium text-sm text-gray-900 truncate">
+                                    {notification.title}
+                                  </p>
+                                  <span className="text-xs text-gray-500 ml-2 flex-shrink-0">
+                                    {notification.time}
+                                  </span>
+                                </div>
+                                <p className="text-sm text-gray-600 mt-1 leading-relaxed">
+                                  {notification.message}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    
+                    {notifications.length > 0 && (
+                      <div className="p-3 border-t border-gray-100 bg-gray-50">
+                        <button
+                          onClick={() => {
+                            // Marcar todas como leídas
+                            setNotifications(prev => prev.map(n => ({ ...n, read: true })))
+                          }}
+                          className="text-sm text-violet-600 hover:text-violet-700 font-medium"
+                        >
+                          Marcar todas como leídas
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
             <div className="flex items-center gap-3 pl-3 border-l border-gray-200">
               <div className="w-8 h-8 bg-gradient-to-r from-violet-500 to-purple-500 rounded-full flex items-center justify-center text-white font-medium">
                 {profile?.first_name?.charAt(0)?.toUpperCase() || 'A'}

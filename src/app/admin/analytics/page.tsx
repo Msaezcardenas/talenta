@@ -24,6 +24,7 @@ interface AnalyticsData {
   totalCandidates: number
   completionRate: number
   avgResponseTime: number
+  responseTimeUnit: string
   interviewsThisMonth: number
   candidatesThisMonth: number
   completedThisMonth: number
@@ -152,13 +153,10 @@ export default function AnalyticsPage() {
 
       // Tiempo promedio de respuesta
       let avgResponseTime = 0
-      console.log('Debug avgResponseTime calculation:')
-      console.log('- responses.length:', responses.length)
-      console.log('- assignments.length:', assignments.length)
+      let responseTimeUnit = 'h' // 'h' for hours, 'min' for minutes
+      console.log('📊 Calculating avgResponseTime:', responses.length, 'responses,', assignments.length, 'assignments')
       
       if (responses.length > 0 && assignments.length > 0) {
-        console.log('- Sample response:', responses[0])
-        console.log('- Sample assignment:', assignments[0])
         
         const responseTimes = responses.map(r => {
           const assignment = assignments.find(a => a.id === r.assignment_id)
@@ -168,29 +166,27 @@ export default function AnalyticsPage() {
             const respondedAt = new Date(r.created_at)
             const timeDiffHours = (respondedAt.getTime() - assignedAt.getTime()) / (1000 * 60 * 60)
             
-            console.log(`- Response ${r.id}: assigned ${assignment.assigned_at}, responded ${r.created_at}, diff: ${timeDiffHours}h`)
-            
             return Math.max(0, timeDiffHours)
-          }
-          
-          if (!assignment) {
-            console.log(`- Response ${r.id}: no matching assignment found for assignment_id ${r.assignment_id}`)
-          } else if (!assignment.assigned_at) {
-            console.log(`- Response ${r.id}: assignment found but no assigned_at date`)
           }
           
           return 0
         }).filter(time => time > 0)
         
-        console.log('- Valid response times:', responseTimes)
-        console.log('- Valid response times count:', responseTimes.length)
         
         if (responseTimes.length > 0) {
-          avgResponseTime = Math.round(responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length)
-          console.log('- Final avgResponseTime:', avgResponseTime)
+          const avgHours = responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length
+          
+          // If less than 1 hour, convert to minutes
+          if (avgHours < 1) {
+            avgResponseTime = Math.round(avgHours * 60) // Convert to minutes
+            responseTimeUnit = 'min'
+            console.log('✅ Average response time:', avgResponseTime, 'minutes')
+          } else {
+            avgResponseTime = Math.round(avgHours)
+            responseTimeUnit = 'h'
+            console.log('✅ Average response time:', avgResponseTime, 'hours')
+          }
         }
-      } else {
-        console.log('- No responses or assignments to calculate average time')
       }
 
       // Métricas del mes actual
@@ -313,6 +309,7 @@ export default function AnalyticsPage() {
         totalCandidates,
         completionRate,
         avgResponseTime,
+        responseTimeUnit,
         interviewsThisMonth,
         candidatesThisMonth,
         completedThisMonth,
@@ -360,11 +357,23 @@ export default function AnalyticsPage() {
     
     // Insight sobre tiempo de respuesta
     if (data.avgResponseTime > 0) {
-      const timeInsight = data.avgResponseTime < 24 
-        ? 'Los candidatos responden rápidamente (promedio < 24h)'
-        : data.avgResponseTime > 72 
-        ? 'Los candidatos tardan más de 3 días en responder'
-        : 'Tiempo de respuesta promedio está en el rango óptimo'
+      let timeInsight = ''
+      
+      if (data.responseTimeUnit === 'min') {
+        // Para tiempos en minutos
+        timeInsight = data.avgResponseTime < 30
+          ? `Los candidatos responden muy rápidamente (promedio ${data.avgResponseTime} min)`
+          : data.avgResponseTime < 60
+          ? `Tiempo de respuesta excelente (promedio ${data.avgResponseTime} min)`
+          : `Tiempo de respuesta bueno (promedio ${data.avgResponseTime} min)`
+      } else {
+        // Para tiempos en horas  
+        timeInsight = data.avgResponseTime < 24 
+          ? `Los candidatos responden rápidamente (promedio ${data.avgResponseTime}h)`
+          : data.avgResponseTime > 72 
+          ? `Los candidatos tardan más de 3 días en responder (promedio ${data.avgResponseTime}h)`
+          : `Tiempo de respuesta promedio está en el rango óptimo (${data.avgResponseTime}h)`
+      }
       
       insights.push({
         title: 'Tiempo de Respuesta',
@@ -496,7 +505,7 @@ export default function AnalyticsPage() {
               <div>
                 <p className="text-sm text-gray-600">Tiempo Promedio</p>
                 <p className="text-2xl font-bold text-gray-900 mt-1">
-                  {data.avgResponseTime > 0 ? `${data.avgResponseTime}h` : '-'}
+                  {data.avgResponseTime > 0 ? `${data.avgResponseTime}${data.responseTimeUnit}` : '-'}
                 </p>
               </div>
               <div className="p-3 bg-amber-100 rounded-lg">
