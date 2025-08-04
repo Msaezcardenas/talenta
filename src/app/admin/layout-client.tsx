@@ -77,8 +77,6 @@ export default function AdminLayoutClient({
 
   const checkUser = async () => {
     try {
-      console.log('AdminLayout: Verificando sesión...')
-      
       // Usar getSession en lugar de getUser
       const { data: { session }, error: sessionError } = await supabase.auth.getSession()
       
@@ -89,12 +87,10 @@ export default function AdminLayoutClient({
       }
       
       if (!session) {
-        console.log('AdminLayout: No hay sesión activa, redirigiendo a login')
         router.push('/admin/login')
         return
       }
 
-      console.log('AdminLayout: Sesión encontrada para:', session.user.email)
       setUser(session.user)
 
       // Verificar perfil
@@ -111,12 +107,10 @@ export default function AdminLayoutClient({
       }
 
       if (!profile || profile.role !== 'admin') {
-        console.log('AdminLayout: Usuario no es admin, role:', profile?.role)
         router.push('/')
         return
       }
 
-      console.log('AdminLayout: Usuario verificado como admin')
       setProfile(profile)
       
     } catch (error) {
@@ -136,37 +130,19 @@ export default function AdminLayoutClient({
       const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000)
       const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
       
-      // Obtener datos en paralelo
-      const [responsesResult, assignmentsResult, candidatesResult] = await Promise.all([
+      // Obtener datos por separado para evitar errores de join
+      const [responsesResult, assignmentsResult, candidatesResult, interviewsResult, profilesResult] = await Promise.all([
         // Respuestas recientes (últimas 24h)
         supabase
           .from('responses')
-          .select(`
-            id,
-            created_at,
-            assignment_id,
-            assignments!inner(
-              interview_id,
-              interviews(title),
-              user_id,
-              profiles(first_name, last_name, email)
-            )
-          `)
+          .select('id, created_at, assignment_id')
           .gte('created_at', yesterday.toISOString())
           .order('created_at', { ascending: false }),
           
-        // Asignaciones completadas recientemente y pendientes
+        // Todas las asignaciones
         supabase
           .from('assignments')
-          .select(`
-            id,
-            status,
-            assigned_at,
-            user_id,
-            interview_id,
-            interviews(title),
-            profiles(first_name, last_name, email)
-          `)
+          .select('id, status, assigned_at, user_id, interview_id')
           .order('assigned_at', { ascending: false }),
           
         // Candidatos nuevos (última semana)
@@ -175,17 +151,34 @@ export default function AdminLayoutClient({
           .select('id, first_name, last_name, email, created_at')
           .eq('role', 'candidate')
           .gte('created_at', weekAgo.toISOString())
-          .order('created_at', { ascending: false })
+          .order('created_at', { ascending: false }),
+
+        // Entrevistas
+        supabase
+          .from('interviews')
+          .select('id, title'),
+
+        // Perfiles de usuarios
+        supabase
+          .from('profiles')
+          .select('id, first_name, last_name, email')
       ])
 
       const newNotifications: Notification[] = []
 
+      // Crear mapas para búsqueda rápida
+      const assignmentsMap = new Map(assignmentsResult.data?.map(a => [a.id, a]) || [])
+      const interviewsMap = new Map(interviewsResult.data?.map(i => [i.id, i]) || [])
+      const profilesMap = new Map(profilesResult.data?.map(p => [p.id, p]) || [])
+
       // Procesar respuestas nuevas
       if (responsesResult.data) {
         responsesResult.data.forEach(response => {
-          const assignment = response.assignments as any
-          const profile = assignment?.profiles as any
-          const interview = assignment?.interviews as any
+          const assignment = assignmentsMap.get(response.assignment_id)
+          if (!assignment) return
+          
+          const profile = profilesMap.get(assignment.user_id)
+          const interview = interviewsMap.get(assignment.interview_id)
           
           newNotifications.push({
             id: `response_${response.id}`,
@@ -194,7 +187,7 @@ export default function AdminLayoutClient({
             message: `${profile?.first_name || 'Candidato'} ${profile?.last_name || ''} respondió a "${interview?.title || 'entrevista'}"`,
             time: formatTime(response.created_at),
             read: false,
-            actionUrl: `/admin/interviews/${assignment?.interview_id}/results`
+            actionUrl: `/admin/interviews/${assignment.interview_id}/results`
           })
         })
       }
@@ -207,8 +200,8 @@ export default function AdminLayoutClient({
         )
         
         completedRecently.forEach(assignment => {
-          const profile = assignment.profiles as any
-          const interview = assignment.interviews as any
+          const profile = profilesMap.get(assignment.user_id)
+          const interview = interviewsMap.get(assignment.interview_id)
           
           newNotifications.push({
             id: `completed_${assignment.id}`,
@@ -229,8 +222,8 @@ export default function AdminLayoutClient({
         ).slice(0, 3) // Solo las 3 más antiguas
         
         pendingOld.forEach(assignment => {
-          const profile = assignment.profiles as any
-          const interview = assignment.interviews as any
+          const profile = profilesMap.get(assignment.user_id)
+          const interview = interviewsMap.get(assignment.interview_id)
           
           newNotifications.push({
             id: `pending_${assignment.id}`,

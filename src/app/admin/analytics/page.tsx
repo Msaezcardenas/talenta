@@ -154,10 +154,7 @@ export default function AnalyticsPage() {
       // Tiempo promedio de respuesta
       let avgResponseTime = 0
       let responseTimeUnit = 'h' // 'h' for hours, 'min' for minutes
-      console.log('📊 Calculating avgResponseTime:', responses.length, 'responses,', assignments.length, 'assignments')
-      
       if (responses.length > 0 && assignments.length > 0) {
-        
         const responseTimes = responses.map(r => {
           const assignment = assignments.find(a => a.id === r.assignment_id)
           
@@ -172,7 +169,6 @@ export default function AnalyticsPage() {
           return 0
         }).filter(time => time > 0)
         
-        
         if (responseTimes.length > 0) {
           const avgHours = responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length
           
@@ -180,11 +176,9 @@ export default function AnalyticsPage() {
           if (avgHours < 1) {
             avgResponseTime = Math.round(avgHours * 60) // Convert to minutes
             responseTimeUnit = 'min'
-            console.log('✅ Average response time:', avgResponseTime, 'minutes')
           } else {
             avgResponseTime = Math.round(avgHours)
             responseTimeUnit = 'h'
-            console.log('✅ Average response time:', avgResponseTime, 'hours')
           }
         }
       }
@@ -249,22 +243,12 @@ export default function AnalyticsPage() {
         const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000)
         const dateStr = date.toISOString().split('T')[0]
         
-        // Debug: log the date we're checking
-        console.log(`Checking date: ${dateStr}`)
-        
         const dayAssignments = assignments.filter(a => {
           if (!a.assigned_at) return false
           
           // Extraer solo la fecha (sin hora) de assigned_at
           const assignedDate = new Date(a.assigned_at).toISOString().split('T')[0]
-          const matches = assignedDate === dateStr
-          
-          // Debug: log matches
-          if (matches) {
-            console.log(`Found assignment on ${dateStr}:`, a.assigned_at)
-          }
-          
-          return matches
+          return assignedDate === dateStr
         }).length
         
         // Para completions, usamos la fecha de la última respuesta
@@ -383,7 +367,6 @@ export default function AnalyticsPage() {
     
     // Insight sobre actividad
     const totalActivity = data.dailyActivity.reduce((sum, day) => sum + day.assignments, 0)
-    console.log('Total activity for insights:', totalActivity, 'Daily activity:', data.dailyActivity)
     
     if (totalActivity > 0) {
       const avgDaily = totalActivity / 7
