@@ -17,7 +17,6 @@ import {
 } from 'lucide-react'
 import { ActionCard } from '@/components/dashboard/ActionCard'
 import { InterviewCard } from '@/components/dashboard/InterviewCard'
-import { ActivityItem } from '@/components/dashboard/ActivityItem'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 interface EnhancedStats {
@@ -59,29 +58,7 @@ interface InterviewCardData {
   completionRate: number
 }
 
-interface ActivityResponse {
-  id: string
-  created_at: string
-  assignments?: {
-    id: string
-    profiles?: {
-      first_name: string | null
-      last_name: string | null
-      email: string
-    }[]
-  }[]
-  questions?: {
-    question_text: string
-  }[]
-}
 
-interface FormattedActivity {
-  id: string
-  type: 'response'
-  title: string
-  subtitle: string
-  time: string
-}
 
 
 
@@ -95,13 +72,12 @@ export default function EnhancedDashboardPage() {
     activeProcesses: 0,
   })
   const [interviews, setInterviews] = useState<InterviewCardData[]>([])
-  const [activities, setActivities] = useState<FormattedActivity[]>([])
+
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     loadEnhancedDashboardData()
-    loadRecentActivity()
   }, [])
 
   const loadEnhancedDashboardData = async () => {
@@ -235,61 +211,7 @@ export default function EnhancedDashboardPage() {
     }
   }
 
-  const loadRecentActivity = async () => {
-    try {
-      const { data: activities, error } = await supabase
-        .from('responses')
-        .select(`
-          id,
-          created_at,
-          assignments(
-            id,
-            profiles(first_name, last_name, email)
-          ),
-          questions(question_text)
-        `)
-        .order('created_at', { ascending: false })
-        .limit(5)
 
-      if (!error && activities) {
-        const formattedActivities: FormattedActivity[] = activities.map((activity: ActivityResponse) => {
-          // Obtener el primer assignment y su primer profile
-          const assignment = activity.assignments?.[0]
-          const candidate = assignment?.profiles?.[0]
-          const candidateName = candidate 
-            ? `${candidate.first_name || ''} ${candidate.last_name || ''}`.trim() || candidate.email 
-            : 'Usuario desconocido'
-          
-          // Obtener la primera pregunta
-          const question = activity.questions?.[0]
-          
-          return {
-            id: activity.id,
-            type: 'response' as const,
-            title: 'Nueva respuesta recibida',
-            subtitle: `${candidateName} - ${question?.question_text || 'Pregunta desconocida'}`,
-            time: getTimeAgo(new Date(activity.created_at))
-          }
-        })
-        setActivities(formattedActivities)
-      }
-    } catch (error) {
-      console.warn('Error loading recent activity:', error)
-    }
-  }
-
-  const getTimeAgo = (date: Date) => {
-    const now = new Date()
-    const diff = now.getTime() - date.getTime()
-    const minutes = Math.floor(diff / 60000)
-    const hours = Math.floor(minutes / 60)
-    const days = Math.floor(hours / 24)
-
-    if (days > 0) return `Hace ${days} día${days > 1 ? 's' : ''}`
-    if (hours > 0) return `Hace ${hours} hora${hours > 1 ? 's' : ''}`
-    if (minutes > 0) return `Hace ${minutes} minuto${minutes > 1 ? 's' : ''}`
-    return 'Hace un momento'
-  }
 
 
 
@@ -454,21 +376,7 @@ export default function EnhancedDashboardPage() {
         </div>
       </div>
 
-      {/* Actividad Reciente */}
-      {activities.length > 0 && (
-        <div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Actividad Reciente</h2>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="space-y-4">
-                {activities.map((activity) => (
-                  <ActivityItem key={activity.id} {...activity} />
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+
     </div>
   )
 }
