@@ -4,31 +4,35 @@ import { useEffect, useState } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useRouter } from 'next/navigation'
 import {
-  FileText,
   Users,
-  CheckCircle,
   Clock,
   Plus,
   UserPlus,
   Eye,
-  Send,
-  TrendingUp,
-  Target,
-  Award,
   Sparkles,
   Building2,
-  CheckCircle2
+  CheckCircle2,
+  AlertCircle,
+  BarChart3
 } from 'lucide-react'
-import { StatsCard } from '@/components/dashboard/StatsCard'
 import { ActionCard } from '@/components/dashboard/ActionCard'
 import { InterviewCard } from '@/components/dashboard/InterviewCard'
 import { ActivityItem } from '@/components/dashboard/ActivityItem'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-export default function DashboardPage() {
+interface EnhancedStats {
+  totalInterviews: number
+  activeCandidates: number
+  completedToday: number
+  activeProcesses: number
+}
+
+
+
+export default function EnhancedDashboardPage() {
   const router = useRouter()
   const supabase = createClientComponentClient()
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState<EnhancedStats>({
     totalInterviews: 0,
     activeCandidates: 0,
     completedToday: 0,
@@ -37,46 +41,116 @@ export default function DashboardPage() {
   const [interviews, setInterviews] = useState<any[]>([])
   const [activities, setActivities] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    loadDashboardData()
+    loadEnhancedDashboardData()
     loadRecentActivity()
   }, [])
 
-  const loadDashboardData = async () => {
+  const loadEnhancedDashboardData = async () => {
     try {
-      // Cargar estadísticas
-      const { data: interviews, error: interviewsError } = await supabase
-        .from('interviews')
-        .select('*, assignments(*), questions(*)')
+      setError(null)
+      
+      // Optimized queries - get all data in fewer calls
+      const [
+        interviewsResult,
+        assignmentsResult,
+        responsesResult
+      ] = await Promise.all([
+        // Entrevistas con sus asignaciones
+        supabase
+          .from('interviews')
+          .select(`
+            *,
+            assignments(
+              id,
+              status,
+              assigned_at,
+              user_id,
+              profiles(first_name, last_name, email)
+            ),
+            questions(id)
+          `),
+        
+        // Asignaciones con más detalle
+        supabase
+          .from('assignments')
+          .select(`
+            id,
+            status,
+            assigned_at,
+            interview_id,
+            profiles(first_name, last_name, email)
+          `),
+        
+        // Respuestas recientes para calcular tiempos promedio
+        supabase
+          .from('responses')
+          .select('created_at, assignment_id')
+          .order('created_at', { ascending: false })
+          .limit(100)
+      ])
 
-      const { data: candidates, error: candidatesError } = await supabase
-        .from('assignments')
-        .select('*')
+      // Handle errors
+      if (interviewsResult.error) throw new Error(`Error cargando entrevistas: ${interviewsResult.error.message}`)
+      if (assignmentsResult.error) throw new Error(`Error cargando asignaciones: ${assignmentsResult.error.message}`)
+      if (responsesResult.error) console.warn('Error cargando respuestas:', responsesResult.error.message)
 
-      const { data: todayCompletions, error: completionsError } = await supabase
-        .from('assignments')
-        .select('*')
-        .eq('status', 'completed')
-        .gte('completed_at', new Date().toISOString().split('T')[0])
+      const interviews = interviewsResult.data || []
+      const assignments = assignmentsResult.data || []
+      const responses = responsesResult.data || []
 
-      // Calcular estadísticas
+      // Calcular fecha de hoy e inicio de semana
+      const today = new Date()
+      const todayISO = today.toISOString().split('T')[0]
+      const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
+
+      // Cálculos mejorados
+      const totalInterviews = interviews.length
+      
+      // Candidatos realmente activos (no completados, no cancelados)
+      const activeCandidates = assignments.filter(a => 
+        a.status === 'pending' || a.status === 'in_progress'
+      ).length
+      
+      // Completadas hoy - verificar cuándo se completaron realmente usando responses
+      const completedToday = assignments.filter(a => {
+        if (a.status !== 'completed') return false
+        
+        // Encontrar la respuesta más reciente de esta asignación
+        const assignmentResponses = responses.filter(r => r.assignment_id === a.id)
+        if (assignmentResponses.length === 0) return false
+        
+        // La fecha de la respuesta más reciente indica cuándo se completó
+        const latestResponse = assignmentResponses.sort((a, b) => 
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        )[0]
+        
+        return latestResponse.created_at.startsWith(todayISO)
+      }).length
+      
+      // Procesos activos (entrevistas con al menos una asignación no completada)
+      const activeProcesses = interviews.filter(interview => {
+        const interviewAssignments = interview.assignments || []
+        return interviewAssignments.some(a => a.status !== 'completed' && a.status !== 'cancelled')
+      }).length
+      
+
+
       setStats({
-        totalInterviews: interviews?.length || 0,
-        activeCandidates: candidates?.length || 0,
-        completedToday: todayCompletions?.length || 0,
-        activeProcesses: interviews?.filter((interview) => {
-          const candidates = interview.assignments?.length || 0
-          const completed = interview.assignments?.filter((c: any) => c.status === 'completed').length || 0
-          return candidates > 0 && completed < candidates
-        }).length || 0,
+        totalInterviews,
+        activeCandidates,
+        completedToday,
+        activeProcesses,
       })
 
-      // Mapear las entrevistas al formato esperado por InterviewCard
-      if (interviews) {
+      // Mapear entrevistas para las cards
+      if (interviews.length > 0) {
         const mappedInterviews = interviews.slice(0, 3).map(interview => {
-          const totalCandidates = interview.assignments?.length || 0
-          const completedCount = interview.assignments?.filter((a: any) => a.status === 'completed').length || 0
+          const interviewAssignments = interview.assignments || []
+          const totalCandidates = interviewAssignments.length
+          const completedCount = interviewAssignments.filter(a => a.status === 'completed').length
           const completionRate = totalCandidates > 0 ? Math.round((completedCount / totalCandidates) * 100) : 0
           
           return {
@@ -97,37 +171,49 @@ export default function DashboardPage() {
         setInterviews(mappedInterviews)
       }
 
-      setLoading(false)
-    } catch (error) {
-      console.error('Error loading dashboard data:', error)
+    } catch (error: any) {
+      console.error('Error loading enhanced dashboard data:', error)
+      setError(error.message || 'Error cargando datos del dashboard')
     } finally {
       setLoading(false)
     }
   }
 
   const loadRecentActivity = async () => {
-    const { data: activities, error } = await supabase
-      .from('responses')
-      .select('*, assignments(*, profiles(*)), questions(*)')
-      .order('created_at', { ascending: false })
-      .limit(5)
+    try {
+      const { data: activities, error } = await supabase
+        .from('responses')
+        .select(`
+          id,
+          created_at,
+          assignments(
+            id,
+            profiles(first_name, last_name, email)
+          ),
+          questions(question_text)
+        `)
+        .order('created_at', { ascending: false })
+        .limit(5)
 
-    if (!error && activities) {
-      const formattedActivities = activities.map((activity) => {
-        const candidate = activity.assignments?.profiles
-        const candidateName = candidate 
-          ? `${candidate.first_name || ''} ${candidate.last_name || ''}`.trim() || candidate.email 
-          : 'Usuario desconocido'
-        
-        return {
-          id: activity.id,
-          type: 'response' as const,
-          title: 'Nueva respuesta recibida',
-          subtitle: `${candidateName} - ${activity.questions?.question_text || 'Pregunta desconocida'}`,
-          time: getTimeAgo(new Date(activity.created_at))
-        }
-      })
-      setActivities(formattedActivities)
+      if (!error && activities) {
+        const formattedActivities = activities.map((activity) => {
+          const candidate = activity.assignments?.profiles
+          const candidateName = candidate 
+            ? `${candidate.first_name || ''} ${candidate.last_name || ''}`.trim() || candidate.email 
+            : 'Usuario desconocido'
+          
+          return {
+            id: activity.id,
+            type: 'response' as const,
+            title: 'Nueva respuesta recibida',
+            subtitle: `${candidateName} - ${activity.questions?.question_text || 'Pregunta desconocida'}`,
+            time: getTimeAgo(new Date(activity.created_at))
+          }
+        })
+        setActivities(formattedActivities)
+      }
+    } catch (error) {
+      console.warn('Error loading recent activity:', error)
     }
   }
 
@@ -144,6 +230,8 @@ export default function DashboardPage() {
     return 'Hace un momento'
   }
 
+
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -152,18 +240,41 @@ export default function DashboardPage() {
     )
   }
 
+  if (error) {
+    return (
+      <div className="max-w-5xl mx-auto py-8">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 flex items-center gap-3">
+          <AlertCircle className="h-6 w-6 text-red-600 flex-shrink-0" />
+          <div>
+            <h3 className="font-semibold text-red-800">Error cargando dashboard</h3>
+            <p className="text-red-700 mt-1">{error}</p>
+            <button 
+              onClick={() => {
+                setLoading(true)
+                loadEnhancedDashboardData()
+              }}
+              className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            >
+              Reintentar
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="max-w-5xl mx-auto space-y-8 py-8">
+    <div className="max-w-7xl mx-auto space-y-8 py-8">
       {/* Welcome Section */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-                        Bienvenido a TalentaPro <Sparkles className="w-8 h-8" style={{color: '#5b4aef'}} />
+          Bienvenido a TalentaPro <Sparkles className="w-8 h-8" style={{color: '#5b4aef'}} />
         </h1>
-        <p className="text-gray-600 mt-2">Gestiona tus procesos de selección de manera inteligente</p>
+        <p className="text-gray-600 mt-2">Gestiona tus procesos de selección con métricas mejoradas</p>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      {/* Stats Grid - Original 4 metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-semibold text-gray-700">
@@ -222,69 +333,81 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* Layout principal sin espacios vacíos */}
-      <div className="max-w-5xl mx-auto space-y-8 py-8">
-        {/* Quick Actions y Entrevistas Recientes */}
-        {/* Quick Actions */}
-        <div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <Plus className="w-5 h-5 text-violet-600" />
-            Acciones Rápidas
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <ActionCard
-              icon={<Plus className="w-5 h-5" />}
-              iconBg="bg-violet-100"
-              iconColor="text-violet-600"
-              title="Crear Entrevista"
-              description="Nueva plantilla de entrevista"
-              onClick={() => router.push('/admin/interviews/new')}
-            />
-            <ActionCard
-              icon={<UserPlus className="w-5 h-5" />}
-              iconBg="bg-emerald-100"
-              iconColor="text-emerald-600"
-              title="Asignar Candidatos"
-              description="Enviar invitaciones masivas"
-              onClick={() => router.push('/admin/assign-interviews')}
-            />
-            <ActionCard
-              icon={<Eye className="w-5 h-5" />}
-              iconBg="bg-blue-100"
-              iconColor="text-blue-600"
-              title="Ver Respuestas"
-              description="Revisar entrevistas completadas"
-              onClick={() => router.push('/admin/interviews')}
-            />
-            <ActionCard
-              icon={<Send className="w-5 h-5" />}
-              iconBg="bg-amber-100"
-              iconColor="text-amber-600"
-              title="Enviar Recordatorios"
-              description="Notificar candidatos pendientes"
-              onClick={() => {}}
-            />
-          </div>
-        </div>
-
-        {/* Entrevistas Recientes */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Entrevistas Recientes</h2>
-            <button
-              onClick={() => router.push('/admin/interviews')}
-              className="text-sm text-violet-600 hover:text-violet-700 font-medium"
-            >
-              Ver todas
-            </button>
-          </div>
-          <div className="space-y-4">
-            {interviews.map((interview) => (
-              <InterviewCard key={interview.id} {...interview} />
-            ))}
-          </div>
+      {/* Quick Actions */}
+      <div>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <Plus className="w-5 h-5 text-violet-600" />
+          Acciones Rápidas
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <ActionCard
+            icon={<Plus className="w-5 h-5" />}
+            iconBg="bg-violet-100"
+            iconColor="text-violet-600"
+            title="Crear Entrevista"
+            description="Nueva plantilla de entrevista"
+            onClick={() => router.push('/admin/interviews/new')}
+          />
+          <ActionCard
+            icon={<UserPlus className="w-5 h-5" />}
+            iconBg="bg-emerald-100"
+            iconColor="text-emerald-600"
+            title="Asignar Candidatos"
+            description="Enviar invitaciones masivas"
+            onClick={() => router.push('/admin/assign-interviews')}
+          />
+          <ActionCard
+            icon={<Eye className="w-5 h-5" />}
+            iconBg="bg-blue-100"
+            iconColor="text-blue-600"
+            title="Ver Respuestas"
+            description="Revisar entrevistas completadas"
+            onClick={() => router.push('/admin/interviews')}
+          />
+          <ActionCard
+            icon={<BarChart3 className="w-5 h-5" />}
+            iconBg="bg-purple-100"
+            iconColor="text-purple-600"
+            title="Analytics"
+            description="Métricas y reportes detallados"
+            onClick={() => router.push('/admin/analytics')}
+          />
         </div>
       </div>
+
+      {/* Entrevistas Recientes */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-900">Entrevistas Recientes</h2>
+          <button
+            onClick={() => router.push('/admin/interviews')}
+            className="text-sm text-violet-600 hover:text-violet-700 font-medium"
+          >
+            Ver todas
+          </button>
+        </div>
+        <div className="space-y-4">
+          {interviews.map((interview) => (
+            <InterviewCard key={interview.id} {...interview} />
+          ))}
+        </div>
+      </div>
+
+      {/* Actividad Reciente */}
+      {activities.length > 0 && (
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Actividad Reciente</h2>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="space-y-4">
+                {activities.map((activity) => (
+                  <ActivityItem key={activity.id} {...activity} />
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   )
-} 
+}
