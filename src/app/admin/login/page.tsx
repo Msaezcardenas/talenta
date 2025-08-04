@@ -118,14 +118,14 @@ export default function AdminLoginPage() {
 
   if (checkingAuth) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen flex items-center justify-center" style={{background: 'linear-gradient(135deg, #faf9ff 0%, #f5f3ff 100%)'}}>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{borderBottomColor: '#5b4aef'}}></div>
       </div>
     )
   }
 
   return (
-          <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+          <div className="min-h-screen flex items-center justify-center" style={{background: 'linear-gradient(135deg, #faf9ff 0%, #f5f3ff 100%)'}}>
       <div className="max-w-md w-full">
         {/* Logo y Header */}
         <div className="text-center mb-8">
@@ -172,7 +172,7 @@ export default function AdminLoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 pl-12 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent focus:bg-white transition-all text-gray-900 placeholder-gray-500"
+                  className="w-full px-4 py-3 pl-12 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-2 focus:border-transparent focus:bg-white transition-all text-gray-900 placeholder-gray-500"
                   placeholder="admin@empresa.com"
                   // required // Quitar required nativo
                   disabled={loading}
@@ -197,7 +197,7 @@ export default function AdminLoginPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 pl-12 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent focus:bg-white transition-all text-gray-900 placeholder-gray-500"
+                  className="w-full px-4 py-3 pl-12 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-2 focus:border-transparent focus:bg-white transition-all text-gray-900 placeholder-gray-500"
                   placeholder="••••••••"
                   // required // Quitar required nativo
                   disabled={loading}

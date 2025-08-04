@@ -138,7 +138,13 @@ export default function VideoRecorder({ onSave, questionId }: VideoRecorderProps
                   <p className="text-sm mb-4">{permissionError}</p>
                   <button
                     onClick={requestPermissions}
-                    className="px-6 py-3 bg-violet-600 hover:bg-violet-700 rounded-xl transition-all transform hover:scale-105 font-medium shadow-md"
+                    className="px-6 py-3 rounded-xl transition-all transform hover:scale-105 font-medium shadow-md text-white"
+        style={{
+          background: '#5b4aef',
+          ':hover': { background: '#4a3bd8' }
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.background = '#4a3bd8'}
+        onMouseLeave={(e) => e.currentTarget.style.background = '#5b4aef'}
                   >
                     Reintentar
                   </button>
@@ -160,8 +166,17 @@ export default function VideoRecorder({ onSave, questionId }: VideoRecorderProps
             className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-md ${
               isRecording 
                 ? 'bg-red-600 hover:bg-red-700 text-white' 
-                : 'bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white'
+                : 'text-white'
             }`}
+            style={!isRecording ? {
+              background: '#5b4aef'
+            } : {}}
+            onMouseEnter={(e) => {
+              if (!isRecording) e.currentTarget.style.background = '#4a3bd8'
+            }}
+            onMouseLeave={(e) => {
+              if (!isRecording) e.currentTarget.style.background = '#5b4aef'
+            }}
           >
             {isRecording ? (
               <>
@@ -188,7 +203,10 @@ export default function VideoRecorder({ onSave, questionId }: VideoRecorderProps
             <button
               onClick={saveRecording}
               disabled={isUploading}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white rounded-xl font-medium transition-all transform hover:scale-105 disabled:opacity-50 shadow-md"
+              className="flex items-center gap-2 px-6 py-3 text-white rounded-xl font-medium transition-all transform hover:scale-105 disabled:opacity-50 shadow-md"
+              style={{background: 'linear-gradient(135deg, #5b4aef 0%, #4a3bd8 100%)'}}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'linear-gradient(135deg, #4a3bd8 0%, #3b2db8 100%)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'linear-gradient(135deg, #5b4aef 0%, #4a3bd8 100%)'}
             >
               {isUploading ? (
                 <>

@@ -109,7 +109,7 @@ export default function InterviewsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{borderBottomColor: '#5b4aef'}}></div>
       </div>
     )
   }
@@ -124,7 +124,10 @@ export default function InterviewsPage() {
         </div>
         <button
           onClick={() => router.push('/admin/interviews/new')}
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white rounded-lg font-medium transition-all shadow-md hover:shadow-lg hover:scale-105"
+          className="flex items-center gap-2 px-4 py-2 text-white rounded-lg font-medium transition-all shadow-md hover:shadow-lg hover:scale-105"
+          style={{background: 'linear-gradient(135deg, #5b4aef 0%, #4a3bd8 100%)'}}
+          onMouseEnter={(e) => e.currentTarget.style.background = 'linear-gradient(135deg, #4a3bd8 0%, #3b2db8 100%)'}
+          onMouseLeave={(e) => e.currentTarget.style.background = 'linear-gradient(135deg, #5b4aef 0%, #4a3bd8 100%)'}
         >
           <Plus className="w-4 h-4" />
           Nueva Entrevista
@@ -142,7 +145,10 @@ export default function InterviewsPage() {
             <p className="text-gray-600 mb-4">Crea tu primera plantilla de entrevista</p>
             <button
               onClick={() => router.push('/admin/interviews/new')}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-medium transition-all hover:shadow-lg hover:scale-105"
+              className="inline-flex items-center gap-2 px-4 py-2 text-white rounded-lg font-medium transition-all hover:shadow-lg hover:scale-105"
+            style={{background: '#5b4aef'}}
+            onMouseEnter={(e) => e.currentTarget.style.background = '#4a3bd8'}
+            onMouseLeave={(e) => e.currentTarget.style.background = '#5b4aef'}
             >
               <Plus className="w-4 h-4" />
               Nueva Entrevista
@@ -194,14 +200,32 @@ export default function InterviewsPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
                         onClick={() => router.push(`/admin/interviews/${interview.id}/results`)}
-                        className="text-violet-600 hover:text-violet-900 hover:bg-violet-50 p-2 rounded-lg transition-all mr-1"
+                        className="p-2 rounded-lg transition-all mr-1"
+                style={{color: '#5b4aef'}}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = '#3b2db8'
+                  e.currentTarget.style.backgroundColor = '#f7f5ff'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = '#5b4aef'
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                }}
                         title="Ver resultados"
                       >
                         <Eye className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => router.push(`/admin/interviews/${interview.id}/edit`)}
-                        className="text-blue-600 hover:text-blue-900 hover:bg-blue-50 p-2 rounded-lg transition-all mr-1"
+                        className="p-2 rounded-lg transition-all mr-1"
+                style={{color: '#5b4aef'}}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = '#3b2db8'
+                  e.currentTarget.style.backgroundColor = '#f7f5ff'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = '#5b4aef'
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                }}
                         title="Editar"
                       >
                         <Edit className="w-4 h-4" />

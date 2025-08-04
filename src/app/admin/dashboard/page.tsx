@@ -235,7 +235,7 @@ export default function EnhancedDashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{borderBottomColor: '#5b4aef'}}></div>
       </div>
     )
   }
@@ -280,7 +280,7 @@ export default function EnhancedDashboardPage() {
             <CardTitle className="text-sm font-semibold text-gray-700">
               Entrevistas Totales
             </CardTitle>
-            <Building2 className="h-5 w-5 text-violet-600" />
+            <Building2 className="h-5 w-5" style={{color: '#5b4aef'}} />
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-gray-900">{stats.totalInterviews}</div>
@@ -336,14 +336,14 @@ export default function EnhancedDashboardPage() {
       {/* Quick Actions */}
       <div>
         <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <Plus className="w-5 h-5 text-violet-600" />
+                      <Plus className="w-5 h-5" style={{color: '#5b4aef'}} />
           Acciones Rápidas
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <ActionCard
             icon={<Plus className="w-5 h-5" />}
-            iconBg="bg-violet-100"
-            iconColor="text-violet-600"
+                      iconBg="bg-violet-100"
+          iconColor=""
             title="Crear Entrevista"
             description="Nueva plantilla de entrevista"
             onClick={() => router.push('/admin/interviews/new')}
@@ -381,7 +381,10 @@ export default function EnhancedDashboardPage() {
           <h2 className="text-lg font-semibold text-gray-900">Entrevistas Recientes</h2>
           <button
             onClick={() => router.push('/admin/interviews')}
-            className="text-sm text-violet-600 hover:text-violet-700 font-medium"
+            className="text-sm font-medium"
+            style={{color: '#5b4aef'}}
+            onMouseEnter={(e) => e.currentTarget.style.color = '#4a3bd8'}
+            onMouseLeave={(e) => e.currentTarget.style.color = '#5b4aef'}
           >
             Ver todas
           </button>

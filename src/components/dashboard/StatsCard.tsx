@@ -27,7 +27,7 @@ export function StatsCard({
       <div className="flex items-center justify-between mb-4">
         <div>
           <p className="text-gray-600 text-sm font-medium">{title}</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1 group-hover:text-violet-600 transition-colors">{value}</p>
+          <p className="text-3xl font-bold text-gray-900 mt-1 group-hover:transition-colors" style={{'&:hover': {color: '#5b4aef'}}} onMouseEnter={(e) => e.currentTarget.style.color = '#5b4aef'} onMouseLeave={(e) => e.currentTarget.style.color = '#111827'}>{value}</p>
         </div>
         <div className={`p-3 rounded-lg ${iconBg} transition-transform group-hover:scale-110`}>
           <div className={`${iconColor} transition-transform group-hover:scale-110`}>{icon}</div>
