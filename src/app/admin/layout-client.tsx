@@ -156,7 +156,7 @@ export default function AdminLayoutClient({
         // Entrevistas
         supabase
           .from('interviews')
-          .select('id, title'),
+          .select('id, name'),
 
         // Perfiles de usuarios
         supabase
@@ -184,7 +184,7 @@ export default function AdminLayoutClient({
             id: `response_${response.id}`,
             type: 'response',
             title: 'Nueva Respuesta',
-            message: `${profile?.first_name || 'Candidato'} ${profile?.last_name || ''} respondió a "${interview?.title || 'entrevista'}"`,
+            message: `${profile?.first_name || 'Candidato'} ${profile?.last_name || ''} respondió a "${interview?.name || 'entrevista'}"`,
             time: formatTime(response.created_at),
             read: false,
             actionUrl: `/admin/interviews/${assignment.interview_id}/results`
@@ -207,7 +207,7 @@ export default function AdminLayoutClient({
             id: `completed_${assignment.id}`,
             type: 'assignment_completed',
             title: 'Entrevista Completada',
-            message: `${profile?.first_name || 'Candidato'} completó "${interview?.title || 'entrevista'}"`,
+            message: `${profile?.first_name || 'Candidato'} completó "${interview?.name || 'entrevista'}"`,
             time: formatTime(assignment.assigned_at),
             read: false,
             actionUrl: `/admin/interviews/${assignment.interview_id}/results`
@@ -229,7 +229,7 @@ export default function AdminLayoutClient({
             id: `pending_${assignment.id}`,
             type: 'assignment_pending',
             title: 'Asignación Pendiente',
-            message: `${profile?.first_name || 'Candidato'} tiene "${interview?.title || 'entrevista'}" pendiente hace ${getDaysAgo(assignment.assigned_at)} días`,
+            message: `${profile?.first_name || 'Candidato'} tiene "${interview?.name || 'entrevista'}" pendiente hace ${getDaysAgo(assignment.assigned_at)} días`,
             time: formatTime(assignment.assigned_at),
             read: false,
             actionUrl: `/admin/candidates`
@@ -278,6 +278,20 @@ export default function AdminLayoutClient({
     const date = new Date(timestamp)
     const now = new Date()
     return Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
+  }
+
+  const markNotificationAsRead = (notificationId: string) => {
+    setNotifications(prev => 
+      prev.map(notification => 
+        notification.id === notificationId 
+          ? { ...notification, read: true }
+          : notification
+      )
+    )
+  }
+
+  const markAllNotificationsAsRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })))
   }
 
   const getNotificationIcon = (type: string) => {
@@ -462,10 +476,15 @@ export default function AdminLayoutClient({
                               !notification.read ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
                             }`}
                             onClick={() => {
+                              // Marcar como leída al hacer click
+                              markNotificationAsRead(notification.id)
+                              
                               if (notification.actionUrl) {
                                 router.push(notification.actionUrl)
-                                setNotificationsOpen(false)
                               }
+                              
+                              // Cerrar dropdown después de hacer click
+                              setNotificationsOpen(false)
                             }}
                           >
                             <div className="flex items-start gap-3">
@@ -494,10 +513,7 @@ export default function AdminLayoutClient({
                     {notifications.length > 0 && (
                       <div className="p-3 border-t border-gray-100 bg-gray-50">
                         <button
-                          onClick={() => {
-                            // Marcar todas como leídas
-                            setNotifications(prev => prev.map(n => ({ ...n, read: true })))
-                          }}
+                          onClick={markAllNotificationsAsRead}
                           className="text-sm text-violet-600 hover:text-violet-700 font-medium"
                         >
                           Marcar todas como leídas
