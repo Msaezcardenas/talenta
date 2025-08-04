@@ -402,9 +402,9 @@ export default function EnhancedDashboardPage() {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <ActionCard
-            icon={<Plus className="w-5 h-5" />}
-                      iconBg="bg-violet-100"
-          iconColor=""
+            icon={<Plus className="w-5 h-5" style={{color: '#5b4aef'}} />}
+            iconBg="bg-violet-100"
+            iconColor=""
             title="Crear Entrevista"
             description="Nueva plantilla de entrevista"
             onClick={() => router.push('/admin/interviews/new')}
