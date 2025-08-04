@@ -4,24 +4,16 @@ import { useEffect, useState } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useRouter } from 'next/navigation'
 import {
-  FileText,
   Users,
-  CheckCircle,
   Clock,
   Plus,
   UserPlus,
   Eye,
-  Send,
-  TrendingUp,
-  Target,
-  Award,
   Sparkles,
   Building2,
   CheckCircle2,
   AlertCircle,
-  BarChart3,
-  Calendar,
-  Timer
+  BarChart3
 } from 'lucide-react'
 import { ActionCard } from '@/components/dashboard/ActionCard'
 import { InterviewCard } from '@/components/dashboard/InterviewCard'
@@ -33,24 +25,9 @@ interface EnhancedStats {
   activeCandidates: number
   completedToday: number
   activeProcesses: number
-  // Nuevas métricas
-  pendingCandidates: number
-  completionRate: number
-  avgResponseTime: number
-  interviewsThisWeek: number
 }
 
-interface MetricCard {
-  title: string
-  value: string | number
-  description: string
-  icon: React.ReactNode
-  trend?: {
-    value: number
-    isPositive: boolean
-  }
-  color: string
-}
+
 
 export default function EnhancedDashboardPage() {
   const router = useRouter()
@@ -60,10 +37,6 @@ export default function EnhancedDashboardPage() {
     activeCandidates: 0,
     completedToday: 0,
     activeProcesses: 0,
-    pendingCandidates: 0,
-    completionRate: 0,
-    avgResponseTime: 0,
-    interviewsThisWeek: 0,
   })
   const [interviews, setInterviews] = useState<any[]>([])
   const [activities, setActivities] = useState<any[]>([])
@@ -141,9 +114,6 @@ export default function EnhancedDashboardPage() {
         a.status === 'pending' || a.status === 'in_progress'
       ).length
       
-      // Candidatos pendientes (solo pending)
-      const pendingCandidates = assignments.filter(a => a.status === 'pending').length
-      
       // Completadas hoy - verificar cuándo se completaron realmente usando responses
       const completedToday = assignments.filter(a => {
         if (a.status !== 'completed') return false
@@ -166,44 +136,13 @@ export default function EnhancedDashboardPage() {
         return interviewAssignments.some(a => a.status !== 'completed' && a.status !== 'cancelled')
       }).length
       
-      // Tasa de finalización global
-      const totalAssignments = assignments.length
-      const completedAssignments = assignments.filter(a => a.status === 'completed').length
-      const completionRate = totalAssignments > 0 ? Math.round((completedAssignments / totalAssignments) * 100) : 0
-      
-      // Entrevistas creadas esta semana
-      const interviewsThisWeek = interviews.filter(i => 
-        new Date(i.created_at) >= weekAgo
-      ).length
-      
-      // Tiempo promedio de respuesta (en horas)
-      let avgResponseTime = 0
-      if (responses.length > 0 && assignments.length > 0) {
-        const responseTimes = responses.map(r => {
-          const assignment = assignments.find(a => a.id === r.assignment_id)
-          if (assignment && assignment.assigned_at && r.created_at) {
-            const assignedAt = new Date(assignment.assigned_at)
-            const respondedAt = new Date(r.created_at)
-            const timeDiff = (respondedAt.getTime() - assignedAt.getTime()) / (1000 * 60 * 60) // hours
-            return timeDiff > 0 ? timeDiff : 0
-          }
-          return 0
-        }).filter(time => time > 0)
-        
-        if (responseTimes.length > 0) {
-          avgResponseTime = Math.round(responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length)
-        }
-      }
+
 
       setStats({
         totalInterviews,
         activeCandidates,
         completedToday,
         activeProcesses,
-        pendingCandidates,
-        completionRate,
-        avgResponseTime,
-        interviewsThisWeek,
       })
 
       // Mapear entrevistas para las cards
@@ -291,69 +230,7 @@ export default function EnhancedDashboardPage() {
     return 'Hace un momento'
   }
 
-  // Configuración de métricas mejoradas
-  const metricCards: MetricCard[] = [
-    {
-      title: 'Entrevistas Totales',
-      value: stats.totalInterviews,
-      description: 'Procesos de entrevista creados',
-      icon: <Building2 className="h-5 w-5" />,
-      color: 'text-violet-600',
-      trend: stats.interviewsThisWeek > 0 ? {
-        value: stats.interviewsThisWeek,
-        isPositive: true
-      } : undefined
-    },
-    {
-      title: 'Candidatos Activos',
-      value: stats.activeCandidates,
-      description: 'En proceso de entrevista',
-      icon: <Users className="h-5 w-5" />,
-      color: 'text-emerald-600'
-    },
-    {
-      title: 'Completadas Hoy',
-      value: stats.completedToday,
-      description: 'Entrevistas finalizadas hoy',
-      icon: <CheckCircle2 className="h-5 w-5" />,
-      color: 'text-blue-600'
-    },
-    {
-      title: 'Tasa de Finalización',
-      value: `${stats.completionRate}%`,
-      description: 'Porcentaje de finalización global',
-      icon: <BarChart3 className="h-5 w-5" />,
-      color: 'text-green-600'
-    },
-    {
-      title: 'Candidatos Pendientes',
-      value: stats.pendingCandidates,
-      description: 'Esperando iniciar entrevista',
-      icon: <Clock className="h-5 w-5" />,
-      color: 'text-amber-600'
-    },
-    {
-      title: 'Procesos Activos',
-      value: stats.activeProcesses,
-      description: 'Con candidatos en proceso',
-      icon: <Target className="h-5 w-5" />,
-      color: 'text-purple-600'
-    },
-    {
-      title: 'Tiempo Promedio',
-      value: stats.avgResponseTime > 0 ? `${stats.avgResponseTime}h` : 'N/A',
-      description: 'Tiempo de respuesta promedio',
-      icon: <Timer className="h-5 w-5" />,
-      color: 'text-indigo-600'
-    },
-    {
-      title: 'Esta Semana',
-      value: stats.interviewsThisWeek,
-      description: 'Entrevistas creadas',
-      icon: <Calendar className="h-5 w-5" />,
-      color: 'text-teal-600'
-    }
-  ]
+
 
   if (loading) {
     return (
@@ -396,33 +273,64 @@ export default function EnhancedDashboardPage() {
         <p className="text-gray-600 mt-2">Gestiona tus procesos de selección con métricas mejoradas</p>
       </div>
 
-      {/* Enhanced Stats Grid */}
+      {/* Stats Grid - Original 4 metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {metricCards.map((metric, index) => (
-          <Card key={index} className="hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-semibold text-gray-700">
-                {metric.title}
-              </CardTitle>
-              <div className={metric.color}>
-                {metric.icon}
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-                {metric.value}
-                {metric.trend && (
-                  <span className={`text-sm font-normal ${metric.trend.isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                    +{metric.trend.value}
-                  </span>
-                )}
-              </div>
-              <p className="text-sm text-gray-600 mt-1">
-                {metric.description}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-semibold text-gray-700">
+              Entrevistas Totales
+            </CardTitle>
+            <Building2 className="h-5 w-5 text-violet-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-gray-900">{stats.totalInterviews}</div>
+            <p className="text-sm text-gray-600 mt-1">
+              Procesos de entrevista creados
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-semibold text-gray-700">
+              Candidatos Activos
+            </CardTitle>
+            <Users className="h-5 w-5 text-emerald-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-gray-900">{stats.activeCandidates}</div>
+            <p className="text-sm text-gray-600 mt-1">
+              Candidatos con entrevistas asignadas
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-semibold text-gray-700">
+              Completadas Hoy
+            </CardTitle>
+            <CheckCircle2 className="h-5 w-5 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-gray-900">{stats.completedToday}</div>
+            <p className="text-sm text-gray-600 mt-1">
+              Entrevistas finalizadas hoy
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-semibold text-gray-700">
+              Procesos Activos
+            </CardTitle>
+            <Clock className="h-5 w-5 text-amber-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-gray-900">{stats.activeProcesses}</div>
+            <p className="text-sm text-gray-600 mt-1">
+              Con candidatos en proceso
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Quick Actions */}
