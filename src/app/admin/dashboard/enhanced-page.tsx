@@ -107,8 +107,6 @@ export default function EnhancedDashboardPage() {
           .select(`
             id,
             status,
-            created_at,
-            completed_at,
             assigned_at,
             interview_id,
             profiles(first_name, last_name, email)
@@ -147,12 +145,21 @@ export default function EnhancedDashboardPage() {
       // Candidatos pendientes (solo pending)
       const pendingCandidates = assignments.filter(a => a.status === 'pending').length
       
-      // Completadas hoy - usar completed_at en lugar de created_at
-      const completedToday = assignments.filter(a => 
-        a.status === 'completed' && 
-        a.completed_at && 
-        a.completed_at.startsWith(todayISO)
-      ).length
+      // Completadas hoy - verificar cuándo se completaron realmente usando responses
+      const completedToday = assignments.filter(a => {
+        if (a.status !== 'completed') return false
+        
+        // Encontrar la respuesta más reciente de esta asignación
+        const assignmentResponses = responses.filter(r => r.assignment_id === a.id)
+        if (assignmentResponses.length === 0) return false
+        
+        // La fecha de la respuesta más reciente indica cuándo se completó
+        const latestResponse = assignmentResponses.sort((a, b) => 
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        )[0]
+        
+        return latestResponse.created_at.startsWith(todayISO)
+      }).length
       
       // Procesos activos (entrevistas con al menos una asignación no completada)
       const activeProcesses = interviews.filter(interview => {
@@ -172,13 +179,14 @@ export default function EnhancedDashboardPage() {
       
       // Tiempo promedio de respuesta (en horas)
       let avgResponseTime = 0
-      if (responses.length > 0) {
+      if (responses.length > 0 && assignments.length > 0) {
         const responseTimes = responses.map(r => {
           const assignment = assignments.find(a => a.id === r.assignment_id)
-          if (assignment && assignment.assigned_at) {
+          if (assignment && assignment.assigned_at && r.created_at) {
             const assignedAt = new Date(assignment.assigned_at)
             const respondedAt = new Date(r.created_at)
-            return (respondedAt.getTime() - assignedAt.getTime()) / (1000 * 60 * 60) // hours
+            const timeDiff = (respondedAt.getTime() - assignedAt.getTime()) / (1000 * 60 * 60) // hours
+            return timeDiff > 0 ? timeDiff : 0
           }
           return 0
         }).filter(time => time > 0)
