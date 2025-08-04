@@ -152,20 +152,45 @@ export default function AnalyticsPage() {
 
       // Tiempo promedio de respuesta
       let avgResponseTime = 0
+      console.log('Debug avgResponseTime calculation:')
+      console.log('- responses.length:', responses.length)
+      console.log('- assignments.length:', assignments.length)
+      
       if (responses.length > 0 && assignments.length > 0) {
+        console.log('- Sample response:', responses[0])
+        console.log('- Sample assignment:', assignments[0])
+        
         const responseTimes = responses.map(r => {
           const assignment = assignments.find(a => a.id === r.assignment_id)
-          if (assignment && assignment.assigned_at) {
+          
+          if (assignment && assignment.assigned_at && r.created_at) {
             const assignedAt = new Date(assignment.assigned_at)
             const respondedAt = new Date(r.created_at)
-            return Math.max(0, (respondedAt.getTime() - assignedAt.getTime()) / (1000 * 60 * 60)) // hours
+            const timeDiffHours = (respondedAt.getTime() - assignedAt.getTime()) / (1000 * 60 * 60)
+            
+            console.log(`- Response ${r.id}: assigned ${assignment.assigned_at}, responded ${r.created_at}, diff: ${timeDiffHours}h`)
+            
+            return Math.max(0, timeDiffHours)
           }
+          
+          if (!assignment) {
+            console.log(`- Response ${r.id}: no matching assignment found for assignment_id ${r.assignment_id}`)
+          } else if (!assignment.assigned_at) {
+            console.log(`- Response ${r.id}: assignment found but no assigned_at date`)
+          }
+          
           return 0
         }).filter(time => time > 0)
         
+        console.log('- Valid response times:', responseTimes)
+        console.log('- Valid response times count:', responseTimes.length)
+        
         if (responseTimes.length > 0) {
           avgResponseTime = Math.round(responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length)
+          console.log('- Final avgResponseTime:', avgResponseTime)
         }
+      } else {
+        console.log('- No responses or assignments to calculate average time')
       }
 
       // Métricas del mes actual
@@ -471,14 +496,18 @@ export default function AnalyticsPage() {
               <div>
                 <p className="text-sm text-gray-600">Tiempo Promedio</p>
                 <p className="text-2xl font-bold text-gray-900 mt-1">
-                  {data.avgResponseTime > 0 ? `${data.avgResponseTime}h` : 'N/A'}
+                  {data.avgResponseTime > 0 ? `${data.avgResponseTime}h` : '-'}
                 </p>
               </div>
               <div className="p-3 bg-amber-100 rounded-lg">
                 <Clock className="w-6 h-6 text-amber-600" />
               </div>
             </div>
-            <p className="text-xs text-gray-500 mt-3">Tiempo promedio de respuesta</p>
+            <p className="text-xs text-gray-500 mt-3">
+              {data.avgResponseTime > 0 
+                ? 'Tiempo promedio de respuesta'
+                : 'Sin respuestas para calcular'}
+            </p>
           </CardContent>
         </Card>
       </div>
