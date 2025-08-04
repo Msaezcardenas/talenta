@@ -248,8 +248,8 @@ export default function CandidateDetailPage() {
               {candidate.first_name?.charAt(0) || candidate.email.charAt(0).toUpperCase()}
             </div>
             <div>
-              <h2 className="text-xl font-semibold">{candidateName}</h2>
-              <p className="text-gray-600 font-normal">{candidate.email}</p>
+              <h2 className="text-xl font-semibold text-gray-900">{candidateName}</h2>
+              <p className="text-gray-700 font-normal">{candidate.email}</p>
             </div>
           </CardTitle>
         </CardHeader>
@@ -259,21 +259,21 @@ export default function CandidateDetailPage() {
               <User className="w-5 h-5 text-gray-400" />
               <div>
                 <p className="text-sm text-gray-600">Nombre completo</p>
-                <p className="font-medium">{candidateName}</p>
+                <p className="font-medium text-gray-900">{candidateName}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <Mail className="w-5 h-5 text-gray-400" />
               <div>
                 <p className="text-sm text-gray-600">Email</p>
-                <p className="font-medium">{candidate.email}</p>
+                <p className="font-medium text-gray-900">{candidate.email}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <Calendar className="w-5 h-5 text-gray-400" />
               <div>
                 <p className="text-sm text-gray-600">Fecha de registro</p>
-                <p className="font-medium">{formatDate(candidate.created_at)}</p>
+                <p className="font-medium text-gray-900">{formatDate(candidate.created_at)}</p>
               </div>
             </div>
           </div>
@@ -334,7 +334,7 @@ export default function CandidateDetailPage() {
       {/* Assignments List */}
       <Card>
         <CardHeader>
-          <CardTitle>Entrevistas Asignadas</CardTitle>
+          <CardTitle className="text-gray-900">Entrevistas Asignadas</CardTitle>
         </CardHeader>
         <CardContent>
           {assignments.length === 0 ? (
@@ -358,10 +358,10 @@ export default function CandidateDetailPage() {
                         <h3 className="text-lg font-semibold text-gray-900 mb-1">
                           {assignment.interview?.name || 'Entrevista sin título'}
                         </h3>
-                        <p className="text-gray-600 mb-3">
+                        <p className="text-gray-700 mb-3">
                           {assignment.interview?.description || 'Sin descripción'}
                         </p>
-                        <div className="flex items-center gap-4 text-sm text-gray-600">
+                        <div className="flex items-center gap-4 text-sm text-gray-700">
                           <span>Asignada: {formatDate(assignment.assigned_at)}</span>
                           <span>•</span>
                           <span>{totalQuestions} pregunta{totalQuestions !== 1 ? 's' : ''}</span>
@@ -388,7 +388,7 @@ export default function CandidateDetailPage() {
                     {/* Progress bar */}
                     {totalQuestions > 0 && (
                       <div className="space-y-2">
-                        <div className="flex justify-between text-sm text-gray-600">
+                        <div className="flex justify-between text-sm text-gray-700">
                           <span>Progreso de la entrevista</span>
                           <span>{Math.round(progressPercentage)}%</span>
                         </div>
