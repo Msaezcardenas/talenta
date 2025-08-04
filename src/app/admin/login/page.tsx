@@ -226,8 +226,7 @@ export default function AdminLoginPage() {
               disabled={loading}
               className="w-full py-4 px-6 text-white font-medium rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
               style={{
-                background: 'linear-gradient(135deg, #5b4aef 0%, #fb33af 100%)',
-                focusRingColor: '#5b4aef'
+                background: 'linear-gradient(135deg, #5b4aef 0%, #fb33af 100%)'
               }}
               onMouseEnter={(e) => {
                 if (!loading) {

@@ -18,39 +18,21 @@ export async function POST(request: NextRequest) {
     
     // Para desarrollo, simularemos el envío de email si no hay credenciales de Gmail
     if (!process.env.GMAIL_USER || !process.env.GMAIL_PASS || process.env.NODE_ENV === 'development') {
-      console.log('📧 MODO DESARROLLO/SIMULACIÓN ACTIVADO')
-      console.log('🔧 Variables de entorno:')
-      console.log(`   - GMAIL_USER: ${process.env.GMAIL_USER ? '✅ Configurado' : '❌ No configurado'}`)
-      console.log(`   - GMAIL_PASS: ${process.env.GMAIL_PASS ? '✅ Configurado' : '❌ No configurado'}`)
-      console.log(`   - NODE_ENV: ${process.env.NODE_ENV || 'undefined'}`)
-      console.log(`   - SITE_URL: ${appUrl}`)
-      
-      console.log('\n📬 =================== EMAIL SIMULADO ===================')
-      console.log(`📧 Para: ${candidateEmail}`)
-      console.log(`📧 De: TalentaPro <${process.env.GMAIL_USER || 'noreply@talentapro.com'}>`)
-      console.log(`📧 Asunto: Invitación a Entrevista - ${interviewTitle}`)
-      console.log(`🔗 Link de invitación: ${invitationLink}`)
-      console.log('\n📝 Contenido del email:')
-      console.log(`   Hola${candidateName && candidateName.trim() ? ` ${candidateName}` : ''},`)
-      console.log(`   Te invitamos a participar en: ${interviewTitle}`)
-      console.log(`   Link de acceso: ${invitationLink}`)
-      console.log('📬 ================= FIN EMAIL SIMULADO =================\n')
-      
-      // Simular pequeño delay como si fuera envío real
-      await new Promise(resolve => setTimeout(resolve, 500))
+      console.log('📧 Running in development mode or no Gmail credentials')
+      console.log('=== EMAIL SIMULADO ===')
+      console.log(`Para: ${candidateEmail}`)
+      console.log(`Asunto: Invitación a Entrevista - ${interviewTitle}`)
+      console.log(`\nHola${candidateName && candidateName.trim() ? ` ${candidateName}` : ''},\n\nHas sido seleccionado para participar en el proceso de entrevista para: ${interviewTitle}\n\nPara acceder a tu entrevista, haz clic en el siguiente enlace:\n${invitationLink}\n\nEste enlace es único y personal. No lo compartas con nadie más.\n\nSaludos,\nEquipo de TalentaPro\n      `)
+      console.log('=== FIN EMAIL ===')
       
       return NextResponse.json({ 
         success: true, 
-        message: 'Invitación enviada exitosamente (modo simulación)',
-        invitationLink,
+        message: 'Invitación enviada (modo desarrollo)',
+        invitationLink, // En desarrollo, devolvemos el link para testing
         debug: {
-          mode: 'simulation',
-          reason: !process.env.GMAIL_USER || !process.env.GMAIL_PASS ? 'missing_credentials' : 'development_mode',
-          hasGmailUser: !!process.env.GMAIL_USER,
-          hasGmailPass: !!process.env.GMAIL_PASS,
-          nodeEnv: process.env.NODE_ENV,
-          recipient: candidateEmail,
-          simulatedAt: new Date().toISOString()
+          mode: 'development',
+          hasGmail: !!process.env.GMAIL_USER,
+          email: candidateEmail
         }
       })
     }
