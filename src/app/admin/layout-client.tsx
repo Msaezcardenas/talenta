@@ -264,8 +264,11 @@ export default function AdminLayoutClient({
       
       setNotifications(notificationsWithReadStatus)
       
-      // Limpiar notificaciones antiguas del localStorage
-      setTimeout(() => cleanupOldReadNotifications(), 100)
+      // Limpiar notificaciones antiguas del localStorage ocasionalmente
+      // Solo ejecutar limpieza 1 de cada 10 veces para evitar eliminar notificaciones activas
+      if (Math.random() < 0.1) {
+        setTimeout(() => cleanupOldReadNotifications(), 100)
+      }
       
     } catch (error) {
       console.error('Error loading notifications:', error)
@@ -296,7 +299,16 @@ export default function AdminLayoutClient({
     if (typeof window === 'undefined') return new Set()
     try {
       const stored = localStorage.getItem('readNotifications')
-      return new Set(stored ? JSON.parse(stored) : [])
+      if (!stored) return new Set()
+      
+      const data = JSON.parse(stored)
+      // Compatibilidad con formato anterior (array directo) y nuevo formato (objeto con timestamp)
+      if (Array.isArray(data)) {
+        return new Set(data)
+      } else if (data.ids && Array.isArray(data.ids)) {
+        return new Set(data.ids)
+      }
+      return new Set()
     } catch {
       return new Set()
     }
@@ -305,7 +317,12 @@ export default function AdminLayoutClient({
   const saveReadNotifications = (readIds: Set<string>) => {
     if (typeof window === 'undefined') return
     try {
-      localStorage.setItem('readNotifications', JSON.stringify([...readIds]))
+      // Guardar con timestamp para poder hacer limpieza basada en tiempo
+      const readData = {
+        ids: [...readIds],
+        lastUpdated: new Date().toISOString()
+      }
+      localStorage.setItem('readNotifications', JSON.stringify(readData))
     } catch (error) {
       console.error('Error saving read notifications:', error)
     }
@@ -314,15 +331,20 @@ export default function AdminLayoutClient({
   const cleanupOldReadNotifications = () => {
     if (typeof window === 'undefined') return
     try {
-      // Limpiar localStorage cada vez que se cargan notificaciones
-      // Solo mantener las que estén en las notificaciones actuales
-      const currentNotificationIds = new Set(notifications.map(n => n.id))
+      // Limpiar solo notificaciones muy antiguas (más de 30 días)
+      // En lugar de limpiar basado en notificaciones actuales
       const readIds = getReadNotifications()
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
       
-      // Filtrar solo las IDs que siguen siendo relevantes
-      const relevantReadIds = new Set([...readIds].filter(id => currentNotificationIds.has(id)))
-      
-      saveReadNotifications(relevantReadIds)
+      // Filtrar solo las IDs que son relativamente recientes
+      // Las IDs tienen formato como "response_123", "assignment_456", "candidate_789"
+      // Solo limpiamos si tenemos demasiadas (más de 100)
+      if (readIds.size > 100) {
+        // Mantener solo las últimas 50 para evitar que crezca indefinidamente
+        const readArray = [...readIds]
+        const recentReadIds = new Set(readArray.slice(-50))
+        saveReadNotifications(recentReadIds)
+      }
     } catch (error) {
       console.error('Error cleaning up read notifications:', error)
     }
