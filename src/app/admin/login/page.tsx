@@ -23,7 +23,6 @@ export default function AdminLoginPage() {
     try {
       const { data: { session } } = await supabase.auth.getSession()
       if (session) {
-        console.log('[Login] Already authenticated, checking role...')
         // Verificar rol admin
         const { data: profile } = await supabase
           .from('profiles')
@@ -32,7 +31,6 @@ export default function AdminLoginPage() {
           .single()
         
         if (profile?.role === 'admin') {
-          console.log('[Login] User is admin, redirecting...')
           router.push('/admin/dashboard')
           return
         }
@@ -64,8 +62,6 @@ export default function AdminLoginPage() {
     }
 
     try {
-      console.log('[Login] Starting login process...')
-      
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -77,7 +73,6 @@ export default function AdminLoginPage() {
       }
 
       if (data.user) {
-        console.log('[Login] Sign in successful, user:', data.user.email)
         
         // Esperar un momento para que la sesión se establezca
         await new Promise(resolve => setTimeout(resolve, 500))
@@ -88,8 +83,6 @@ export default function AdminLoginPage() {
         if (!session) {
           throw new Error('No se pudo establecer la sesión')
         }
-        
-        console.log('[Login] Session established, checking role...')
         
         // Verificar que el usuario sea admin
         const { data: profile, error: profileError } = await supabase
@@ -103,14 +96,10 @@ export default function AdminLoginPage() {
           throw new Error('Error al verificar permisos')
         }
 
-        console.log('[Login] User profile:', profile)
-
         if (profile?.role !== 'admin') {
           await supabase.auth.signOut()
           throw new Error('No tienes permisos de administrador')
         }
-
-        console.log('[Login] User is admin, redirecting to dashboard...')
         
         // Mostrar toast de éxito
         toast.success('¡Bienvenido a TalentaPro!')

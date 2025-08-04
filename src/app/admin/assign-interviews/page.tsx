@@ -149,7 +149,7 @@ export default function AssignInterviewsPage() {
         
         if (candidate) {
           try {
-            console.log(`📧 Enviando email ${i + 1}/${createdAssignments.length} a:`, candidate.email)
+  
             
             const response = await fetch('/api/send-interview-invitation', {
               method: 'POST',
@@ -165,10 +165,7 @@ export default function AssignInterviewsPage() {
 
             const result = await response.json()
             const candidateFullName = `${candidate.first_name || ''} ${candidate.last_name || ''}`.trim()
-            console.log(`📧 Respuesta del servidor:`, {
-              ...result,
-              sentTo: candidateFullName || 'Sin nombre (solo Hola)'
-            })
+
             
             if (result.success) {
               emailsSent++
@@ -182,8 +179,6 @@ export default function AssignInterviewsPage() {
           }
         }
       }
-
-      console.log(`📧 Resumen: ${emailsSent}/${createdAssignments.length} emails enviados`)
 
       // Mostrar resultado
       if (emailsSent === createdAssignments.length) {

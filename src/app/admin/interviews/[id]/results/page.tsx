@@ -346,18 +346,7 @@ export default function InterviewResultsPage() {
                                                 ) : null}
                                               </div>
                                               {(() => {
-                                                // Debug logging para video
                                                 const transcript = response.data?.transcript || response.transcript;
-                                                
-                                                console.log('Video response debug:', {
-                                                  responseId: response.id,
-                                                  processingStatus: response.processing_status,
-                                                  hasTranscriptInData: !!response.data?.transcript,
-                                                  hasTranscriptInRoot: !!response.transcript,
-                                                  transcriptLength: transcript?.length,
-                                                  fullResponse: response,
-                                                  dataField: response.data
-                                                });
                                                 
                                                 if (transcript) {
                                                   return (
@@ -416,14 +405,6 @@ export default function InterviewResultsPage() {
                                     {question.type === 'multiple_choice' && (
                                       <div>
                                         {(() => {
-                                          // Debug logging
-                                          console.log('Multiple choice response:', {
-                                            responseId: response.id,
-                                            data: response.data,
-                                            selected: response.data.selected,
-                                            options: question.options
-                                          });
-                                          
                                           if (response.data.selected) {
                                             const selectedOption = question.options?.find((opt: any) => opt.value === response.data.selected);
                                             const optionIndex = question.options?.findIndex((opt: any) => opt.value === response.data.selected) || 0;

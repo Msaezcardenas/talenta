@@ -15,17 +15,13 @@ export default function TestDashboardPage() {
   }, [])
 
   const checkAuth = async () => {
-    console.log('TestDashboard: Verificando autenticación...')
-    
     const { data: { session } } = await supabase.auth.getSession()
     
     if (!session) {
-      console.log('TestDashboard: No hay sesión, redirigiendo a login')
       router.push('/admin/login')
       return
     }
     
-    console.log('TestDashboard: Usuario autenticado:', session.user.email)
     setUser(session.user)
     setLoading(false)
   }
