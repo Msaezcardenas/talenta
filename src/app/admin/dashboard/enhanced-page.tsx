@@ -93,8 +93,7 @@ export default function EnhancedDashboardPage() {
             assignments(
               id,
               status,
-              created_at,
-              completed_at,
+              assigned_at,
               user_id,
               profiles(first_name, last_name, email)
             ),
