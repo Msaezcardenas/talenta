@@ -27,6 +27,62 @@ interface EnhancedStats {
   activeProcesses: number
 }
 
+interface Assignment {
+  id: string
+  status: string
+  assigned_at: string
+  user_id?: string
+  profiles?: {
+    first_name: string | null
+    last_name: string | null
+    email: string
+  }
+}
+
+interface Interview {
+  id: string
+  name: string
+  description?: string
+  created_at: string
+  assignments?: Assignment[]
+  questions?: { id: string }[]
+}
+
+interface InterviewCardData {
+  id: string
+  title: string
+  position: string
+  candidates: number
+  completed: number
+  date: string
+  status: 'active' | 'completed'
+  completionRate: number
+}
+
+interface ActivityResponse {
+  id: string
+  created_at: string
+  assignments?: {
+    id: string
+    profiles?: {
+      first_name: string | null
+      last_name: string | null
+      email: string
+    }[]
+  }[]
+  questions?: {
+    question_text: string
+  }[]
+}
+
+interface FormattedActivity {
+  id: string
+  type: 'response'
+  title: string
+  subtitle: string
+  time: string
+}
+
 
 
 export default function EnhancedDashboardPage() {
@@ -38,8 +94,8 @@ export default function EnhancedDashboardPage() {
     completedToday: 0,
     activeProcesses: 0,
   })
-  const [interviews, setInterviews] = useState<any[]>([])
-  const [activities, setActivities] = useState<any[]>([])
+  const [interviews, setInterviews] = useState<InterviewCardData[]>([])
+  const [activities, setActivities] = useState<FormattedActivity[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -97,7 +153,7 @@ export default function EnhancedDashboardPage() {
       if (assignmentsResult.error) throw new Error(`Error cargando asignaciones: ${assignmentsResult.error.message}`)
       if (responsesResult.error) console.warn('Error cargando respuestas:', responsesResult.error.message)
 
-      const interviews = interviewsResult.data || []
+      const interviewsData = interviewsResult.data || []
       const assignments = assignmentsResult.data || []
       const responses = responsesResult.data || []
 
@@ -107,7 +163,7 @@ export default function EnhancedDashboardPage() {
       const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
 
       // Cálculos mejorados
-      const totalInterviews = interviews.length
+      const totalInterviews = interviewsData.length
       
       // Candidatos realmente activos (no completados, no cancelados)
       const activeCandidates = assignments.filter(a => 
@@ -131,9 +187,9 @@ export default function EnhancedDashboardPage() {
       }).length
       
       // Procesos activos (entrevistas con al menos una asignación no completada)
-      const activeProcesses = interviews.filter(interview => {
+      const activeProcesses = interviewsData.filter(interview => {
         const interviewAssignments = interview.assignments || []
-        return interviewAssignments.some(a => a.status !== 'completed' && a.status !== 'cancelled')
+        return interviewAssignments.some((a: Assignment) => a.status !== 'completed' && a.status !== 'cancelled')
       }).length
       
 
@@ -146,11 +202,11 @@ export default function EnhancedDashboardPage() {
       })
 
       // Mapear entrevistas para las cards
-      if (interviews.length > 0) {
-        const mappedInterviews = interviews.slice(0, 3).map(interview => {
+      if (interviewsData.length > 0) {
+        const mappedInterviews: InterviewCardData[] = interviewsData.slice(0, 3).map(interview => {
           const interviewAssignments = interview.assignments || []
           const totalCandidates = interviewAssignments.length
-          const completedCount = interviewAssignments.filter(a => a.status === 'completed').length
+          const completedCount = interviewAssignments.filter((a: Assignment) => a.status === 'completed').length
           const completionRate = totalCandidates > 0 ? Math.round((completedCount / totalCandidates) * 100) : 0
           
           return {
@@ -196,17 +252,22 @@ export default function EnhancedDashboardPage() {
         .limit(5)
 
       if (!error && activities) {
-        const formattedActivities = activities.map((activity) => {
-          const candidate = activity.assignments?.profiles
+        const formattedActivities: FormattedActivity[] = activities.map((activity: ActivityResponse) => {
+          // Obtener el primer assignment y su primer profile
+          const assignment = activity.assignments?.[0]
+          const candidate = assignment?.profiles?.[0]
           const candidateName = candidate 
             ? `${candidate.first_name || ''} ${candidate.last_name || ''}`.trim() || candidate.email 
             : 'Usuario desconocido'
+          
+          // Obtener la primera pregunta
+          const question = activity.questions?.[0]
           
           return {
             id: activity.id,
             type: 'response' as const,
             title: 'Nueva respuesta recibida',
-            subtitle: `${candidateName} - ${activity.questions?.question_text || 'Pregunta desconocida'}`,
+            subtitle: `${candidateName} - ${question?.question_text || 'Pregunta desconocida'}`,
             time: getTimeAgo(new Date(activity.created_at))
           }
         })
@@ -381,10 +442,7 @@ export default function EnhancedDashboardPage() {
           <h2 className="text-lg font-semibold text-gray-900">Entrevistas Recientes</h2>
           <button
             onClick={() => router.push('/admin/interviews')}
-            className="text-sm font-medium"
-            style={{color: '#5b4aef'}}
-            onMouseEnter={(e) => e.currentTarget.style.color = '#4a3bd8'}
-            onMouseLeave={(e) => e.currentTarget.style.color = '#5b4aef'}
+            className="text-sm font-medium text-[#5b4aef] hover:text-[#4a3bd8] transition-colors"
           >
             Ver todas
           </button>
