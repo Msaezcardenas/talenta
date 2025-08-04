@@ -130,7 +130,8 @@ export default function CandidateDetailPage() {
         return {
           icon: <Play className="w-4 h-4" />,
           text: 'En Progreso',
-          color: 'text-blue-700 bg-gradient-to-r from-blue-50 to-cyan-100 border-blue-300 shadow-blue-100'
+          color: 'bg-gradient-to-r from-indigo-50 to-purple-100 border-2 shadow-sm',
+          style: { color: '#5b4aef', borderColor: '#5b4aef' }
         }
       case 'completed':
         return {
@@ -160,7 +161,7 @@ export default function CandidateDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{borderBottomColor: '#5b4aef'}}></div>
       </div>
     )
   }
@@ -237,11 +238,11 @@ export default function CandidateDetailPage() {
   return (
     <div className="space-y-8 py-8">
       {/* Header with back button */}
-      <div className="relative bg-gradient-to-r from-violet-600 via-purple-600 to-violet-700 rounded-2xl p-8 mb-8 shadow-xl overflow-hidden">
+      <div className="relative rounded-2xl p-8 mb-8 shadow-xl overflow-hidden" style={{background: 'linear-gradient(135deg, #5b4aef 0%, #4a3bd8 50%, #5b4aef 100%)'}}>
         {/* Background decoration */}
         <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-32 translate-x-32"></div>
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-400/20 rounded-full translate-y-24 -translate-x-24"></div>
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full translate-y-24 -translate-x-24"></div>
         
         <div className="relative flex items-center gap-6">
           <button
@@ -254,21 +255,21 @@ export default function CandidateDetailPage() {
           </button>
           <div className="flex-1">
             <h1 className="text-4xl font-bold text-white mb-2">Detalles del Candidato</h1>
-            <p className="text-violet-100 text-lg">Información completa del candidato y sus entrevistas</p>
+            <p className="text-white/90 text-lg">Información completa del candidato y sus entrevistas</p>
           </div>
         </div>
       </div>
 
       {/* Candidate Profile Card */}
-      <Card className="border-0 shadow-lg bg-gradient-to-br from-violet-50 via-white to-purple-50">
+      <Card className="border-0 shadow-lg" style={{background: 'linear-gradient(135deg, #faf9ff 0%, #ffffff 50%, #f8f7ff 100%)'}}>
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-4">
-            <div className="h-16 w-16 bg-gradient-to-br from-violet-500 via-purple-500 to-violet-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl shadow-lg">
+            <div className="h-16 w-16 rounded-xl flex items-center justify-center text-white font-bold text-2xl shadow-lg" style={{background: 'linear-gradient(135deg, #5b4aef 0%, #4a3bd8 100%)'}}>
               {candidate.first_name?.charAt(0) || candidate.email.charAt(0).toUpperCase()}
             </div>
             <div>
               <h2 className="text-2xl font-bold text-gray-900">{candidateName}</h2>
-              <p className="text-violet-600 font-medium text-lg">{candidate.email}</p>
+              <p className="font-medium text-lg" style={{color: '#5b4aef'}}>{candidate.email}</p>
               <div className="flex items-center gap-2 mt-2">
                 <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                 <span className="text-sm text-gray-600">Candidato activo</span>
@@ -278,27 +279,27 @@ export default function CandidateDetailPage() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="flex items-center gap-4 p-4 bg-white rounded-xl border border-purple-100 shadow-sm">
-              <div className="p-3 bg-gradient-to-br from-blue-100 to-blue-50 rounded-lg">
-                <User className="w-5 h-5 text-blue-600" />
+            <div className="flex items-center gap-4 p-4 bg-white rounded-xl shadow-sm" style={{border: '1px solid #e4e0ff'}}>
+              <div className="p-3 rounded-lg" style={{background: 'linear-gradient(135deg, #ede9ff 0%, #f7f5ff 100%)'}}>
+                <User className="w-5 h-5" style={{color: '#5b4aef'}} />
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">Nombre completo</p>
                 <p className="font-semibold text-gray-900">{candidateName}</p>
               </div>
             </div>
-            <div className="flex items-center gap-4 p-4 bg-white rounded-xl border border-purple-100 shadow-sm">
-              <div className="p-3 bg-gradient-to-br from-violet-100 to-violet-50 rounded-lg">
-                <Mail className="w-5 h-5 text-violet-600" />
+            <div className="flex items-center gap-4 p-4 bg-white rounded-xl shadow-sm" style={{border: '1px solid #e4e0ff'}}>
+              <div className="p-3 rounded-lg" style={{background: 'linear-gradient(135deg, #ede9ff 0%, #f7f5ff 100%)'}}>
+                <Mail className="w-5 h-5" style={{color: '#5b4aef'}} />
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">Email</p>
                 <p className="font-semibold text-gray-900">{candidate.email}</p>
               </div>
             </div>
-            <div className="flex items-center gap-4 p-4 bg-white rounded-xl border border-purple-100 shadow-sm">
-              <div className="p-3 bg-gradient-to-br from-green-100 to-green-50 rounded-lg">
-                <Calendar className="w-5 h-5 text-green-600" />
+            <div className="flex items-center gap-4 p-4 bg-white rounded-xl shadow-sm" style={{border: '1px solid #e4e0ff'}}>
+              <div className="p-3 rounded-lg" style={{background: 'linear-gradient(135deg, #ede9ff 0%, #f7f5ff 100%)'}}>
+                <Calendar className="w-5 h-5" style={{color: '#5b4aef'}} />
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">Fecha de registro</p>
@@ -311,15 +312,15 @@ export default function CandidateDetailPage() {
 
       {/* Interview Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="border-0 shadow-md bg-gradient-to-br from-slate-50 to-slate-100 hover:shadow-lg transition-all duration-300">
+        <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300" style={{background: 'linear-gradient(135deg, #faf9ff 0%, #f5f3ff 100%)'}}>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600 uppercase tracking-wide">Total Entrevistas</p>
-                <p className="text-3xl font-bold text-slate-800 mt-1">{totalInterviews}</p>
+                <p className="text-sm font-medium uppercase tracking-wide" style={{color: '#5b4aef'}}>Total Entrevistas</p>
+                <p className="text-3xl font-bold mt-1" style={{color: '#5b4aef'}}>{totalInterviews}</p>
               </div>
-              <div className="p-3 bg-gradient-to-br from-slate-100 to-slate-50 rounded-xl">
-                <FileText className="w-8 h-8 text-slate-600" />
+              <div className="p-3 rounded-xl" style={{background: 'linear-gradient(135deg, #ede9ff 0%, #f7f5ff 100%)'}}>
+                <FileText className="w-8 h-8" style={{color: '#5b4aef'}} />
               </div>
             </div>
           </CardContent>
@@ -339,15 +340,15 @@ export default function CandidateDetailPage() {
           </CardContent>
         </Card>
         
-        <Card className="border-0 shadow-md bg-gradient-to-br from-blue-50 to-cyan-100 hover:shadow-lg transition-all duration-300">
+        <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300" style={{background: 'linear-gradient(135deg, #f0efff 0%, #e8e6ff 100%)'}}>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-blue-700 uppercase tracking-wide">En Progreso</p>
-                <p className="text-3xl font-bold text-blue-800 mt-1">{inProgressInterviews}</p>
+                <p className="text-sm font-medium uppercase tracking-wide" style={{color: '#5b4aef'}}>En Progreso</p>
+                <p className="text-3xl font-bold mt-1" style={{color: '#5b4aef'}}>{inProgressInterviews}</p>
               </div>
-              <div className="p-3 bg-gradient-to-br from-blue-100 to-blue-50 rounded-xl">
-                <Play className="w-8 h-8 text-blue-600" />
+              <div className="p-3 rounded-xl" style={{background: 'linear-gradient(135deg, #d7d3ff 0%, #e8e6ff 100%)'}}>
+                <Play className="w-8 h-8" style={{color: '#5b4aef'}} />
               </div>
             </div>
           </CardContent>
@@ -370,7 +371,7 @@ export default function CandidateDetailPage() {
 
       {/* Assignments List */}
       <Card className="border-0 shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-t-lg">
+        <CardHeader className="text-white rounded-t-lg" style={{background: 'linear-gradient(135deg, #5b4aef 0%, #4a3bd8 100%)'}}>
           <CardTitle className="flex items-center gap-3 text-white text-xl">
             <div className="p-2 bg-white/20 rounded-lg">
               <FileText className="w-6 h-6" />
@@ -396,7 +397,7 @@ export default function CandidateDetailPage() {
                 const progressPercentage = totalQuestions > 0 ? (answeredQuestions / totalQuestions) * 100 : 0
 
                 return (
-                  <div key={assignment.id} className="bg-gradient-to-r from-white to-gray-50 border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:border-violet-200">
+                  <div key={assignment.id} className="bg-gradient-to-r from-white to-gray-50 rounded-xl p-6 hover:shadow-lg transition-all duration-300" style={{border: '1px solid #e4e0ff', '--hover-border': '#5b4aef'}} onMouseEnter={(e) => e.currentTarget.style.borderColor = '#5b4aef'} onMouseLeave={(e) => e.currentTarget.style.borderColor = '#e4e0ff'}>
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
@@ -409,12 +410,12 @@ export default function CandidateDetailPage() {
                         </p>
                         <div className="flex flex-wrap items-center gap-6 text-sm">
                           <div className="flex items-center gap-2 text-gray-600">
-                            <Calendar className="w-4 h-4 text-violet-500" />
+                            <Calendar className="w-4 h-4" style={{color: '#5b4aef'}} />
                             <span className="font-medium">Asignada:</span>
                             <span>{formatDate(assignment.assigned_at)}</span>
                           </div>
                           <div className="flex items-center gap-2 text-gray-600">
-                            <FileText className="w-4 h-4 text-blue-500" />
+                            <FileText className="w-4 h-4" style={{color: '#5b4aef'}} />
                             <span className="font-medium">{totalQuestions} pregunta{totalQuestions !== 1 ? 's' : ''}</span>
                           </div>
                           <div className="flex items-center gap-2 text-gray-600">
@@ -425,13 +426,19 @@ export default function CandidateDetailPage() {
                       </div>
                       
                       <div className="flex items-center gap-3 ml-4">
-                        <span className={`px-4 py-2 rounded-xl text-sm font-semibold border-2 flex items-center gap-2 ${statusInfo.color} shadow-sm`}>
+                        <span 
+                          className={`px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 ${statusInfo.color} shadow-sm`}
+                          style={statusInfo.style || {}}
+                        >
                           {statusInfo.icon}
                           {statusInfo.text}
                         </span>
                         <button
                           onClick={() => router.push(`/admin/interviews/${assignment.interview?.id}/results?assignmentId=${assignment.id}`)}
-                          className="p-3 bg-gradient-to-br from-violet-500 to-purple-600 text-white hover:from-violet-600 hover:to-purple-700 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105"
+                          className="p-3 text-white rounded-xl transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105"
+                          style={{background: 'linear-gradient(135deg, #5b4aef 0%, #4a3bd8 100%)'}}
+                          onMouseEnter={(e) => e.currentTarget.style.background = 'linear-gradient(135deg, #4a3bd8 0%, #3b2db8 100%)'}
+                          onMouseLeave={(e) => e.currentTarget.style.background = 'linear-gradient(135deg, #5b4aef 0%, #4a3bd8 100%)'}
                           title="Ver respuestas"
                         >
                           <Eye className="w-5 h-5" />
@@ -444,12 +451,15 @@ export default function CandidateDetailPage() {
                       <div className="bg-white rounded-lg p-4 border border-gray-100">
                         <div className="flex justify-between items-center mb-3">
                           <span className="text-sm font-semibold text-gray-700">Progreso de la entrevista</span>
-                          <span className="text-lg font-bold text-violet-600">{Math.round(progressPercentage)}%</span>
+                          <span className="text-lg font-bold" style={{color: '#5b4aef'}}>{Math.round(progressPercentage)}%</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-3 shadow-inner">
                           <div 
-                            className="bg-gradient-to-r from-violet-500 via-purple-500 to-violet-600 h-3 rounded-full transition-all duration-500 shadow-sm"
-                            style={{ width: `${progressPercentage}%` }}
+                            className="h-3 rounded-full transition-all duration-500 shadow-sm"
+                            style={{ 
+                              width: `${progressPercentage}%`,
+                              background: 'linear-gradient(135deg, #5b4aef 0%, #4a3bd8 100%)'
+                            }}
                           />
                         </div>
                       </div>
