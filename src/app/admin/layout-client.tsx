@@ -183,9 +183,9 @@ export default function AdminLayoutClient({
       // Procesar respuestas nuevas
       if (responsesResult.data) {
         responsesResult.data.forEach(response => {
-          const assignment = response.assignments
-          const profile = assignment?.profiles
-          const interview = assignment?.interviews
+          const assignment = response.assignments as any
+          const profile = assignment?.profiles as any
+          const interview = assignment?.interviews as any
           
           newNotifications.push({
             id: `response_${response.id}`,
@@ -207,8 +207,8 @@ export default function AdminLayoutClient({
         )
         
         completedRecently.forEach(assignment => {
-          const profile = assignment.profiles
-          const interview = assignment.interviews
+          const profile = assignment.profiles as any
+          const interview = assignment.interviews as any
           
           newNotifications.push({
             id: `completed_${assignment.id}`,
@@ -229,8 +229,8 @@ export default function AdminLayoutClient({
         ).slice(0, 3) // Solo las 3 más antiguas
         
         pendingOld.forEach(assignment => {
-          const profile = assignment.profiles
-          const interview = assignment.interviews
+          const profile = assignment.profiles as any
+          const interview = assignment.interviews as any
           
           newNotifications.push({
             id: `pending_${assignment.id}`,
