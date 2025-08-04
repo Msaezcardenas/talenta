@@ -124,25 +124,25 @@ export default function CandidateDetailPage() {
         return {
           icon: <Clock className="w-4 h-4" />,
           text: 'Pendiente',
-          color: 'text-amber-600 bg-amber-50 border-amber-200'
+          color: 'text-amber-700 bg-gradient-to-r from-amber-50 to-orange-100 border-amber-300 shadow-amber-100'
         }
       case 'in_progress':
         return {
           icon: <Play className="w-4 h-4" />,
           text: 'En Progreso',
-          color: 'text-blue-600 bg-blue-50 border-blue-200'
+          color: 'text-blue-700 bg-gradient-to-r from-blue-50 to-cyan-100 border-blue-300 shadow-blue-100'
         }
       case 'completed':
         return {
           icon: <CheckCircle className="w-4 h-4" />,
           text: 'Completada',
-          color: 'text-green-600 bg-green-50 border-green-200'
+          color: 'text-emerald-700 bg-gradient-to-r from-emerald-50 to-green-100 border-emerald-300 shadow-emerald-100'
         }
       default:
         return {
           icon: <AlertCircle className="w-4 h-4" />,
           text: 'Desconocido',
-          color: 'text-gray-600 bg-gray-50 border-gray-200'
+          color: 'text-gray-700 bg-gradient-to-r from-gray-50 to-slate-100 border-gray-300 shadow-gray-100'
         }
     }
   }
@@ -201,16 +201,25 @@ export default function CandidateDetailPage() {
   if (!candidate) {
     return (
       <div className="space-y-8 py-8">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => router.back()}
-            className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg transition-all hover:scale-105 shadow-sm"
-            title="Volver a candidatos"
-          >
-            <ArrowLeft className="w-4 h-4 text-gray-700" />
-            <span className="text-sm font-medium text-gray-700 hidden sm:inline">Volver</span>
-          </button>
-          <h1 className="text-3xl font-bold text-gray-900">Candidato no encontrado</h1>
+        <div className="relative bg-gradient-to-r from-red-500 via-pink-500 to-red-600 rounded-2xl p-8 mb-8 shadow-xl overflow-hidden">
+          {/* Background decoration */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-32 translate-x-32"></div>
+          
+          <div className="relative flex items-center gap-6">
+            <button
+              onClick={() => router.back()}
+              className="flex items-center gap-3 px-4 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 rounded-xl transition-all hover:scale-105 shadow-lg text-white"
+              title="Volver a candidatos"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span className="font-medium hidden sm:inline">Volver</span>
+            </button>
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold text-white mb-2">Candidato no encontrado</h1>
+              <p className="text-red-100 text-lg">El candidato que buscas no existe o ha sido eliminado</p>
+            </div>
+          </div>
         </div>
       </div>
     )
@@ -228,55 +237,72 @@ export default function CandidateDetailPage() {
   return (
     <div className="space-y-8 py-8">
       {/* Header with back button */}
-      <div className="flex items-center gap-4">
-        <button
-          onClick={() => router.back()}
-          className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg transition-all hover:scale-105 shadow-sm"
-          title="Volver a candidatos"
-        >
-          <ArrowLeft className="w-4 h-4 text-gray-700" />
-          <span className="text-sm font-medium text-gray-700 hidden sm:inline">Volver</span>
-        </button>
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Detalles del Candidato</h1>
-          <p className="text-gray-600 mt-1">Información completa del candidato y sus entrevistas</p>
+      <div className="relative bg-gradient-to-r from-violet-600 via-purple-600 to-violet-700 rounded-2xl p-8 mb-8 shadow-xl overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-32 translate-x-32"></div>
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-400/20 rounded-full translate-y-24 -translate-x-24"></div>
+        
+        <div className="relative flex items-center gap-6">
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-3 px-4 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 rounded-xl transition-all hover:scale-105 shadow-lg text-white"
+            title="Volver a candidatos"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="font-medium hidden sm:inline">Volver</span>
+          </button>
+          <div className="flex-1">
+            <h1 className="text-4xl font-bold text-white mb-2">Detalles del Candidato</h1>
+            <p className="text-violet-100 text-lg">Información completa del candidato y sus entrevistas</p>
+          </div>
         </div>
       </div>
 
       {/* Candidate Profile Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-3">
-            <div className="h-12 w-12 bg-gradient-to-r from-violet-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+      <Card className="border-0 shadow-lg bg-gradient-to-br from-violet-50 via-white to-purple-50">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-4">
+            <div className="h-16 w-16 bg-gradient-to-br from-violet-500 via-purple-500 to-violet-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl shadow-lg">
               {candidate.first_name?.charAt(0) || candidate.email.charAt(0).toUpperCase()}
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">{candidateName}</h2>
-              <p className="text-gray-700 font-normal">{candidate.email}</p>
+              <h2 className="text-2xl font-bold text-gray-900">{candidateName}</h2>
+              <p className="text-violet-600 font-medium text-lg">{candidate.email}</p>
+              <div className="flex items-center gap-2 mt-2">
+                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                <span className="text-sm text-gray-600">Candidato activo</span>
+              </div>
             </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="flex items-center gap-3">
-              <User className="w-5 h-5 text-gray-400" />
+            <div className="flex items-center gap-4 p-4 bg-white rounded-xl border border-purple-100 shadow-sm">
+              <div className="p-3 bg-gradient-to-br from-blue-100 to-blue-50 rounded-lg">
+                <User className="w-5 h-5 text-blue-600" />
+              </div>
               <div>
-                <p className="text-sm text-gray-600">Nombre completo</p>
-                <p className="font-medium text-gray-900">{candidateName}</p>
+                <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">Nombre completo</p>
+                <p className="font-semibold text-gray-900">{candidateName}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <Mail className="w-5 h-5 text-gray-400" />
+            <div className="flex items-center gap-4 p-4 bg-white rounded-xl border border-purple-100 shadow-sm">
+              <div className="p-3 bg-gradient-to-br from-violet-100 to-violet-50 rounded-lg">
+                <Mail className="w-5 h-5 text-violet-600" />
+              </div>
               <div>
-                <p className="text-sm text-gray-600">Email</p>
-                <p className="font-medium text-gray-900">{candidate.email}</p>
+                <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">Email</p>
+                <p className="font-semibold text-gray-900">{candidate.email}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <Calendar className="w-5 h-5 text-gray-400" />
+            <div className="flex items-center gap-4 p-4 bg-white rounded-xl border border-purple-100 shadow-sm">
+              <div className="p-3 bg-gradient-to-br from-green-100 to-green-50 rounded-lg">
+                <Calendar className="w-5 h-5 text-green-600" />
+              </div>
               <div>
-                <p className="text-sm text-gray-600">Fecha de registro</p>
-                <p className="font-medium text-gray-900">{formatDate(candidate.created_at)}</p>
+                <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">Fecha de registro</p>
+                <p className="font-semibold text-gray-900">{formatDate(candidate.created_at)}</p>
               </div>
             </div>
           </div>
@@ -285,69 +311,84 @@ export default function CandidateDetailPage() {
 
       {/* Interview Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
+        <Card className="border-0 shadow-md bg-gradient-to-br from-slate-50 to-slate-100 hover:shadow-lg transition-all duration-300">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Entrevistas</p>
-                <p className="text-2xl font-bold text-gray-900">{totalInterviews}</p>
+                <p className="text-sm font-medium text-slate-600 uppercase tracking-wide">Total Entrevistas</p>
+                <p className="text-3xl font-bold text-slate-800 mt-1">{totalInterviews}</p>
               </div>
-              <FileText className="w-8 h-8 text-gray-400" />
+              <div className="p-3 bg-gradient-to-br from-slate-100 to-slate-50 rounded-xl">
+                <FileText className="w-8 h-8 text-slate-600" />
+              </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="border-0 shadow-md bg-gradient-to-br from-emerald-50 to-green-100 hover:shadow-lg transition-all duration-300">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Completadas</p>
-                <p className="text-2xl font-bold text-green-600">{completedInterviews}</p>
+                <p className="text-sm font-medium text-emerald-700 uppercase tracking-wide">Completadas</p>
+                <p className="text-3xl font-bold text-emerald-800 mt-1">{completedInterviews}</p>
               </div>
-              <CheckCircle className="w-8 h-8 text-green-400" />
+              <div className="p-3 bg-gradient-to-br from-emerald-100 to-emerald-50 rounded-xl">
+                <CheckCircle className="w-8 h-8 text-emerald-600" />
+              </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="border-0 shadow-md bg-gradient-to-br from-blue-50 to-cyan-100 hover:shadow-lg transition-all duration-300">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">En Progreso</p>
-                <p className="text-2xl font-bold text-blue-600">{inProgressInterviews}</p>
+                <p className="text-sm font-medium text-blue-700 uppercase tracking-wide">En Progreso</p>
+                <p className="text-3xl font-bold text-blue-800 mt-1">{inProgressInterviews}</p>
               </div>
-              <Play className="w-8 h-8 text-blue-400" />
+              <div className="p-3 bg-gradient-to-br from-blue-100 to-blue-50 rounded-xl">
+                <Play className="w-8 h-8 text-blue-600" />
+              </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="border-0 shadow-md bg-gradient-to-br from-amber-50 to-orange-100 hover:shadow-lg transition-all duration-300">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Pendientes</p>
-                <p className="text-2xl font-bold text-amber-600">{pendingInterviews}</p>
+                <p className="text-sm font-medium text-amber-700 uppercase tracking-wide">Pendientes</p>
+                <p className="text-3xl font-bold text-amber-800 mt-1">{pendingInterviews}</p>
               </div>
-              <Clock className="w-8 h-8 text-amber-400" />
+              <div className="p-3 bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl">
+                <Clock className="w-8 h-8 text-amber-600" />
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Assignments List */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-gray-900">Entrevistas Asignadas</CardTitle>
+      <Card className="border-0 shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-t-lg">
+          <CardTitle className="flex items-center gap-3 text-white text-xl">
+            <div className="p-2 bg-white/20 rounded-lg">
+              <FileText className="w-6 h-6" />
+            </div>
+            Entrevistas Asignadas
+          </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6">
           {assignments.length === 0 ? (
-            <div className="text-center py-8">
-              <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No hay entrevistas asignadas</h3>
-              <p className="text-gray-600">Este candidato aún no tiene entrevistas asignadas</p>
+            <div className="text-center py-12">
+              <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                <FileText className="w-10 h-10 text-gray-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">No hay entrevistas asignadas</h3>
+              <p className="text-gray-600 text-lg">Este candidato aún no tiene entrevistas asignadas</p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-6">
               {assignments.map((assignment) => {
                 const statusInfo = getStatusInfo(assignment.status)
                 const totalQuestions = assignment.interview?.questions?.length || 0
@@ -355,49 +396,59 @@ export default function CandidateDetailPage() {
                 const progressPercentage = totalQuestions > 0 ? (answeredQuestions / totalQuestions) * 100 : 0
 
                 return (
-                  <div key={assignment.id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                  <div key={assignment.id} className="bg-gradient-to-r from-white to-gray-50 border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:border-violet-200">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                          {assignment.interview?.name || 'Entrevista sin título'}
-                        </h3>
-                        <p className="text-gray-700 mb-3">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="text-xl font-bold text-gray-900">
+                            {assignment.interview?.name || 'Entrevista sin título'}
+                          </h3>
+                        </div>
+                        <p className="text-gray-600 mb-4 text-base leading-relaxed">
                           {assignment.interview?.description || 'Sin descripción'}
                         </p>
-                        <div className="flex items-center gap-4 text-sm text-gray-700">
-                          <span>Asignada: {formatDate(assignment.assigned_at)}</span>
-                          <span>•</span>
-                          <span>{totalQuestions} pregunta{totalQuestions !== 1 ? 's' : ''}</span>
-                          <span>•</span>
-                          <span>{answeredQuestions} respondida{answeredQuestions !== 1 ? 's' : ''}</span>
+                        <div className="flex flex-wrap items-center gap-6 text-sm">
+                          <div className="flex items-center gap-2 text-gray-600">
+                            <Calendar className="w-4 h-4 text-violet-500" />
+                            <span className="font-medium">Asignada:</span>
+                            <span>{formatDate(assignment.assigned_at)}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-gray-600">
+                            <FileText className="w-4 h-4 text-blue-500" />
+                            <span className="font-medium">{totalQuestions} pregunta{totalQuestions !== 1 ? 's' : ''}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-gray-600">
+                            <CheckCircle className="w-4 h-4 text-green-500" />
+                            <span className="font-medium">{answeredQuestions} respondida{answeredQuestions !== 1 ? 's' : ''}</span>
+                          </div>
                         </div>
                       </div>
                       
-                      <div className="flex items-center gap-3">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium border flex items-center gap-1 ${statusInfo.color}`}>
+                      <div className="flex items-center gap-3 ml-4">
+                        <span className={`px-4 py-2 rounded-xl text-sm font-semibold border-2 flex items-center gap-2 ${statusInfo.color} shadow-sm`}>
                           {statusInfo.icon}
                           {statusInfo.text}
                         </span>
                         <button
                           onClick={() => router.push(`/admin/interviews/${assignment.interview?.id}/results?assignmentId=${assignment.id}`)}
-                          className="p-2 text-violet-600 hover:text-violet-900 hover:bg-violet-50 rounded-lg transition-all"
+                          className="p-3 bg-gradient-to-br from-violet-500 to-purple-600 text-white hover:from-violet-600 hover:to-purple-700 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105"
                           title="Ver respuestas"
                         >
-                          <Eye className="w-4 h-4" />
+                          <Eye className="w-5 h-5" />
                         </button>
                       </div>
                     </div>
 
                     {/* Progress bar */}
                     {totalQuestions > 0 && (
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm text-gray-700">
-                          <span>Progreso de la entrevista</span>
-                          <span>{Math.round(progressPercentage)}%</span>
+                      <div className="bg-white rounded-lg p-4 border border-gray-100">
+                        <div className="flex justify-between items-center mb-3">
+                          <span className="text-sm font-semibold text-gray-700">Progreso de la entrevista</span>
+                          <span className="text-lg font-bold text-violet-600">{Math.round(progressPercentage)}%</span>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="w-full bg-gray-200 rounded-full h-3 shadow-inner">
                           <div 
-                            className="bg-gradient-to-r from-violet-500 to-purple-500 h-2 rounded-full transition-all duration-300"
+                            className="bg-gradient-to-r from-violet-500 via-purple-500 to-violet-600 h-3 rounded-full transition-all duration-500 shadow-sm"
                             style={{ width: `${progressPercentage}%` }}
                           />
                         </div>
