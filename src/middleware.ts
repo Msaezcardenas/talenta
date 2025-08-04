@@ -8,7 +8,6 @@ export async function middleware(request: NextRequest) {
   // TEMPORAL: Skip middleware para todas las rutas admin excepto login
   // Esto permite que la navegación funcione mientras solucionamos el problema de cookies
   if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
-    console.log(`[Middleware] SKIPPING auth check for ${pathname} - TEMPORAL`)
     return NextResponse.next()
   }
   
@@ -17,7 +16,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  console.log(`[Middleware] Processing: ${pathname}`)
+
 
   // Para la página de login, permitir siempre
   if (pathname === '/admin/login') {
